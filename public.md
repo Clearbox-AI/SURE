@@ -12,22 +12,22 @@ Last Update: 2024-02-06
 ``SURE (Synthetic Data: Utility, Regulatory compliance, and Ethical privacy) is spearheaded by Clearbox AI, aimed at addressing AI's privacy challenges by developing an open-source library for auditing  and improving the privacy and utility of synthetic data. SURE targets the financial and healthcare sectors, providing them with tools to manage data privacy without compromising on utility. Its user-friendly interface allows even those with minimal AI knowledge to evaluate and test anonymized and synthetic datasets, thereby democratizing secure and privacy-preserving data solutions. As AI's role in the economy expands, SURE’s contribution towards a privacy-centric, open-source synthetic data library is crucial for responsible AI adoption across various industries``
 
 ### Generic use case description
-``Generic use case description (50-100 words)``
+``The usecases will cover industries like banking, finance, and industry 4.0 and will target data science team who build and integrate data products in their AI pipelines. The objective is to enables users to evaluate synthetic datasets' privacy and utility, providing a tool for individuals with limited AI knowledge to test and preserve privacy without sacrificing data utility.`` 
 
 ### Essential functionalities
-``Essential functionalities (50-200 words)``
+``Open source library with: User-Centric Privacy and Utility Controls and Insights. This includes Compliance, Auditing, and Transparency features.``
 
 ### How these functionalities can be integrated within the software ecosystem
-``How these functionalities can be integrated...  (50-100 words)``
+``Through its Python SDK and dockerized format, SURE's library ensures interoperability, easy integration into various infrastructures, and supports transparent data governance in line with TRUSTCHAIN’s objectives.``
 
 ### Gap being addressed
-``Gap being addressed (50-100 words)``
+``Through its Python SDK and dockerized format, SURE's library ensures interoperability, easy integration into various infrastructures, and supports transparent data governance in line with TRUSTCHAIN’s objectives.``
 
 ### Expected benefits achieved with the novel technology building blocks
-``Expected benefits (100-200 words)``
+``By enabling privacy-preserving data utility, SURE democratizes access to secure data solutions, supporting responsible AI adoption across sectors and enhancing TRUSTCHAIN’s data privacy goals.``
 
 ### Potential demonstration scenario
-``Potential demonstration scenario (50-100 words)``
+``Focus groups with fintech, financial organizations, industry 4.0 and if feasible, healthcare providers to validate SURE's library, showcasing its adaptability and effectiveness in ensuring data privacy and utility in AI applications.``
 
 ## PROJECT OUTCOMES
 ``Project outcomes (50-200 words)``
