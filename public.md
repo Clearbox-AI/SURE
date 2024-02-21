@@ -2,14 +2,14 @@
 Last Update: 2024-02-06
 ---
 
-# [PROJECT] - Title
+# SURE - Synthetic Data for Utility, Regulatory Compliance, and Ethical Privacy
 
 ## ABOUT THE PROJECT
-### [Project] - Title
-``About the project (200-300 words)``
+### SURE - Synthetic Data for Utility, Regulatory Compliance, and Ethical Privacy
+``SURE (Synthetic Data: Utility, Regulatory compliance, and Ethical privacy) is spearheaded by Clearbox AI, aimed at addressing AI's privacy challenges by developing an open-source library for auditing  and improving the privacy and utility of synthetic data. SURE targets the financial and healthcare sectors, providing them with tools to manage data privacy without compromising on utility. Its user-friendly interface allows even those with minimal AI knowledge to evaluate and test anonymized and synthetic datasets, thereby democratizing secure and privacy-preserving data solutions. As AI's role in the economy expands, SURE’s contribution towards a privacy-centric, open-source synthetic data library is crucial for responsible AI adoption across various industries.``
 
 ### Motivation for the project
-``Motivation for the project (50-100 words)``
+``SURE (Synthetic Data: Utility, Regulatory compliance, and Ethical privacy) is spearheaded by Clearbox AI, aimed at addressing AI's privacy challenges by developing an open-source library for auditing  and improving the privacy and utility of synthetic data. SURE targets the financial and healthcare sectors, providing them with tools to manage data privacy without compromising on utility. Its user-friendly interface allows even those with minimal AI knowledge to evaluate and test anonymized and synthetic datasets, thereby democratizing secure and privacy-preserving data solutions. As AI's role in the economy expands, SURE’s contribution towards a privacy-centric, open-source synthetic data library is crucial for responsible AI adoption across various industries``
 
 ### Generic use case description
 ``Generic use case description (50-100 words)``
