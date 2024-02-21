@@ -21,7 +21,7 @@ Last Update: 2024-02-06
 ``Through its Python SDK and dockerized format, SURE's library ensures interoperability, easy integration into various infrastructures, and supports transparent data governance in line with TRUSTCHAIN’s objectives.``
 
 ### Gap being addressed
-``Through its Python SDK and dockerized format, SURE's library ensures interoperability, easy integration into various infrastructures, and supports transparent data governance in line with TRUSTCHAIN’s objectives.``
+``The privacy-utility conundrum in AI model training, where existing anonymization techniques compromise either privacy or data utility, necessitating a balanced approach through PETs and synthetic data.``
 
 ### Expected benefits achieved with the novel technology building blocks
 ``By enabling privacy-preserving data utility, SURE democratizes access to secure data solutions, supporting responsible AI adoption across sectors and enhancing TRUSTCHAIN’s data privacy goals.``
