@@ -1,0 +1,4 @@
+polars
+numpy<2.0.0
+cython
+wheel
