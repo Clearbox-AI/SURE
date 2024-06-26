@@ -12,6 +12,13 @@ from typing import Dict, List, Tuple
 pyximport.install(setup_args={"include_dirs": np.get_include()})
 from sure.distance_metrics.gower_matrix_c import gower_matrix_c
 
+def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
+    if isinstance(dataframe, pl.DataFrame):
+        dataframe_pd = dataframe.to_pandas()
+    if isinstance(dataframe, pl.LazyFrame):
+        dataframe_pd = dataframe.collect().to_pandas()
+    return dataframe_pd
+
 def _gower_matrix(
                 X_categorical: np.ndarray,
                 X_numerical: np.ndarray,
@@ -67,9 +74,9 @@ def _gower_matrix(
 
 def distance_to_closest_record(
                         x_dataframe: pd.DataFrame | pl.DataFrame | pl.LazyFrame,
-                        categorical_features: List | Tuple,
+                        categorical_features: np.ndarray | List | Tuple,
                         y_dataframe: pd.DataFrame | pl.DataFrame | pl.LazyFrame = None,
-                        feature_weights: List = None,
+                        feature_weights: np.ndarray | List = None,
                         parallel: bool = True,
                     ) -> np.ndarray:
     """
@@ -110,26 +117,22 @@ def distance_to_closest_record(
     TypeError
         If X and Y don't have the same (number of) columns.
     """
-        # Converting X Dataset in to pd.DataFrame
-    if isinstance(x_dataframe, pl.DataFrame):
-            x_dataframe = x_dataframe.to_pandas()
-    if isinstance(x_dataframe, pl.LazyFrame):
-            x_dataframe = x_dataframe.collect().to_pandas()
+    # Converting X Dataset in to pd.DataFrame
+    X = _polars_to_pandas(x_dataframe)
+    
+    # Convert any temporal features to int
+    temporal_columns = X.select_dtypes(include=['datetime']).columns
+    X[temporal_columns] = X[temporal_columns].astype('int64')
 
-
-    X = x_dataframe
     # se c'è un secondo dataframe le distanze vengono calcolate con esso, altrimente X con sè stesso
     if y_dataframe is None:
-        Y = x_dataframe
+        Y = X
         fill_diagonal = True
     else:
         # Converting X Dataset in to pd.DataFrame
-        if isinstance(y_dataframe, pl.LazyFrame):
-            y_dataframe = y_dataframe.collect().to_pandas()
-        if isinstance(y_dataframe, pl.DataFrame):
-            y_dataframe = y_dataframe.to_pandas()
-        Y = y_dataframe
+        Y = _polars_to_pandas(y_dataframe)
         fill_diagonal = False
+        Y[temporal_columns] = Y[temporal_columns].astype('int64')
 
     if not isinstance(X, np.ndarray):
         if not np.array_equal(X.columns, Y.columns):
@@ -138,16 +141,14 @@ def distance_to_closest_record(
         if not X.shape[1] == Y.shape[1]:
             raise TypeError("X and Y arrays have different number of columns.")
 
-    categorical_features = np.array(categorical_features)
+    if not isinstance(categorical_features, np.ndarray):
+        categorical_features = np.array(categorical_features)
 
     # Entrambi i dataframe vengono trasformati in array/matrice numpy
     if not isinstance(X, np.ndarray):
         X = np.asarray(X)
     if not isinstance(Y, np.ndarray):
         Y = np.asarray(Y)
-    
-    print(X.shape[1])
-    print(type(X.shape[1]))
 
     if feature_weights is None:
         # se non ho passato pesi specifici, tutti i pesi sono 1
