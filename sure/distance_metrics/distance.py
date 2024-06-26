@@ -7,7 +7,9 @@ import pandas as pd
 import polars as pl
 import polars.selectors as cs
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
+int_type    = Union[int, np.int8, np.uint8, np.int16, np.uint16, np.int32, np.uint32, np.int64, np.uint64]
+float_type  = Union[float, np.float16, np.float32, np.float64]
 
 pyximport.install(setup_args={"include_dirs": np.get_include()})
 from sure.distance_metrics.gower_matrix_c import gower_matrix_c
@@ -222,3 +224,163 @@ def distance_to_closest_record(
             weight_sum,
             fill_diagonal,
         )
+    
+def dcr_stats(distances_to_closest_record: np.ndarray) -> Dict:
+    """
+    Return distribution stats for an array containing DCR computed previously.
+
+    Parameters
+    ----------
+    distances_to_closest_record : np.ndarray
+        A 1D-array containing the Distance to the Closest Record for each row of a dataframe
+        shape (dataframe rows, )
+
+    Returns
+    -------
+    Dict
+        A dictionary containing mean and percentiles of the given DCR array.
+    """
+    dcr_mean = np.mean(distances_to_closest_record)
+    dcr_percentiles = np.percentile(distances_to_closest_record, [0, 25, 50, 75, 100])
+    return {
+        "mean": dcr_mean.item(),
+        "min": dcr_percentiles[0].item(),
+        "25%": dcr_percentiles[1].item(),
+        "median": dcr_percentiles[2].item(),
+        "75%": dcr_percentiles[3].item(),
+        "max": dcr_percentiles[4].item(),
+    }
+
+def number_of_dcr_equals_to_zero(distances_to_closest_record: np.ndarray) -> int_type:
+    """
+    Return the number of 0s in the given DCR array, that is the number of duplicates/clones detected.
+
+    Parameters
+    ----------
+    distances_to_closest_record : np.ndarray
+        A 1D-array containing the Distance to the Closest Record for each row of a dataframe
+        shape (dataframe rows, )
+
+    Returns
+    -------
+    int
+        The number of 0s in the given DCR array.
+    """
+    zero_values_mask = distances_to_closest_record == 0.0
+    return zero_values_mask.sum()
+
+def dcr_histogram(
+            distances_to_closest_record: np.ndarray, 
+            bins: int = 20, 
+            scale_to_100: bool = True
+        ) -> Dict:
+    """
+    Compute the histogram of a DCR array: the DCR values equal to 0 are extracted before the
+    histogram computation so that the first bar represent only the 0 (duplicates/clones)
+    and the following bars represent the standard bins (with edge) of an histogram.
+
+    Parameters
+    ----------
+    distances_to_closest_record : np.ndarray
+        A 1D-array containing the Distance to the Closest Record for each row of a dataframe
+        shape (dataframe rows, )
+    bins : int, optional
+        _description_, by default 20
+    scale_to_100 : bool, optional
+        Wheter to scale the histogram bins between 0 and 100 (instead of 0 and 1), by default True
+
+    Returns
+    -------
+    Dict
+        A dict containing the following items:
+            * bins, histogram bins detected as string labels.
+              The first bin/label is 0 (duplicates/clones), then the format is [inf_edge, sup_edge).
+            * count, histogram values for each bin in bins
+            * bins_edge_without_zero, the bin edges as returned by the np.histogram function without 0.
+    """
+    range_bins_with_zero = ["0.0"]
+    number_of_dcr_zeros = number_of_dcr_equals_to_zero(distances_to_closest_record)
+    dcr_non_zeros = distances_to_closest_record[distances_to_closest_record > 0]
+    counts_without_zero, bins_without_zero = np.histogram(
+        dcr_non_zeros, bins=bins, range=(0.0, 1.0), density=False
+    )
+    if scale_to_100:
+        scaled_bins_without_zero = bins_without_zero * 100
+    else:
+        scaled_bins_without_zero = bins_without_zero
+
+    range_bins_with_zero.append("(0.0-{:.2f})".format(scaled_bins_without_zero[1]))
+    for i, left_edge in enumerate(scaled_bins_without_zero[1:-2]):
+        range_bins_with_zero.append(
+            "[{:.2f}-{:.2f})".format(left_edge, scaled_bins_without_zero[i + 2])
+        )
+    range_bins_with_zero.append(
+        "[{:.2f}-{:.2f}]".format(
+            scaled_bins_without_zero[-2], scaled_bins_without_zero[-1]
+        )
+    )
+
+    counts_with_zero = np.insert(counts_without_zero, 0, number_of_dcr_zeros)
+
+    return {
+        "bins": range_bins_with_zero,
+        "counts": counts_with_zero.tolist(),
+        "bins_edge_without_zero": bins_without_zero.tolist(),
+    }
+
+def validation_dcr_test(
+                dcr_synth_train: np.ndarray, dcr_synth_validation: np.ndarray
+            ) -> float_type:
+    """
+    - If the returned percentage is close to (or smaller than) 50%, then the synthetic datset's records are equally close to the original training set and to the validation set.
+      In this casse the synthetic data does not allow to conjecture whether a record was or was not contained in the training dataset.
+    - If the returned percentage is greater than 50%, then the synthetic datset's records are closer to the training set than to the validation set, indicating 
+      that vulnerable records are present in the synthetic dataset.
+
+    Parameters
+    ----------
+    dcr_synth_train : np.ndarray
+        A 1D-array containing the Distance to the Closest Record for each row of the synthetic
+        dataset wrt the training dataset, shape (synthetic rows, )
+    dcr_synth_validation : np.ndarray
+        A 1D-array containing the Distance to the Closest Record for each row of the synthetic
+        dataset wrt the validation dataset, shape (synthetic rows, )
+
+    Returns
+    -------
+    float
+        The percentage of synthetic rows closer to the training dataset than to the validation dataset.
+
+    Raises
+    ------
+    ValueError
+        If the two DCR array given as parameters have different shapes.
+    """
+    if dcr_synth_train.shape != dcr_synth_validation.shape:
+        raise ValueError("Dcr arrays have different shapes.")
+
+    warnings = ""
+    percentage = 0.0
+
+    if dcr_synth_train.sum() == 0:
+        percentage = 100.0
+        warnings = (
+            "The synthetic dataset is an exact copy/clone of the training dataset."
+        )
+    elif (dcr_synth_train == dcr_synth_validation).all():
+        percentage = 0.0
+        warnings = (
+            "The validation dataset is an exact copy/clone of the training dataset."
+        )
+    else:
+        if dcr_synth_validation.sum() == 0:
+            warnings = "The synthetic dataset is an exact copy/clone of the validation dataset."
+
+        number_of_rows = dcr_synth_train.shape[0]
+        synth_dcr_smaller_than_holdout_dcr_mask = dcr_synth_train < dcr_synth_validation
+        synth_dcr_smaller_than_holdout_dcr_sum = (
+            synth_dcr_smaller_than_holdout_dcr_mask.sum()
+        )
+        percentage = synth_dcr_smaller_than_holdout_dcr_sum / number_of_rows * 100
+
+    return {"percentage": percentage, "warnings": warnings}
