@@ -5,11 +5,26 @@ import polars as pl
 from typing import Dict, List, Tuple
 
 from sklearn.metrics import precision_score
-from distance_metrics import distances_to_closest_record
+# from sure.distance_metrics import * # not working
+from sure import distance_to_closest_record
+
+def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
+    if isinstance(dataframe, pl.DataFrame):
+        dataframe = dataframe.to_pandas()
+    if isinstance(dataframe, pl.LazyFrame):
+        dataframe = dataframe.collect().to_pandas()
+    return dataframe
+
+def _pl_pd_to_numpy(dataframe: pl.DataFrame | pl.LazyFrame | pl.Series | pd.DataFrame):
+    if isinstance(dataframe, (pl.DataFrame, pl.Series, pd.DataFrame)):
+        dataframe = dataframe.to_numpy()
+    if isinstance(dataframe, pl.LazyFrame):
+        dataframe = dataframe.collect().to_numpy()
+    return dataframe
 
 def adversary_dataset(
-    training_set: pd.DataFrame,
-    validation_set: pd.DataFrame,
+    training_set: pd.DataFrame | pl.DataFrame | pl.LazyFrame,
+    validation_set: pd.DataFrame | pl.DataFrame | pl.LazyFrame,
     original_dataset_sample_fraction: float = 0.2,
 ) -> pd.DataFrame:
     """
@@ -38,6 +53,9 @@ def adversary_dataset(
         A new pandas DataFrame in which half of the rows come from the training set and
         the other half come from the validation set.
     """
+    training_set = _polars_to_pandas(training_set)
+    validation_set = _polars_to_pandas(validation_set)
+    
     sample_number_of_rows = (
         training_set.shape[0] + validation_set.shape[0]
     ) * original_dataset_sample_fraction
@@ -64,19 +82,26 @@ def adversary_dataset(
     return adversary_dataset
 
 def membership_inference_test(
-    processed_adversary_dataset: pd.DataFrame,
-    processed_synthetic_dataset: pd.DataFrame,
-    categorical_features: List,
-    adversary_guesses_ground_truth: np.ndarray,
+    processed_adversary_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
+    processed_synthetic_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
+    categorical_features: np.ndarray | List | Tuple,
+    adversary_guesses_ground_truth: np.ndarray | pd.DataFrame | pl.DataFrame | pl.LazyFrame | pl.Series,
     parallel: bool = True,
 ):
+    ''' Simulate a Membership Inference Attack on the synthetic dataset provided, given an adversary dataset
+    '''
+    processed_adversary_dataset     = _polars_to_pandas(processed_adversary_dataset)
+    processed_synthetic_dataset     = _polars_to_pandas(processed_synthetic_dataset)
+    adversary_guesses_ground_truth  = _pl_pd_to_numpy(adversary_guesses_ground_truth)
 
-    dcr_adversary_synth = distances_to_closest_record(
-        processed_adversary_dataset,
-        categorical_features,
-        processed_synthetic_dataset,
-        parallel=parallel,
-    )
+    processed_synthetic_dataset["privacy_test_is_training"] = False # Assign all False values to the column "privacy_test_is_training" in the SD
+    dcr_adversary_synth = distance_to_closest_record(
+                                                processed_adversary_dataset,
+                                                categorical_features,
+                                                processed_synthetic_dataset,
+                                                parallel=parallel,
+                                            )
+
     adversary_precisions = []
     distance_thresholds = np.quantile(
         dcr_adversary_synth, [0.5, 0.25, 0.2, np.min(dcr_adversary_synth) + 0.01]

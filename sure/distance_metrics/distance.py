@@ -16,10 +16,10 @@ from sure.distance_metrics.gower_matrix_c import gower_matrix_c
 
 def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
     if isinstance(dataframe, pl.DataFrame):
-        dataframe_pd = dataframe.to_pandas()
+        dataframe = dataframe.to_pandas()
     if isinstance(dataframe, pl.LazyFrame):
-        dataframe_pd = dataframe.collect().to_pandas()
-    return dataframe_pd
+        dataframe = dataframe.collect().to_pandas()
+    return dataframe
 
 def _gower_matrix(
                 X_categorical: np.ndarray,
