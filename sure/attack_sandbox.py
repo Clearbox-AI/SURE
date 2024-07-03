@@ -84,7 +84,7 @@ def adversary_dataset(
 def membership_inference_test(
     processed_adversary_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
     processed_synthetic_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
-    categorical_features: np.ndarray | List | Tuple,
+    # categorical_features: np.ndarray | List | Tuple,
     adversary_guesses_ground_truth: np.ndarray | pd.DataFrame | pl.DataFrame | pl.LazyFrame | pl.Series,
     parallel: bool = True,
 ):
@@ -94,7 +94,12 @@ def membership_inference_test(
     processed_synthetic_dataset     = _polars_to_pandas(processed_synthetic_dataset)
     adversary_guesses_ground_truth  = _pl_pd_to_numpy(adversary_guesses_ground_truth)
 
-    processed_synthetic_dataset["privacy_test_is_training"] = False # Assign all False values to the column "privacy_test_is_training" in the SD
+    # processed_synthetic_dataset["privacy_test_is_training"] = False # Assign all False values to the column "privacy_test_is_training" in the SD
+    processed_adversary_dataset=processed_adversary_dataset.drop(["privacy_test_is_training"],axis=1)
+
+    # Get categorical features
+    categorical_features = np.array(processed_adversary_dataset.dtypes)==pl.Utf8
+
     dcr_adversary_synth = distance_to_closest_record(
                                                 processed_adversary_dataset,
                                                 categorical_features,

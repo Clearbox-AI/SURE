@@ -329,7 +329,8 @@ def dcr_histogram(
     }
 
 def validation_dcr_test(
-                dcr_synth_train: np.ndarray, dcr_synth_validation: np.ndarray
+                dcr_synth_train: np.ndarray, 
+                dcr_synth_validation: np.ndarray
             ) -> float_type:
     """
     - If the returned percentage is close to (or smaller than) 50%, then the synthetic datset's records are equally close to the original training set and to the validation set.
@@ -383,4 +384,4 @@ def validation_dcr_test(
         )
         percentage = synth_dcr_smaller_than_holdout_dcr_sum / number_of_rows * 100
 
-    return {"percentage": percentage, "warnings": warnings}
+    return {"percentage": round(percentage,4), "warnings": warnings}
