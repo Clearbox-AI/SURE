@@ -11,7 +11,7 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                    custom_metric: Callable       = None, 
                                    classifiers:   List[Callable] = "all",
                                    predictions:   bool = False
-                                   ):
+                                 ): 
     from metrics_modules.model_garden import ClassificationSandbox
 
     classifier = ClassificationSandbox(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
@@ -25,7 +25,7 @@ def compute_utility_metrics_regr( X_train:        pl.DataFrame | pl.LazyFrame | 
                                   custom_metric:  Callable       = None, 
                                   regressors:     List[Callable] = "all",
                                   predictions:    bool = False
-                                  ):
+                                ):
     from metrics_modules.model_garden import RegressionSandbox
 
     regressor = RegressionSandbox(predictions=predictions, classifiers=regressors, custom_metric=custom_metric)

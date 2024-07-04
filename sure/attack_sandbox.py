@@ -94,7 +94,6 @@ def membership_inference_test(
     processed_synthetic_dataset     = _polars_to_pandas(processed_synthetic_dataset)
     adversary_guesses_ground_truth  = _pl_pd_to_numpy(adversary_guesses_ground_truth)
 
-    # processed_synthetic_dataset["privacy_test_is_training"] = False # Assign all False values to the column "privacy_test_is_training" in the SD
     processed_adversary_dataset=processed_adversary_dataset.drop(["privacy_test_is_training"],axis=1)
 
     # Get categorical features

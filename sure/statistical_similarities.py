@@ -2,10 +2,12 @@ import numpy  as np
 import pandas as pd
 import polars as pl
 import polars.selectors as cs
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 
-def _value_count(data, features) -> Dict:
-        ''' This function returns the unique values count and frequency for each fearue in a Polars DataFrame
+def _value_count(data: pl.DataFrame, 
+                 features: List
+                ) -> Dict:
+        ''' This function returns the unique values count and frequency for each feature in a Polars DataFrame
         '''
         values = dict()
         for feature in data.select(pl.col(features)).columns:
@@ -22,7 +24,9 @@ def _value_count(data, features) -> Dict:
 
         return values
 
-def _most_frequent_values(data, features) -> Dict:
+def _most_frequent_values(data: pl.DataFrame,
+                          features: List
+                         ) -> Dict:
     ''' This function returns the most frequent value for each feature of the Polars DataFrame
     '''
     most_frequent_dict = dict()
@@ -40,13 +44,17 @@ def _most_frequent_values(data, features) -> Dict:
 
 def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
                                 synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray) -> Tuple[Dict, Dict, Dict]:
-    ''' This function retrieves statistical properties of the features of the Real Dataset and the Synthetic Dataset.
-        The metrics are different depending on the type of feature:
-        - numerical
-        - categorical
-        - temporal
-
-        Boolen features are converted to numerical
+    ''' This function computes statistical metrics for numerical, categorical, and temporal features 
+        in both real and synthetic datasets.
+        
+        Parameters:
+        - real_data: The real dataset, can be in the form of Polars DataFrame, LazyFrame, pandas DataFrame, or numpy ndarray.
+        - synth_data: The synthetic dataset, in the same format as real_data.
+        
+        Returns:
+        - num_features_comparison: Dictionary containing statistical metrics for numerical features.
+        - cat_features_comparison: Dictionary containing statistical metrics for categorical features.
+        - time_features_comparison: Dictionary containing statistical metrics for temporal features.
     '''
     num_features_comparison  = None
     cat_features_comparison  = None
@@ -78,7 +86,6 @@ def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.Dat
     num_features        = cs.expand_selector(real_data, cs.numeric())
     time_features       = cs.expand_selector(real_data, cs.temporal())
 
-    
     # Numerical features
     if len(num_features) != 0:
         num_features_comparison = dict()
@@ -128,7 +135,18 @@ def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.Dat
 
 def compute_mutual_info(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
                         synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray):
-    ''' This function returns the correlation matrix of each dataset and the difference between the two correlation matrices
+    ''' This function computes the correlation matrix for both the real and synthetic datasets,
+        and calculates the difference between these matrices.
+        
+        Parameters:
+        - real_data: The real dataset, can be in the form of Polars DataFrame, LazyFrame, pandas DataFrame, or numpy ndarray.
+        - synth_data: The synthetic dataset, in the same format as real_data.
+        
+        Returns:
+        - real_corr: Correlation matrix of the real dataset with column names included.
+        - synth_corr: Correlation matrix of the synthetic dataset with column names included.
+        - diff_corr: Difference between the correlation matrices of real and synthetic datasets,
+                        with values smaller than 1e-5 substituted with 0.
     '''
     # Converting Real and Synthetic Dataset into pl.DataFrame
     if isinstance(real_data, pd.DataFrame):
