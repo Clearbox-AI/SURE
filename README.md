@@ -1,5 +1,5 @@
 # SURE 
-**Synthetic Data: Utility, Regulatory compliance, and Ethical privacy**
+### Synthetic Data: Utility, Regulatory compliance, and Ethical privacy
 
 The SURE package is an open-source Python library intended to be used for the assessment of the utility and privacy performance of any tabular synthetic dataset.
 
@@ -45,7 +45,7 @@ Eventually, the report generator provides a summary of the utility and privacy m
 
 This following diagram serves as a visual representation of how each module contributes to the utility-privacy assessment process and highlights the seamless interconnection and synergy between individual blocks.
 
-![SURE library workflow.](images/sure_workflow.png)
+<img src="images/sure_workflow.png" alt="drawing" width="600"/>
 
 SURE library workflow.
 
