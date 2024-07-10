@@ -73,7 +73,7 @@ def _save_to_json(data_name, new_data):
     with open("data.json", 'w') as file:
         json.dump(data, file, indent=4)
 
-def _load_from_json(data_name):
+def _load_from_json(data_name:str = None):
     ''' This function loads data from a JSON file "data.json" in the folder where the user is working
     '''
     # Check if the file exists
@@ -87,12 +87,15 @@ def _load_from_json(data_name):
         except json.JSONDecodeError:
             raise ValueError("The data.json file is empty or invalid.")
 
-    # Extract the relevant data
-    new_data = data.get(data_name, None)
-    if new_data is None:
-        raise ValueError(f"No data found for the key: {data_name}")
+    if data_name:
+        # Extract the relevant data
+        if data_name not in data:
+            raise KeyError(f"Key '{data_name}' not found in dictionary.")
+        data = data.get(data_name, None)
+        # if new_data is None:
+        #     raise ValueError(f"No data found for the key: {data_name}")
     
-    return new_data
+    return data
 
 def _convert_to_dataframe(obj):
     ''' Convert nested dictionaries back to DataFrames
