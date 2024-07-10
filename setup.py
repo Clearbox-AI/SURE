@@ -20,6 +20,9 @@ EXCLUDE_FILES = [
     "sure/model_garden.py",
     "sure/statistical_similarities.py",    
     "sure/utility.py",    
+    "sure/report_generator/report_generator.py",
+    "sure/report_generator/report.py",
+    "sure/report_generator/__init__.py"
 ]
 
 def get_extensions_paths(root_dir, exclude_files):
@@ -91,7 +94,10 @@ class CustomBuild(build_ext):
             "sure/attack_sandbox.py",
             "sure/model_garden.py",
             "sure/statistical_similarities.py",
-            "sure/utility.py"
+            "sure/utility.py",    
+            "sure/report_generator/report_generator.py",
+            "sure/report_generator/report.py",
+            "sure/report_generator/__init__.py"
         ]
 
         for file in files_to_copy:
@@ -142,4 +148,5 @@ setup(
 
     # List of packages included in the distribution
     packages=find_packages(),  # Include all packages in the distribution
+    include_package_data=True,
 )

@@ -5,8 +5,9 @@ import polars as pl
 from typing import Dict, List, Tuple
 
 from sklearn.metrics import precision_score
-# from sure.distance_metrics import * # not working
+
 from sure import distance_to_closest_record
+from sure import _save_to_json
 
 def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
     if isinstance(dataframe, pl.DataFrame):
@@ -99,11 +100,12 @@ def membership_inference_test(
     # Get categorical features
     categorical_features = np.array(processed_adversary_dataset.dtypes)==pl.Utf8
 
-    dcr_adversary_synth = distance_to_closest_record(
+    dcr_adversary_synth = distance_to_closest_record("other",
                                                 processed_adversary_dataset,
                                                 categorical_features,
                                                 processed_synthetic_dataset,
                                                 parallel=parallel,
+                                                save_output=False
                                             )
 
     adversary_precisions = []
@@ -121,8 +123,11 @@ def membership_inference_test(
         (adversary_precision_mean - 0.5) * 2, 0.0
     )
 
-    return {
+    attack_output = {
         "adversary_distance_thresholds": distance_thresholds.tolist(),
         "adversary_precisions": adversary_precisions,
         "membership_inference_mean_risk_score": membership_inference_mean_risk_score,
     }
+
+    _save_to_json("MIA_attack", attack_output)
+    return attack_output

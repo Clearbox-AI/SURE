@@ -11,6 +11,8 @@ from typing import Dict, List, Tuple, Union
 int_type    = Union[int, np.int8, np.uint8, np.int16, np.uint16, np.int32, np.uint32, np.int64, np.uint64]
 float_type  = Union[float, np.float16, np.float32, np.float64]
 
+from ..report_generator.report_generator import _save_to_json
+
 pyximport.install(setup_args={"include_dirs": np.get_include()})
 from sure.distance_metrics.gower_matrix_c import gower_matrix_c
 
@@ -75,11 +77,13 @@ def _gower_matrix(
     )
 
 def distance_to_closest_record(
+                        dcr_name: str,
                         x_dataframe: pd.DataFrame | pl.DataFrame | pl.LazyFrame,
                         categorical_features: np.ndarray | List | Tuple,
                         y_dataframe: pd.DataFrame | pl.DataFrame | pl.LazyFrame = None,
                         feature_weights: np.ndarray | List = None,
                         parallel: bool = True,
+                        save_output: bool = True
                     ) -> np.ndarray:
     """
     Compute distance matrix between two dataframes containing mixed datatypes
@@ -119,6 +123,9 @@ def distance_to_closest_record(
     TypeError
         If X and Y don't have the same (number of) columns.
     """
+    if dcr_name != "synth_train" and dcr_name != "synth_val" and dcr_name != "other":
+        raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
+
     # Converting X Dataset in to pd.DataFrame
     X = _polars_to_pandas(x_dataframe)
     
@@ -213,19 +220,22 @@ def distance_to_closest_record(
                 )
                 result_objs.append(result)
             results = [result.get() for result in result_objs]
-        return np.concatenate(results)
+        dcr = np.concatenate(results)
     else:
-        return _gower_matrix(
-            X_categorical,
-            X_numerical,
-            Y_categorical,
-            Y_numerical,
-            numericals_ranges,
-            weight_sum,
-            fill_diagonal,
-        )
+        dcr = _gower_matrix(
+                    X_categorical,
+                    X_numerical,
+                    Y_categorical,
+                    Y_numerical,
+                    numericals_ranges,
+                    weight_sum,
+                    fill_diagonal,
+                )
+    if save_output:
+        _save_to_json("dcr_"+dcr_name, dcr)
+    return dcr
     
-def dcr_stats(distances_to_closest_record: np.ndarray) -> Dict:
+def dcr_stats(dcr_name: str, distances_to_closest_record: np.ndarray) -> Dict:
     """
     Return distribution stats for an array containing DCR computed previously.
 
@@ -240,9 +250,12 @@ def dcr_stats(distances_to_closest_record: np.ndarray) -> Dict:
     Dict
         A dictionary containing mean and percentiles of the given DCR array.
     """
+    if dcr_name != "synth_train" and dcr_name != "synth_val" and dcr_name != "other":
+        raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
+
     dcr_mean = np.mean(distances_to_closest_record)
     dcr_percentiles = np.percentile(distances_to_closest_record, [0, 25, 50, 75, 100])
-    return {
+    dcr_stats = {
         "mean": dcr_mean.item(),
         "min": dcr_percentiles[0].item(),
         "25%": dcr_percentiles[1].item(),
@@ -250,8 +263,10 @@ def dcr_stats(distances_to_closest_record: np.ndarray) -> Dict:
         "75%": dcr_percentiles[3].item(),
         "max": dcr_percentiles[4].item(),
     }
+    _save_to_json("dcr_"+dcr_name+"_stats", dcr_stats)
+    return dcr_stats
 
-def number_of_dcr_equals_to_zero(distances_to_closest_record: np.ndarray) -> int_type:
+def number_of_dcr_equals_to_zero(dcr_name: str, distances_to_closest_record: np.ndarray) -> int_type:
     """
     Return the number of 0s in the given DCR array, that is the number of duplicates/clones detected.
 
@@ -266,10 +281,15 @@ def number_of_dcr_equals_to_zero(distances_to_closest_record: np.ndarray) -> int
     int
         The number of 0s in the given DCR array.
     """
+    if dcr_name != "synth_train" and dcr_name != "synth_val" and dcr_name != "other":
+        raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
+
     zero_values_mask = distances_to_closest_record == 0.0
+    _save_to_json("dcr_"+dcr_name+"_num_of_zeros", zero_values_mask.sum())
     return zero_values_mask.sum()
 
 def dcr_histogram(
+            dcr_name: str,
             distances_to_closest_record: np.ndarray, 
             bins: int = 20, 
             scale_to_100: bool = True
@@ -298,8 +318,11 @@ def dcr_histogram(
             * count, histogram values for each bin in bins
             * bins_edge_without_zero, the bin edges as returned by the np.histogram function without 0.
     """
+    if dcr_name != "synth_train" and dcr_name != "synth_val" and dcr_name != "other":
+        raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
+
     range_bins_with_zero = ["0.0"]
-    number_of_dcr_zeros = number_of_dcr_equals_to_zero(distances_to_closest_record)
+    number_of_dcr_zeros = number_of_dcr_equals_to_zero(dcr_name, distances_to_closest_record)
     dcr_non_zeros = distances_to_closest_record[distances_to_closest_record > 0]
     counts_without_zero, bins_without_zero = np.histogram(
         dcr_non_zeros, bins=bins, range=(0.0, 1.0), density=False
@@ -322,11 +345,14 @@ def dcr_histogram(
 
     counts_with_zero = np.insert(counts_without_zero, 0, number_of_dcr_zeros)
 
-    return {
+    dcr_hist = {
         "bins": range_bins_with_zero,
         "counts": counts_with_zero.tolist(),
         "bins_edge_without_zero": bins_without_zero.tolist(),
     }
+    
+    _save_to_json("dcr_"+dcr_name+"_hist", dcr_hist)
+    return dcr_hist
 
 def validation_dcr_test(
                 dcr_synth_train: np.ndarray, 
@@ -383,5 +409,7 @@ def validation_dcr_test(
             synth_dcr_smaller_than_holdout_dcr_mask.sum()
         )
         percentage = synth_dcr_smaller_than_holdout_dcr_sum / number_of_rows * 100
-
-    return {"percentage": round(percentage,4), "warnings": warnings}
+    
+    dcr_validation = {"percentage": round(percentage,4), "warnings": warnings}
+    _save_to_json("dcr_validation", dcr_validation)
+    return dcr_validation

@@ -4,6 +4,8 @@ import polars as pl
 import polars.selectors as cs
 from typing import Dict, Tuple, List
 
+from sure import _save_to_json
+
 def _value_count(data: pl.DataFrame, 
                  features: List
                 ) -> Dict:
@@ -130,7 +132,11 @@ def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.Dat
                                                             "synthetic" : synth_data.select(pl.max(time_features))}
         time_features_comparison["most_frequent"]       = { "real"      : _most_frequent_values(real_data, time_features),
                                                             "synthetic" : _most_frequent_values(synth_data, time_features)}
-        
+
+    _save_to_json("num_features_comparison", num_features_comparison)
+    _save_to_json("cat_features_comparison", cat_features_comparison)
+    _save_to_json("time_features_comparison", time_features_comparison)
+
     return num_features_comparison, cat_features_comparison, time_features_comparison
 
 def compute_mutual_info(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
@@ -193,5 +199,9 @@ def compute_mutual_info(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame |
     real_corr  = real_corr.insert_column(0, pl.Series("Columns", real_data.columns))
     synth_corr = synth_corr.insert_column(0, pl.Series("Columns", synth_corr.columns))
     diff_corr  = diff_corr.insert_column(0, pl.Series("Columns", diff_corr.columns))
+
+    _save_to_json("real_corr", real_corr)
+    _save_to_json("synth_corr", synth_corr)
+    _save_to_json("diff_corr", diff_corr)
 
     return real_corr, synth_corr, diff_corr
