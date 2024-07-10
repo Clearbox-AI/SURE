@@ -74,7 +74,7 @@ def _save_to_json(data_name, new_data):
         json.dump(data, file, indent=4)
 
 def _load_from_json(data_name):
-    ''' This function loads data from a JSON file in the folder where the user is working
+    ''' This function loads data from a JSON file "data.json" in the folder where the user is working
     '''
     # Check if the file exists
     if not os.path.exists("data.json"):
@@ -92,13 +92,14 @@ def _load_from_json(data_name):
     if new_data is None:
         raise ValueError(f"No data found for the key: {data_name}")
     
-    # Convert nested dictionaries back to DataFrames
-    def _convert_to_dataframe(obj):
-        if isinstance(obj, list) and all(isinstance(item, dict) for item in obj):
-            return pd.DataFrame(obj)
-        elif isinstance(obj, dict):
-            return {k: _convert_to_dataframe(v) for k, v in obj.items()}
-        else:
-            return obj
+    return new_data
 
-    return _convert_to_dataframe(new_data)
+def _convert_to_dataframe(obj):
+    ''' Convert nested dictionaries back to DataFrames
+    '''
+    if isinstance(obj, list) and all(isinstance(item, dict) for item in obj):
+        return pd.DataFrame(obj)
+    elif isinstance(obj, dict):
+        return {k: _convert_to_dataframe(v) for k, v in obj.items()}
+    else:
+        return obj
