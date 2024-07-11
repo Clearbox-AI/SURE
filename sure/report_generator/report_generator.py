@@ -9,6 +9,8 @@ import numpy as np
 
 # Function to run the streamlit app
 def report_generator():
+    ''' Generates the rport app
+    '''
     report_path = pkg_resources.resource_filename('SURE.sure.report_generator', 'report.py')
     process = subprocess.run(['streamlit', 'run', report_path])
     print("Streamlit app is running...")
@@ -19,8 +21,9 @@ def report_generator():
 #     process.wait()
 #     print("Streamlit app has been stopped.")
 
-def _convert_to_serializable(obj):
-    """Recursively convert DataFrames and other non-serializable objects in a nested dictionary to serializable formats."""
+def _convert_to_serializable(obj: object):
+    ''' Recursively convert DataFrames and other non-serializable objects in a nested dictionary to serializable formats
+    '''
     if isinstance(obj, (pd.DataFrame, pl.DataFrame, pl.LazyFrame)):
         if isinstance(obj, pl.DataFrame):
             obj = obj.to_pandas()
@@ -50,8 +53,10 @@ def _convert_to_serializable(obj):
     else:
         return obj
 
-def _save_to_json(data_name, new_data):
-    """This function saves data into a JSON file in the folder where the user is working."""
+def _save_to_json(data_name: str, 
+                  new_data: object):
+    ''' This function saves data into a JSON file in the folder where the user is working.
+    '''
     # Check if the file exists
     if os.path.exists("data.json"):
         # Read the existing data from the file
@@ -92,8 +97,6 @@ def _load_from_json(data_name:str = None):
         if data_name not in data:
             raise KeyError(f"Key '{data_name}' not found in dictionary.")
         data = data.get(data_name, None)
-        # if new_data is None:
-        #     raise ValueError(f"No data found for the key: {data_name}")
     
     return data
 

@@ -34,7 +34,7 @@ def _most_frequent_values(data: pl.DataFrame,
     most_frequent_dict = dict()
     for feature in features:
         # Calculate the most frequent value (mode) for original dataset
-        most_frequent = data[feature].mode().to_list()
+        most_frequent = data[feature].mode().cast(pl.String).to_list()
 
         # Create the dictionary entry for the current feature
         if len(most_frequent)>5:
