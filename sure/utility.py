@@ -19,7 +19,7 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
     classifier = ClassificationSandbox(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
     models, pred = classifier.fit(X_train, X_test, y_train, y_test)
     
-    _save_to_json("models",models)
+    _save_to_json("models", models)
     
     if predictions:
         return models, pred
@@ -39,7 +39,7 @@ def compute_utility_metrics_regr( X_train:        pl.DataFrame | pl.LazyFrame | 
     regressor = RegressionSandbox(predictions=predictions, classifiers=regressors, custom_metric=custom_metric)
     models, pred = regressor.fit(X_train, X_test, y_train, y_test)
     
-    _save_to_json("models",models)
+    _save_to_json("models", models)
     
     if predictions:
         return models, pred

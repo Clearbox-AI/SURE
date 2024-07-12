@@ -44,6 +44,8 @@ def dcr_stats_table(train_stats, val_stats=None, dcr_zero_train=None, dcr_zero_v
 
 @st.cache_data
 def dcr_validation(dcr_val):
+    ''' This function displays the DCR share value
+    '''
     perc = dcr_val["percentage"]
     st.write("The share of records of the synthetic dataset that are closer to the training set than to the validation set is: ",perc,"%")
     if dcr_val["warnings"] != '':
