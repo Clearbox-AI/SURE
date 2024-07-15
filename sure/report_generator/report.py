@@ -11,7 +11,7 @@ def display_feature_data(data):
     feature_names = list(data.keys())
 
     # Create dropdown menu for feature selection
-    selected_feature = st.selectbox('Select a feature]', [''] + feature_names)
+    selected_feature = st.selectbox('Select a feature', [''] + feature_names)
 
     # If a feature has been selected, display its data and create another dropdown menu
     if selected_feature:
@@ -33,7 +33,6 @@ def display_feature_data(data):
 
         # If there are still features left, create another dropdown menu
         if feature_names:
-            st.write('Select another feature:')
             display_feature_data({name: data[name] for name in feature_names})
 
 @st.cache_data
@@ -41,33 +40,44 @@ def ml_utility(obj):
     return _convert_to_dataframe(obj).set_index(['Model'])
 
 def main():
-    st.set_page_config(layout="wide")
-
-    # Header and subheader
+    # Set app conifgurations
+    st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
+    
+    # Header and subheader and description
     st.title('SURE')
     st.subheader('Synthetic Data: Utility, Regulatory compliance, and Ethical privacy')
     st.write(
         """This report provides a visual digest of the utility metrics computed 
-            with the library [SURE](https://github.com/Clearbox-AI/SURE) on the synthetic dataset under test."""
-    )
+            with the library [SURE](https://github.com/Clearbox-AI/SURE) on the synthetic dataset under test.""")
+    
+    ### UTILITY
     st.header('Utility', divider='violet')
     st.sidebar.markdown("# Utility")
 
     # Load data in the session state, so that it is available in all the pages of the app
     st.session_state = _load_from_json()
-
-    # Statistical similarity
+    
+    ## Statistical similarity
     st.subheader("Statistical similarity")
 
-    ### General statistics
-    if "num_features_comparison" in st.session_state and st.session_state["num_features_comparison"]:
-        display_feature_data(st.session_state["num_features_comparison"])
-    if "cat_features_comparison" in st.session_state and st.session_state["cat_features_comparison"]:
-        st.dataframe(st.session_state["cat_features_comparison"])
-    if "time_features_comparison" in st.session_state and st.session_state["time_features_comparison"]:
-        st.dataframe(st.session_state["time_features_comparison"])
+    # General statistics
+    # if "num_features_comparison" in st.session_state and "cat_features_comparison" in st.session_state and "time_features_comparison" in st.session_state:
+    #     features_comparison = {**st.session_state["num_features_comparison"], **st.session_state["cat_features_comparison"], **st.session_state["time_features_comparison"]}
+    #     display_feature_data(features_comparison)
 
-    ### Correlation
+    if "num_features_comparison" in st.session_state and st.session_state["num_features_comparison"]:
+        features_comparison = st.session_state["num_features_comparison"]
+    #     display_feature_data(st.session_state["num_features_comparison"])
+    if "cat_features_comparison" in st.session_state and st.session_state["cat_features_comparison"]:
+        features_comparison = {**features_comparison, **st.session_state["cat_features_comparison"]}
+    #     st.dataframe(st.session_state["cat_features_comparison"])
+    if "time_features_comparison" in st.session_state and st.session_state["time_features_comparison"]:
+        features_comparison = {**features_comparison, **st.session_state["time_features_comparison"]}
+    #     st.dataframe(st.session_state["time_features_comparison"])
+    if features_comparison:
+        display_feature_data(features_comparison)
+
+    # Correlation
     if "real_corr" in st.session_state:
         cb_rea_corr = st.checkbox("Show real dataset correlation matrix", value=False)
         if cb_rea_corr:
@@ -81,11 +91,11 @@ def main():
         if cb_diff_corr:
             st.dataframe(st.session_state["diff_corr"])
     
-    # Utility 
+    ## ML Utility 
     st.subheader("ML utility")
     if "models" in st.session_state:
         models_df = ml_utility(st.session_state["models"])
         st.dataframe(models_df.style.highlight_max(axis=0, subset=models_df.columns[:-1], color="#0D929A"))
-
+        
 if __name__ == "__main__":
     main()

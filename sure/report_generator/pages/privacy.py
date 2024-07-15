@@ -47,24 +47,31 @@ def dcr_validation(dcr_val):
     ''' This function displays the DCR share value
     '''
     perc = dcr_val["percentage"]
-    st.write("The share of records of the synthetic dataset that are closer to the training set than to the validation set is: ",perc,"%")
+    st.write("The share of records of the synthetic dataset that are closer to the training set than to the validation set is: ", perc,"%")
     if dcr_val["warnings"] != '':
         st.write(dcr_val["warnings"])
     st.caption("N.B. the closer this value is to 50%, the less the synthetic dataset is vulnerable to reidentification attacks!")
 
 def main():
-    st.set_page_config(layout="wide")
+    # Set app conifgurations
+    st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
 
+    # Header, subheader and description
     st.title('SURE')
     st.subheader('Synthetic Data: Utility, Regulatory compliance, and Ethical privacy')
     st.write(
         """This report provides a visual digest of the privacy metrics computed 
             with the library [SURE](https://github.com/Clearbox-AI/SURE) on the synthetic dataset under test.""")
+    
+    ### PRIVACY
     st.header("Privacy", divider='violet')
     st.sidebar.markdown("# Privacy")
     
+    ## Distance to closest record
+    st.subheader("Distance to closest record")
     col1, buff, col2 = st.columns([3,0.5,3])
     with col1:
+        # DCR statistics
         st.write("DCR statistics")
         if "dcr_synth_train_stats" in st.session_state:
             dcr_stats_table(st.session_state["dcr_synth_train_stats"], 
@@ -78,6 +85,13 @@ def main():
         if "dcr_synth_train" in st.session_state:
             plot_DCR(st.session_state["dcr_synth_train"], 
                      st.session_state["dcr_synth_val"])
+
+    ## Membership Inference Attack
+    st.subheader("Membership Inference Attack")
+    if "MIA_attack" in st.session_state:
+        st.write("The membership inference mean risk score is: ", round(st.session_state["MIA_attack"]["membership_inference_mean_risk_score"],3),"%")
+        df_MIA = pd.DataFrame(st.session_state["MIA_attack"])
+        st.dataframe(df_MIA.drop(columns=df_MIA.columns[-1]).iloc[::-1], hide_index=True)
 
 if __name__ == "__main__":
     main()
