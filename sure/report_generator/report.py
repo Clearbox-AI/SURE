@@ -11,10 +11,14 @@ def display_feature_data(data):
     feature_names = list(data.keys())
 
     # Create dropdown menu for feature selection
-    selected_feature = st.selectbox('Select a feature', [''] + feature_names)
+    selected_feature = st.selectbox(label = 'Select a statistical quantity:', 
+                                    options = ["Select a statistical quantity..."] + feature_names, 
+                                    index = None, 
+                                    placeholder = "Select a statistical quantity...", 
+                                    label_visibility="collapsed")
 
     # If a feature has been selected, display its data and create another dropdown menu
-    if selected_feature:
+    if selected_feature and selected_feature!="Select a statistical quantity...":
         # Get data for selected feature
         feature_data = data[selected_feature]
 
@@ -61,19 +65,18 @@ def main():
     st.subheader("Statistical similarity")
 
     # General statistics
-    # if "num_features_comparison" in st.session_state and "cat_features_comparison" in st.session_state and "time_features_comparison" in st.session_state:
-    #     features_comparison = {**st.session_state["num_features_comparison"], **st.session_state["cat_features_comparison"], **st.session_state["time_features_comparison"]}
-    #     display_feature_data(features_comparison)
-
     if "num_features_comparison" in st.session_state and st.session_state["num_features_comparison"]:
         features_comparison = st.session_state["num_features_comparison"]
-    #     display_feature_data(st.session_state["num_features_comparison"])
     if "cat_features_comparison" in st.session_state and st.session_state["cat_features_comparison"]:
-        features_comparison = {**features_comparison, **st.session_state["cat_features_comparison"]}
-    #     st.dataframe(st.session_state["cat_features_comparison"])
+        if "features_comparison" in locals():
+            features_comparison = {**features_comparison, **st.session_state["cat_features_comparison"]}
+        else:
+            features_comparison = st.session_state["cat_features_comparison"]
     if "time_features_comparison" in st.session_state and st.session_state["time_features_comparison"]:
-        features_comparison = {**features_comparison, **st.session_state["time_features_comparison"]}
-    #     st.dataframe(st.session_state["time_features_comparison"])
+        if "features_comparison" in locals():
+            features_comparison = {**features_comparison, **st.session_state["time_features_comparison"]}
+        else:
+            features_comparison = st.session_state["time_features_comparison"]
     if features_comparison:
         display_feature_data(features_comparison)
 
