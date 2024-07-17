@@ -32,11 +32,11 @@ class ClassificationSandbox:
             y_test:  pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray
             ) ->     pd.DataFrame | np.ndarray:
         data = [X_train, X_test, y_train, y_test]
-        for el in data:
+        for count, el in enumerate(data):
             if isinstance(el, pl.LazyFrame):
-                data[el] = el.collect().to_numpy()
+                data[count] = el.collect().to_numpy()
             elif isinstance(el, pl.DataFrame | pd.DataFrame| pl.Series | pd.Series):
-                data[el] = el.to_numpy()
+                data[count] = el.to_numpy()
             elif isinstance(el, np.ndarray):
                 pass
             else:
@@ -74,13 +74,15 @@ class RegressionSandbox():
             y_test:  pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray
             ) ->     pd.DataFrame | np.ndarray:
         data = [X_train, X_test, y_train, y_test]
-        for el in data:
+        for count, el in enumerate(data):
             if isinstance(el, pl.LazyFrame):
-                data[el] = el.collect().to_numpy()
+                data[count] = el.collect().to_numpy()
             elif isinstance(el, pl.DataFrame | pd.DataFrame| pl.Series | pd.Series):
-                data[el] = el.to_numpy()
+                data[count] = el.to_numpy()
+            elif isinstance(el, np.ndarray):
+                pass
             else:
-                print("The dataframe must be a Polars LazyFrame, a Pandas DataFrame or a Numpy Array")
+                print("The dataframe must be a Polars LazyFrame or a Pandas DataFrame")
                 return
             
         models, predictions = self.reg.fit(data[0], data[1], data[2], data[3])

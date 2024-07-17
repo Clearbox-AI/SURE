@@ -8,18 +8,13 @@ import polars as pl
 import numpy as np
 
 # Function to run the streamlit app
-def report_generator():
-    ''' Generates the rport app
+def report():
+    ''' Generate the report app
     '''
-    report_path = pkg_resources.resource_filename('SURE.sure.report_generator', 'report.py')
+    report_path = pkg_resources.resource_filename('SURE.sure.report_generator', 'report_app.py')
     process = subprocess.run(['streamlit', 'run', report_path])
     print("Streamlit app is running...")
     return process
-
-# def stop_report(process):
-#     process.terminate()
-#     process.wait()
-#     print("Streamlit app has been stopped.")
 
 def _convert_to_serializable(obj: object):
     ''' Recursively convert DataFrames and other non-serializable objects in a nested dictionary to serializable formats

@@ -21,7 +21,7 @@ EXCLUDE_FILES = [
     "sure/statistical_similarities.py",    
     "sure/utility.py",    
     "sure/report_generator/report_generator.py",
-    "sure/report_generator/report.py",
+    "sure/report_generator/report_app.py",
     "sure/report_generator/__init__.py"
 ]
 
@@ -96,7 +96,7 @@ class CustomBuild(build_ext):
             "sure/statistical_similarities.py",
             "sure/utility.py",    
             "sure/report_generator/report_generator.py",
-            "sure/report_generator/report.py",
+            "sure/report_generator/report_app.py",
             "sure/report_generator/__init__.py"
         ]
 
