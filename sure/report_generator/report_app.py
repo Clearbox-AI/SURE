@@ -53,7 +53,6 @@ def _ml_utility():
     default = ["LinearSVC", "Perceptron", "LogisticRegression", "XGBClassifier", "SVC", "BaggingClassifier", "SGDClassifier", "RandomForestClassifier", "AdaBoostClassifier", "KNeighborsClassifier", "DecisionTreeClassifier", "DummyClassifier"]
     models_df = _convert_to_dataframe(st.session_state["models"]).set_index(['Model'])
     st.session_state["selected_models"] = default
-
     
     with cols[1]:
         options = st.multiselect(label="Select ML models to show in the table:", 
@@ -105,7 +104,7 @@ def _ml_utility():
 #     with col3:
 #         selected_models
 
-# def _ml_utility(models_df):
+# def _ml_utility():
 #     def select_all():
 #         st.session_state['selected_models'] = ['A', 'B', 'C', 'D']
 #     def deselect_all():
@@ -128,12 +127,14 @@ def _ml_utility():
 #         default=st.session_state['selected_models'],
 #         key='selected_models'
 #     )
-
+    
+#     st.markdown('##')
 #     cols = st.columns(2)
-
 #     with cols[0]:
+#         "st.session_state['selected_models']:"
 #         st.session_state['selected_models']
 #     with cols[1]:
+#         "selected_models:"
 #         selected_models
 
 def main():
@@ -172,6 +173,8 @@ def main():
             features_comparison = st.session_state["time_features_comparison"]
     if features_comparison:
         _display_feature_data(features_comparison)
+
+    st.markdown('###')
 
     # Correlation
     st.subheader("Feature correlation", help="This matrix shows the correlation between ordinal and categorical features. These correlation coefficients are obtained using the mutual information metric. Mutual information describes relationships in terms of uncertainty.")

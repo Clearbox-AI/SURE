@@ -79,7 +79,6 @@ def _gower_matrix(
 def distance_to_closest_record(
                         dcr_name: str,
                         x_dataframe: pd.DataFrame | pl.DataFrame | pl.LazyFrame,
-                        categorical_features: np.ndarray | List | Tuple,
                         y_dataframe: pd.DataFrame | pl.DataFrame | pl.LazyFrame = None,
                         feature_weights: np.ndarray | List = None,
                         parallel: bool = True,
@@ -95,6 +94,12 @@ def distance_to_closest_record(
 
     Parameters
     ----------
+    dcr_name : str
+        Name with which the DCR will be saved with in the JSON file used to generate the final report.
+        Can be one of the following:
+            - synth_train
+            - synth_val
+            - other
     x_dataframe : pd.DataFrame
         A dataset containing numerical and categorical data.
     categorical_features : List
@@ -110,7 +115,8 @@ def distance_to_closest_record(
         If None, each feature weight is 1.0
     parallel : Boolean, optional
         Whether to enable the parallelization to compute Gower matrix, by default True
-
+    save_output : bool
+        If True, saves the DCR information into the JSON file used to generate the final report.
 
     Returns
     -------
@@ -121,6 +127,8 @@ def distance_to_closest_record(
     Raises
     ------
     TypeError
+        If dc_name is not one of the names listed above.
+    TypeError
         If X and Y don't have the same (number of) columns.
     """
     if dcr_name != "synth_train" and dcr_name != "synth_val" and dcr_name != "other":
@@ -128,11 +136,14 @@ def distance_to_closest_record(
 
     # Converting X Dataset in to pd.DataFrame
     X = _polars_to_pandas(x_dataframe)
-    
+      
     # Convert any temporal features to int
     temporal_columns = X.select_dtypes(include=['datetime']).columns
     X[temporal_columns] = X[temporal_columns].astype('int64')
-
+  
+    # Get categorical features
+    categorical_features = np.array(X.dtypes)==pl.Utf8
+  
     # se c'è un secondo dataframe le distanze vengono calcolate con esso, altrimente X con sè stesso
     if y_dataframe is None:
         Y = X
@@ -241,6 +252,12 @@ def dcr_stats(dcr_name: str, distances_to_closest_record: np.ndarray) -> Dict:
 
     Parameters
     ----------
+    dcr_name : str
+        Name with which the DCR will be saved with in the JSON file used to generate the final report.
+        Can be one of the following:
+            - synth_train
+            - synth_val
+            - other
     distances_to_closest_record : np.ndarray
         A 1D-array containing the Distance to the Closest Record for each row of a dataframe
         shape (dataframe rows, )

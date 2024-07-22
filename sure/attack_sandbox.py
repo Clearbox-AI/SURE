@@ -85,7 +85,6 @@ def adversary_dataset(
 def membership_inference_test(
     processed_adversary_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
     processed_synthetic_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
-    # categorical_features: np.ndarray | List | Tuple,
     adversary_guesses_ground_truth: np.ndarray | pd.DataFrame | pl.DataFrame | pl.LazyFrame | pl.Series,
     parallel: bool = True,
 ):
