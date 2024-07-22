@@ -6,7 +6,7 @@ from typing import Dict, List, Tuple
 
 from sklearn.metrics import precision_score
 
-from sure.utility import distance_to_closest_record
+from sure.privacy import distance_to_closest_record
 from sure import _save_to_json
 
 # ATTACK SANDBOX
