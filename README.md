@@ -59,27 +59,47 @@ Below is a code snippet example for the usage of the library:
 
 ```python
 # Import the necessary module from the SURE library
-from sure import Preprocessor, statistical_similarity_metrics, distance_metrics, utility_metrics, Privacy_attack_sandobx, report_generator
+from sure import Preprocessor, report
+from sure.utility import (statistical_similarity_metrics, 
+													compute_utility_metrics_class)
+from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
+													adversary_dataset, membership_inference_test)
 
 # Real dataset - Preprocessor initialization and query exacution
-preprocessor           = Preprocessor(real_data, get_discarded_info=False)
-real_data_preprocessed = preprocessor.collect(real_data, num_fill_null='forward', scaling='standardize')
+preprocessor            = Preprocessor(real_data, get_discarded_info=False)
+real_data_preprocessed  = preprocessor.collect(real_data, num_fill_null='forward', scaling='standardize')
+
+# Validation dataset - Preprocessor initialization and query exacution
+preprocessor            = Preprocessor(valid_data, get_discarded_info=False)
+valid_data_preprocessed = preprocessor.collect(valid_data, num_fill_null='forward', scaling='standardize')
 
 # Synthetic dataset - Preprocessor initialization and query exacution
 preprocessor            = Preprocessor(synth_data, get_discarded_info=False)
 synth_data_preprocessed = preprocessor.collect(synth_data, num_fill_null='forward', scaling='standardize')
 
-~~~~# Compute the utility and privacy metrics on the real dataset and the synthetic dataset
-util_metrics                  = utility_metrics(["Accuracy", "F1_score"], models="all", real_data_preprocessed, synth_data_preprocessed, labels)
-simil_metrics                 = statistical_similarity_metrics(["simil_metric1", "simil_metric2"], real_data_preprocessed, synth_data_preprocessed)
-DCR_train, DCR_holdout, share = distance_metrics(real_data_preprocessed, holdout_data_preprocessed, synth_data_preprocessed, dist_metric="Gower")
+# Statistical properties and mutiual information
+num_features_stats, cat_features_stats, temporal_feat_stats = compute_statistical_metrics(real_data_preprocessed, synth_data_preprocessed)
+corr_real, corr_synth, corr_difference                      = compute_mutual_info(real_data_preprocessed, synth_data_preprocessed)
+
+# ML utility: TSTR - Train on Synthetic, Test on Real
+X_train = synth_data_preprocessed.drop("label") # Whereas datasets have a “label” column for the machine learning task they are intended for
+y_train = synth_data_preprocessed["label"]
+X_test = real_data_preprocessed.drop("label").limit(10000) # Test the trained models on a portion of the original real dataset (first 10k rows)
+y_test = real_data_preprocessed["label"].limit(10000)
+TSTR_metrics = compute_utility_metrics_class(X_train, y_train, X_test, y_test, predictions=False) # Does not return the predictions of the models
+
+# Distance to closest record
+dcr_train       = distance_to_closest_record(dcr_name="synth_train", synth_data_preprocessed, real_data_preprocessed)
+dcr_valid       = distance_to_closest_record(dcr_name="synth_val", synth_data_preprocessed, valid_data_preprocessed)
+dcr_stats_train = dcr_stats(dcr_name="synth_train", dcr_train)
+dcr_stats_valid = dcr_stats(dcr_name="synth_valid", dcr_valid)
+dcr_zero_train  = number_of_dcr_equal_to_zero(dcr_name="synth_train", dcr_train)
+dcr_zero_valid  = number_of_dcr_equal_to_zero(dcr_name="synth_val", dcr_valid)
+share           = validation_dcr_test(dcr_train, dcr_valid)
 
 # ML privacy attack sanbox initialization and simulation
-attack                      = Privacy_attack_sandobx("MIA", metrics="all")
-attack_metrics, attack_pred = attack.simulate_attack(real_data_preprocessed, synth_data_preprocessed)
-
-# Report generation as HTML page
-report_generator(util_metrics, simil_metrics, DCR_train, DCR_holdout, share, attack_metrics, attack_pred)
+adversary_dataset = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
+MIA               = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth=adversary_dataset["privacy_test_is_training"])
 ```
 
 Please review the dedicated documentation to learn how to further customize your synthetic data assessment pipeline.

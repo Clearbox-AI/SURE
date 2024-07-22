@@ -283,7 +283,7 @@ def dcr_stats(dcr_name: str, distances_to_closest_record: np.ndarray) -> Dict:
     _save_to_json("dcr_"+dcr_name+"_stats", dcr_stats)
     return dcr_stats
 
-def number_of_dcr_equals_to_zero(dcr_name: str, distances_to_closest_record: np.ndarray) -> int_type:
+def number_of_dcr_equal_to_zero(dcr_name: str, distances_to_closest_record: np.ndarray) -> int_type:
     """
     Return the number of 0s in the given DCR array, that is the number of duplicates/clones detected.
 
@@ -339,7 +339,7 @@ def dcr_histogram(
         raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
 
     range_bins_with_zero = ["0.0"]
-    number_of_dcr_zeros = number_of_dcr_equals_to_zero(dcr_name, distances_to_closest_record)
+    number_of_dcr_zeros = number_of_dcr_equal_to_zero(dcr_name, distances_to_closest_record)
     dcr_non_zeros = distances_to_closest_record[distances_to_closest_record > 0]
     counts_without_zero, bins_without_zero = np.histogram(
         dcr_non_zeros, bins=bins, range=(0.0, 1.0), density=False

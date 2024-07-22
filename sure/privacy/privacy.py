@@ -9,6 +9,7 @@ from sklearn.metrics import precision_score
 from sure import distance_to_closest_record
 from sure import _save_to_json
 
+# ATTACK SANDBOX
 def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
     if isinstance(dataframe, pl.DataFrame):
         dataframe = dataframe.to_pandas()
@@ -29,7 +30,7 @@ def adversary_dataset(
     original_dataset_sample_fraction: float = 0.2,
 ) -> pd.DataFrame:
     """
-    Create an adversary dataset (K) for the Membership Inference Test given a training
+    Create an adversary dataset for the Membership Inference Test given a training
     and validation set. The validation set must be smaller than the training set.
 
     The size of the resulting adversary dataset is a fraction of the sum of the training

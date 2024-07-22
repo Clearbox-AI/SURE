@@ -15,14 +15,14 @@ with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 # List of files to exclude from Cythonization
-EXCLUDE_FILES = [
-    "sure/attack_sandbox.py",
-    "sure/model_garden.py",
-    "sure/statistical_similarities.py",    
-    "sure/utility.py",    
+EXCLUDE_FILES = [   
+    "sure/utility.py", 
+    "sure/__init__.py",   
+    "sure/privacy/__init__.py",
+    "sure/privacy/privacy.py" 
     "sure/report_generator/report_generator.py",
     "sure/report_generator/report_app.py",
-    "sure/report_generator/__init__.py"
+    "sure/report_generator/__init__.py",
 ]
 
 def get_extensions_paths(root_dir, exclude_files):
@@ -91,10 +91,10 @@ class CustomBuild(build_ext):
         files_to_copy = [
             "sure/distance_metrics/__init__.py",
             "sure/distance_metrics/gower_matrix_c.pyx",
-            "sure/attack_sandbox.py",
-            "sure/model_garden.py",
-            "sure/statistical_similarities.py",
             "sure/utility.py",    
+            "sure/__init__.py",    
+            "sure/privacy/__init__.py",
+            "sure/privacy/privacy.py",   
             "sure/report_generator/report_generator.py",
             "sure/report_generator/report_app.py",
             "sure/report_generator/__init__.py"
