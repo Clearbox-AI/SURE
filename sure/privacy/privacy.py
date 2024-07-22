@@ -97,12 +97,8 @@ def membership_inference_test(
 
     processed_adversary_dataset=processed_adversary_dataset.drop(["privacy_test_is_training"],axis=1)
 
-    # Get categorical features
-    categorical_features = np.array(processed_adversary_dataset.dtypes)==pl.Utf8
-
     dcr_adversary_synth = distance_to_closest_record("other",
                                                 processed_adversary_dataset,
-                                                categorical_features,
                                                 processed_synthetic_dataset,
                                                 parallel=parallel,
                                                 save_output=False

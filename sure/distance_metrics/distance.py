@@ -248,7 +248,7 @@ def distance_to_closest_record(
     
 def dcr_stats(dcr_name: str, distances_to_closest_record: np.ndarray) -> Dict:
     """
-    Return distribution stats for an array containing DCR computed previously.
+    This function returns the statisitcs for an array containing DCR computed previously.
 
     Parameters
     ----------
