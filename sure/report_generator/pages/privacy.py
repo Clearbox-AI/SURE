@@ -44,24 +44,26 @@ def dcr_validation(dcr_val, dcr_zero_train=None, dcr_zero_val=None):
     '''
     perc = dcr_val["percentage"]
     # st.write("The share of records of the synthetic dataset that are closer to the training set than to the validation set is: ", round(perc,1),"%")
-    cols = st.columns(3)
+    cols = st.columns(2)
     with cols[0]:
         st.metric("DCR closer to training", str(round(perc,1))+"%", help="For each synthetic record we computed its DCR with respect to the training set as well as with respect to the validation set. The validation set was not used to train the generative model. If we can find that the DCR values between synthetic and training (in purple) are not systematically smaller than the DCR values between synthetic and validation (in orange), we gain evidence of a high level of privacy.The share of records that are then closer to a training than to a validation record serves us as our proposed privacy risk measure. If that resulting share is then close to (or smaller than) 50%, we gain empirical evidence of the training and validation data being interchangeable with respect to the synthetic data. This in turn allows to make a strong case for plausible deniability for any individual, as the synthetic data records do not allow to conjecture whether an individual was or was not contained in the training dataset.")
+    with cols[1]:
         if dcr_val["warnings"] != '':
             st.write(dcr_val["warnings"])
-        st.caption("N.B. the closer this value is to 50%, the less the synthetic dataset is vulnerable to reidentification attacks!")
-    with cols[1]:
+        # st.caption("N.B. the closer this value is to 50%, the less the synthetic dataset is vulnerable to reidentification attacks!")
+    
+    cols2 = st.columns(2)
+    with cols2[0]:
         if dcr_zero_train:
             # Table with the number of DCR equal to zero
             st.metric("Clones Synth-Train", dcr_zero_train, help="The number of clones shows how many rows of the synthetic dataset have an identical match in the training dataset. A very low value indicates a low risk in terms of privacy. Ideally this value should be close to 0, but some peculiar characteristics of the training dataset (small size or low column cardinality) may lead to a higher value. The duplicatestable shows the number of duplicates (identical rows) in the training dataset and the synthetic dataset: similar percentages mean higher utility.")
-            # new_row = pd.DataFrame({"Synth-Train":[dcr_zero_train], "Synth-Val":[dcr_zero_val]}, index=['Clones and duplicates'])
-            # st.dataframe(new_row)#, help="The number of clones shows how many rows of the synthetic dataset have an identical match in the training dataset. A very low value indicates a low risk in terms of privacy. Ideally this value should be close to 0, but some peculiar characteristics of the training dataset (small size or low column cardinality) may lead to a higher value. The duplicatestable shows the number of duplicates (identical rows) in the training dataset and the synthetic dataset: similar percentages mean higher utility.")
-        with cols[2]:
+    with cols2[1]:
+        if dcr_zero_val:
             st.metric("Clones Synth-Val", dcr_zero_val, help="The number of clones shows how many rows of the synthetic dataset have an identical match in the validation dataset. A very low value indicates a low risk in terms of privacy. Ideally this value should be close to 0, but some peculiar characteristics of the training dataset (small size or low column cardinality) may lead to a higher value.")
 
 def _MIA():
     # st.write("The membership inference mean risk score is: ", round(st.session_state["MIA_attack"]["membership_inference_mean_risk_score"],3)*100,"%")
-    cols = st.columns([1,2,2])
+    cols = st.columns([1,3,2])
     with cols[0]:
         st.metric("MI risk score", str(round(st.session_state["MIA_attack"]["membership_inference_mean_risk_score"],3)*100)+"%")
     with cols[1]:
