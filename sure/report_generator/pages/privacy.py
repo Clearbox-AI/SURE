@@ -62,10 +62,9 @@ def dcr_validation(dcr_val, dcr_zero_train=None, dcr_zero_val=None):
             st.metric("Clones Synth-Val", dcr_zero_val, help="The number of clones shows how many rows of the synthetic dataset have an identical match in the validation dataset. A very low value indicates a low risk in terms of privacy. Ideally this value should be close to 0, but some peculiar characteristics of the training dataset (small size or low column cardinality) may lead to a higher value.")
 
 def _MIA():
-    # st.write("The membership inference mean risk score is: ", round(st.session_state["MIA_attack"]["membership_inference_mean_risk_score"],3)*100,"%")
     cols = st.columns([1,3,2])
     with cols[0]:
-        st.metric("MI risk score", str(round(st.session_state["MIA_attack"]["membership_inference_mean_risk_score"],3)*100)+"%")
+        st.metric("MI mean risk score", str(round(st.session_state["MIA_attack"]["membership_inference_mean_risk_score"],3)*100)+"%")
     with cols[1]:
         df_MIA = pd.DataFrame(st.session_state["MIA_attack"])
         st.dataframe(df_MIA.drop(columns=df_MIA.columns[-1]).iloc[::-1], hide_index=True)

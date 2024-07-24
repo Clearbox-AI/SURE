@@ -60,10 +60,10 @@ Below is a code snippet example for the usage of the library:
 ```python
 # Import the necessary module from the SURE library
 from sure import Preprocessor, report
-from sure.utility import (statistical_similarity_metrics, 
-													compute_utility_metrics_class)
+from sure.utility import (statistical_similarity_metrics, compute_mutual_info,
+						  compute_utility_metrics_class)
 from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
-													adversary_dataset, membership_inference_test)
+						  adversary_dataset, membership_inference_test)
 
 # Real dataset - Preprocessor initialization and query exacution
 preprocessor            = Preprocessor(real_data, get_discarded_info=False)
@@ -99,7 +99,8 @@ share           = validation_dcr_test(dcr_train, dcr_valid)
 
 # ML privacy attack sanbox initialization and simulation
 adversary_dataset = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
-MIA               = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth=adversary_dataset["privacy_test_is_training"])
+adversary_guesses_ground_truth = adversary_dataset["privacy_test_is_training"]
+MIA               = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth)
 ```
 
 Please review the dedicated documentation to learn how to further customize your synthetic data assessment pipeline.
