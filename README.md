@@ -84,8 +84,8 @@ corr_real, corr_synth, corr_difference                      = compute_mutual_inf
 # ML utility: TSTR - Train on Synthetic, Test on Real
 X_train = synth_data_preprocessed.drop("label") # Assuming the datasets have a “label” column for the machine learning task they are intended for
 y_train = synth_data_preprocessed["label"]
-X_test = real_data_preprocessed.drop("label").limit(10000) # Test the trained models on a portion of the original real dataset (first 10k rows)
-y_test = real_data_preprocessed["label"].limit(10000)
+X_test  = real_data_preprocessed.drop("label").limit(10000) # Test the trained models on a portion of the original real dataset (first 10k rows)
+y_test  = real_data_preprocessed["label"].limit(10000)
 TSTR_metrics = compute_utility_metrics_class(X_train, y_train, X_test, y_test, predictions=False)
 
 # Distance to closest record
