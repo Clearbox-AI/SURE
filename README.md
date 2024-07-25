@@ -60,8 +60,6 @@ This following diagram serves as a visual representation of how each module cont
 
 <img src="images/sure_workflow_.PNG" alt="drawing" width="500"/>
 
-SURE library workflow.
-
 # Usage
 
 The library leverages Polars, which ensures faster computations compared to other data manipulation libraries. It supports both Polars and Pandas dataframes.
