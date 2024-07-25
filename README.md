@@ -1,6 +1,6 @@
 <a href="https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f"><img src="https://img.shields.io/badge/SURE-docs-blue?logo=mdbook" /></a>   
 
-<img src="https://github.com/Clearbox-AI/SURE/blob/main/images/sure_logo.PNG" width="250"> 
+<img src="images/sure_logo.PNG" width="250"> 
 
 # SURE 
 ### Synthetic Data: Utility, Regulatory compliance, and Ethical privacy
@@ -58,7 +58,7 @@ Eventually, the report generator provides a summary of the utility and privacy m
 
 This following diagram serves as a visual representation of how each module contributes to the utility-privacy assessment process and highlights the seamless interconnection and synergy between individual blocks.
 
-<img src="images/sure_workflow.png" alt="drawing" width="600"/>
+<img src="images/sure_workflow_.PNG" alt="drawing" width="500"/>
 
 SURE library workflow.
 
