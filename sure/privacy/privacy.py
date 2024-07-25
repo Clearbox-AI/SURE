@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple
 from sklearn.metrics import precision_score
 
 from sure.privacy import distance_to_closest_record
-from sure import _save_to_json
+from sure import _save_to_json, _drop_real_cols
 
 # ATTACK SANDBOX
 def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
@@ -84,22 +84,26 @@ def adversary_dataset(
     return adversary_dataset
 
 def membership_inference_test(
-    processed_adversary_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
-    processed_synthetic_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
+    adversary_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
+    synthetic_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
     adversary_guesses_ground_truth: np.ndarray | pd.DataFrame | pl.DataFrame | pl.LazyFrame | pl.Series,
     parallel: bool = True,
 ):
     ''' Simulate a Membership Inference Attack on the synthetic dataset provided, given an adversary dataset
-    '''
-    processed_adversary_dataset     = _polars_to_pandas(processed_adversary_dataset)
-    processed_synthetic_dataset     = _polars_to_pandas(processed_synthetic_dataset)
+    '''    
+    # Convert datasets
+    adversary_dataset     = _polars_to_pandas(adversary_dataset)
+    synthetic_dataset     = _polars_to_pandas(synthetic_dataset)
     adversary_guesses_ground_truth  = _pl_pd_to_numpy(adversary_guesses_ground_truth)
 
-    processed_adversary_dataset=processed_adversary_dataset.drop(["privacy_test_is_training"],axis=1)
+    adversary_dataset=adversary_dataset.drop(["privacy_test_is_training"],axis=1)
+    
+    # Drop columns that are present in Y but are missing in X
+    adversary_dataset = _drop_real_cols(synthetic_dataset, adversary_dataset)
 
     dcr_adversary_synth = distance_to_closest_record("other",
-                                                processed_adversary_dataset,
-                                                processed_synthetic_dataset,
+                                                adversary_dataset,
+                                                synthetic_dataset,
                                                 parallel=parallel,
                                                 save_output=False
                                             )

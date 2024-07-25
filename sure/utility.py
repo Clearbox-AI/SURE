@@ -8,6 +8,40 @@ import polars.selectors as cs
 from sure import _save_to_json
 from lazypredict.Supervised import LazyClassifier, LazyRegressor
 
+def _to_numpy(data):
+    ''' This functions transforms polars or pandas DataFrames or LazyFrames into numpy arrays'''
+    if isinstance(data, pl.LazyFrame):
+        return  data.collect().to_numpy()
+    elif isinstance(data, pl.DataFrame | pd.DataFrame| pl.Series | pd.Series):
+        return data.to_numpy()
+    elif isinstance(data, np.ndarray):
+        return data
+    else:
+        print("The dataframe must be a Polars LazyFrame or a Pandas DataFrame")
+        return
+    
+def _drop_real_cols(synth, real):
+    ''' This function returns the real dataset without the columns that are not present in the synthetic one
+    '''
+    if not isinstance(synth, np.ndarray) and not isinstance(real, np.ndarray):
+        col_synth = set(synth.columns)
+        col_real = set(real.columns)
+        not_in_real = col_synth-col_real
+        not_in_synth = col_real-col_synth
+
+        if len(not_in_real)>0:
+            print(f"The following columns of the synthetic dataset are not present in the real dataset:\n{not_in_real}")
+            return
+
+        # Drop columns that are present in the real dataset but are missing in the synthetic one
+        if isinstance(real, pd.DataFrame):
+            real = real.drop(columns=list(not_in_synth))
+        if isinstance(real, pl.DataFrame):
+            real = real.drop(list(not_in_synth))
+        if isinstance(real, pl.LazyFrame):
+            real = real.collect.drop(list(not_in_synth))
+    return real
+     
 # MODEL GARDEN MODULE
 class ClassificationGarden:
     def __init__(self,
@@ -36,17 +70,10 @@ class ClassificationGarden:
             y_test:  pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray
             ) ->     pd.DataFrame | np.ndarray:
         data = [X_train, X_test, y_train, y_test]
-        for count, el in enumerate(data):
-            if isinstance(el, pl.LazyFrame):
-                data[count] = el.collect().to_numpy()
-            elif isinstance(el, pl.DataFrame | pd.DataFrame| pl.Series | pd.Series):
-                data[count] = el.to_numpy()
-            elif isinstance(el, np.ndarray):
-                pass
-            else:
-                print("The dataframe must be a Polars LazyFrame or a Pandas DataFrame")
-                return
         
+        for count, el in enumerate(data):
+            data[count] = _to_numpy(el)
+
         models, predictions = self.clf.fit(data[0], data[1], data[2], data[3])
         return models, predictions
 
@@ -77,16 +104,9 @@ class RegressionGarden():
             y_test:  pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray
             ) ->     pd.DataFrame | np.ndarray:
         data = [X_train, X_test, y_train, y_test]
+
         for count, el in enumerate(data):
-            if isinstance(el, pl.LazyFrame):
-                data[count] = el.collect().to_numpy()
-            elif isinstance(el, pl.DataFrame | pd.DataFrame| pl.Series | pd.Series):
-                data[count] = el.to_numpy()
-            elif isinstance(el, np.ndarray):
-                pass
-            else:
-                print("The dataframe must be a Polars LazyFrame or a Pandas DataFrame")
-                return
+            data[count] = _to_numpy(el)
             
         models, predictions = self.reg.fit(data[0], data[1], data[2], data[3])
         return models, predictions
@@ -100,7 +120,12 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                    classifiers:   List[Callable] = "all",
                                    predictions:   bool = False
                                  ): 
+    ''' This function starts the training of a classification task on a pool of available classifiers and returns the metrics
+    '''
+    # Drop columns that are present in the test set but not in the training set
+    X_test = _drop_real_cols(X_train, X_test)
 
+    # Initialise ClassificationGarden class and start training
     classifier = ClassificationGarden(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
     models, pred = classifier.fit(X_train, X_test, y_train, y_test)
     
@@ -109,7 +134,7 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
     if predictions:
         return models, pred
     else:
-        return models, None
+        return models
 
 def compute_utility_metrics_regr( X_train:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
                                   X_test:         pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
@@ -119,7 +144,12 @@ def compute_utility_metrics_regr( X_train:        pl.DataFrame | pl.LazyFrame | 
                                   regressors:     List[Callable] = "all",
                                   predictions:    bool = False
                                 ):
+    ''' This function starts the training of a regression task on a pool of available regressors and returns the metrics
+    '''
+    # Drop columns that are present in the test set but not in the training set
+    X_test = _drop_real_cols(X_train, X_test)
 
+    # Initialise RegressionGarden class and start training
     regressor = RegressionGarden(predictions=predictions, classifiers=regressors, custom_metric=custom_metric)
     models, pred = regressor.fit(X_train, X_test, y_train, y_test)
     
@@ -128,28 +158,28 @@ def compute_utility_metrics_regr( X_train:        pl.DataFrame | pl.LazyFrame | 
     if predictions:
         return models, pred
     else:
-        return models, None
+        return models
 
 # STATISTICAL SIMILARITIES METRICS MODULE
 def _value_count(data: pl.DataFrame, 
                  features: List
                 ) -> Dict:
-        ''' This function returns the unique values count and frequency for each feature in a Polars DataFrame
-        '''
-        values = dict()
-        for feature in data.select(pl.col(features)).columns:
-            # Get the value counts for the specified feature
-            value_counts_df = data.group_by(feature).len(name="count")
+    ''' This function returns the unique values count and frequency for each feature in a Polars DataFrame
+    '''
+    values = dict()
+    for feature in data.select(pl.col(features)).columns:
+        # Get the value counts for the specified feature
+        value_counts_df = data.group_by(feature).len(name="count")
 
-            # Calculate the frequency
-            total_counts = value_counts_df['count'].sum()
-            value_counts_df = value_counts_df.with_columns(
-                (pl.col('count') / total_counts * 100).round(2).alias('freq_%')
-            ).sort("freq_%",descending=True)
+        # Calculate the frequency
+        total_counts = value_counts_df['count'].sum()
+        value_counts_df = value_counts_df.with_columns(
+            (pl.col('count') / total_counts * 100).round(2).alias('freq_%')
+        ).sort("freq_%",descending=True)
 
-            values[feature] = value_counts_df
+        values[feature] = value_counts_df
 
-        return values
+    return values
 
 def _most_frequent_values(data: pl.DataFrame,
                           features: List
@@ -182,24 +212,27 @@ def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.Dat
         - num_features_comparison: Dictionary containing statistical metrics for numerical features.
         - cat_features_comparison: Dictionary containing statistical metrics for categorical features.
         - time_features_comparison: Dictionary containing statistical metrics for temporal features.
-    '''
+    '''    
     num_features_comparison  = None
     cat_features_comparison  = None
     time_features_comparison = None
 
-    # Converting Real and Synthetic Dataset in to pl.DataFrame
+    # Converting Real and Synthetic Dataset into pl.DataFrame
     if isinstance(real_data, pd.DataFrame):
             real_data = pl.from_pandas(real_data)
     if isinstance(synth_data, pd.DataFrame):
             synth_data = pl.from_pandas(synth_data)
     if isinstance(real_data, np.ndarray):
-            real_data = pl.from_pandas(real_data)
+            real_data = pl.from_numpy(real_data)
     if isinstance(synth_data, np.ndarray):
-            synth_data = pl.from_pandas(synth_data)
+            synth_data = pl.from_numpy(synth_data)
     if isinstance(real_data, pl.LazyFrame):
             real_data = real_data.collect()
     if isinstance(synth_data, pl.LazyFrame):
             synth_data = synth_data.collect()
+
+    # Drop columns that are present in the real dataset but not in the synthetic dataset
+    real_data = _drop_real_cols(synth_data, real_data)
 
     # Check that the real features and the synthetic ones match
     if not real_data.columns==synth_data.columns:
@@ -292,6 +325,9 @@ def compute_mutual_info(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame |
             real_data = real_data.collect()
     if isinstance(synth_data, pl.LazyFrame):
             synth_data = synth_data.collect()
+
+    # Drop columns that are present in the real dataset but not in the synthetic dataset
+    real_data = _drop_real_cols(synth_data, real_data)
 
     # Check that the real features and the synthetic ones match
     if not real_data.columns==synth_data.columns:

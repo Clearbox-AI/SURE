@@ -13,8 +13,11 @@ float_type  = Union[float, np.float16, np.float32, np.float64]
 
 from ..report_generator.report_generator import _save_to_json
 
+from sure import _drop_real_cols
+
 pyximport.install(setup_args={"include_dirs": np.get_include()})
 from sure.distance_metrics.gower_matrix_c import gower_matrix_c
+
 
 def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
     if isinstance(dataframe, pl.DataFrame):
@@ -85,8 +88,9 @@ def distance_to_closest_record(
                         save_output: bool = True
                     ) -> np.ndarray:
     """
-    Compute distance matrix between two dataframes containing mixed datatypes
-    (numerical and categorical) using a modified version of the Gower's distance.
+    Compute the distancees to closest record of dataframe X from dataframe Y using 
+    a modified version of the Gower's distance. 
+    The two dataframes may contain mixed datatypes (numerical and categorical).
 
     Paper references:
     * A General Coefficient of Similarity and Some of Its Properties, J. C. Gower
@@ -141,9 +145,6 @@ def distance_to_closest_record(
     temporal_columns = X.select_dtypes(include=['datetime']).columns
     X[temporal_columns] = X[temporal_columns].astype('int64')
   
-    # Get categorical features
-    categorical_features = np.array(X.dtypes)==pl.Utf8
-  
     # se c'è un secondo dataframe le distanze vengono calcolate con esso, altrimente X con sè stesso
     if y_dataframe is None:
         Y = X
@@ -154,13 +155,18 @@ def distance_to_closest_record(
         fill_diagonal = False
         Y[temporal_columns] = Y[temporal_columns].astype('int64')
 
+    # Drop columns that are present in Y but are missing in X
+    Y = _drop_real_cols(X, Y)
+    
     if not isinstance(X, np.ndarray):
         if not np.array_equal(X.columns, Y.columns):
             raise TypeError("X and Y dataframes have different columns.")
     else:
         if not X.shape[1] == Y.shape[1]:
             raise TypeError("X and Y arrays have different number of columns.")
-
+        
+    # Get categorical features
+    categorical_features = np.array(X.dtypes)==pl.Utf8
     if not isinstance(categorical_features, np.ndarray):
         categorical_features = np.array(categorical_features)
 
