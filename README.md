@@ -1,3 +1,4 @@
+<a href="[https://openmined.github.io/PySyft/](https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f)"><img src="https://img.shields.io/badge/SURE-docs-purple?logo=mdbook" /></a>
 # SURE 
 ### Synthetic Data: Utility, Regulatory compliance, and Ethical privacy
 

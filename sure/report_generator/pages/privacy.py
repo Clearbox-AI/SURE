@@ -14,10 +14,11 @@ def plot_DCR(train_data, val_data=None):
         df = pd.concat([df, df_val])
 
     # Create Altair chart
+    colors = ['#6268ff','#ccccff']
     chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
-        alt.X('DCR:Q', bin=alt.Bin(maxbins=10)),
+        alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
         alt.Y('count()', stack=None),
-        color='Data:N'
+        color=alt.Color('Data:N', scale=alt.Scale(range=colors))
     ).properties(
         title='Histograms of Synthetic Train and Validation Data' if val_data is not None else 'Histograms of Synthetic Train',
         width=600,
