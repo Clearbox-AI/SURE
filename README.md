@@ -1,10 +1,22 @@
-<a href="https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f"><img src="https://img.shields.io/badge/SURE-docs-purple?logo=mdbook" /></a>
+<a href="https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f"><img src="https://img.shields.io/badge/SURE-docs-blue?logo=mdbook" /></a>   
+
+<img src="https://github.com/Clearbox-AI/SURE/blob/main/images/sure_logo.PNG" width="250"> 
+
 # SURE 
 ### Synthetic Data: Utility, Regulatory compliance, and Ethical privacy
 
 The SURE package is an open-source Python library intended to be used for the assessment of the utility and privacy performance of any tabular synthetic dataset.
 
 The SURE library features multiple Python modules that can be easily imported and seamlessly integrated into any Python script after installing the library. 
+
+# Installation
+
+To install the library run the following command in your terminal:
+
+```shell
+$ pip install sure
+$ sh install.sh
+```
 
 ### Modules overview
 
@@ -106,11 +118,3 @@ MIA               = membership_inference_test(adversary_dataset, synth_data_prep
 
 Please review the dedicated documentation to learn how to further customize your synthetic data assessment pipeline.
 
-# Installation
-
-To install the library run the following command in your terminal:
-
-```shell
-$ pip install sure
-$ sh install.sh
-```
