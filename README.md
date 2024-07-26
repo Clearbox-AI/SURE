@@ -13,8 +13,7 @@ The SURE library features multiple Python modules that can be easily imported an
 To install the library run the following command in your terminal:
 
 ```shell
-$ pip install sure
-$ sh install.sh
+$ pip install clearbox-sure
 ```
 
 ### Modules overview
@@ -69,11 +68,11 @@ Below is a code snippet example for the usage of the library:
 
 ```python
 # Import the necessary modules from the SURE library
-from sure import Preprocessor, report
-from sure.utility import (statistical_similarity_metrics, compute_mutual_info,
-			  compute_utility_metrics_class)
-from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
-			  adversary_dataset, membership_inference_test)
+from clearbox_sure import Preprocessor, report
+from clearbox_sure.utility import (statistical_similarity_metrics, compute_mutual_info,
+			           compute_utility_metrics_class)
+from clearbox_sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
+			           adversary_dataset, membership_inference_test)
 
 # Real dataset - Preprocessor initialization and query exacution
 preprocessor            = Preprocessor(real_data, get_discarded_info=False)
