@@ -57,7 +57,7 @@ Eventually, the report generator provides a summary of the utility and privacy m
 
 This following diagram serves as a visual representation of how each module contributes to the utility-privacy assessment process and highlights the seamless interconnection and synergy between individual blocks.
 
-<img src="images/sure_workflow_.png" alt="drawing" width="500"/>
+<img src="images/SURE_workflow_.png" alt="drawing" width="500"/>
 
 # Usage
 
