@@ -63,7 +63,7 @@ This following diagram serves as a visual representation of how each module cont
 
 The library leverages Polars, which ensures faster computations compared to other data manipulation libraries. It supports both Polars and Pandas dataframes.
 
-The user must provide both the original real dataset and the corresponding synthetic dataset to enable the library's modules to perform the necessary computations for evaluation.
+The user must provide both the original real training dataset (which was used to train the generative model that produced the synthetic dataset), the real holdout dataset (which was NOT used to train the generative model that produced the synthetic dataset) and the corresponding synthetic dataset to enable the library's modules to perform the necessary computations for evaluation.
 
 Below is a code snippet example for the usage of the library:
 
@@ -113,5 +113,5 @@ adversary_guesses_ground_truth = adversary_dataset["privacy_test_is_training"]
 MIA               = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth)
 ```
 
-Please review the dedicated documentation to learn how to further customize your synthetic data assessment pipeline.
+Review the dedicated documentation to learn how to further customize your synthetic data assessment pipeline.
 
