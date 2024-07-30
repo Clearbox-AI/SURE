@@ -1,0 +1,8 @@
+setuptools
+pandas<2.0.0,>=1.4.2
+polars<1.0.0
+numpy<2.0.0
+cython
+wheel
+streamlit
+clearbox-preprocessor
