@@ -68,10 +68,10 @@ Below is a code snippet example for the usage of the library:
 
 ```python
 # Import the necessary modules from the SURE library
-from clearbox_sure import Preprocessor, report
-from clearbox_sure.utility import (statistical_similarity_metrics, compute_mutual_info,
+from sure import Preprocessor, report
+from sure.utility import (statistical_similarity_metrics, compute_mutual_info,
 			           compute_utility_metrics_class)
-from clearbox_sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
+from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
 			           adversary_dataset, membership_inference_test)
 
 # Real dataset - Preprocessor initialization and query exacution
