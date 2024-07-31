@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: clearbox-sure
-Version: 0.1
+Version: 0.1.1
 Home-page: https://github.com/Clearbox-AI/SURE
 Author: Clearbox AI
 Author-email: info@clearbox.ai
@@ -14,6 +14,7 @@ Requires-Dist: cython
 Requires-Dist: wheel
 Requires-Dist: streamlit
 Requires-Dist: clearbox-preprocessor
+Requires-Dist: lazypredict-nightly
 
 <a href="https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f"><img src="https://img.shields.io/badge/SURE-docs-blue?logo=mdbook" /></a>   
 
@@ -85,10 +86,10 @@ Below is a code snippet example for the usage of the library:
 
 ```python
 # Import the necessary modules from the SURE library
-from clearbox_sure import Preprocessor, report
-from clearbox_sure.utility import (statistical_similarity_metrics, compute_mutual_info,
+from sure import Preprocessor, report
+from sure.utility import (statistical_similarity_metrics, compute_mutual_info,
 			           compute_utility_metrics_class)
-from clearbox_sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
+from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
 			           adversary_dataset, membership_inference_test)
 
 # Real dataset - Preprocessor initialization and query exacution
