@@ -112,5 +112,5 @@ adversary_guesses_ground_truth = adversary_dataset["privacy_test_is_training"]
 MIA               = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth)
 ```
 
-Review the dedicated documentation to learn how to further customize your synthetic data assessment pipeline.
+Review the dedicated [documentation](https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f) to learn how to further customize your synthetic data assessment pipeline.
 
