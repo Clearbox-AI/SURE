@@ -8,3 +8,4 @@ streamlit
 clearbox-preprocessor
 lazypredict-nightly
 plotly
+altair
