@@ -23,6 +23,8 @@ EXCLUDE_FILES = [
     "sure/report_generator/report_generator.py",
     "sure/report_generator/report_app.py",
     "sure/report_generator/__init__.py",
+    "sure/report_generator/pages/privacy.py"
+    "sure/report_generator/.streamlit/config.toml"
 ]
 
 def get_extensions_paths(root_dir, exclude_files):
@@ -98,6 +100,8 @@ class CustomBuild(build_ext):
             "sure/report_generator/report_generator.py",
             "sure/report_generator/report_app.py",
             "sure/report_generator/__init__.py"
+            "sure/report_generator/pages/privacy.py"
+            "sure/report_generator/.streamlit/config.toml"
         ]
 
         for file in files_to_copy:
