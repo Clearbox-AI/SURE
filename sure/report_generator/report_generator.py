@@ -11,7 +11,7 @@ import numpy as np
 def report():
     ''' Generate the report app
     '''
-    report_path = pkg_resources.resource_filename('SURE.sure.report_generator', 'report_app.py')
+    report_path = pkg_resources.resource_filename('sure.report_generator', 'report_app.py')
     process = subprocess.run(['streamlit', 'run', report_path])
     print("Streamlit app is running...")
     return process
