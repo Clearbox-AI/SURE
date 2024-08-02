@@ -24,9 +24,9 @@ def _drop_real_cols(synth, real):
     ''' This function returns the real dataset without the columns that are not present in the synthetic one
     '''
     if not isinstance(synth, np.ndarray) and not isinstance(real, np.ndarray):
-        col_synth = set(synth.columns)
-        col_real = set(real.columns)
-        not_in_real = col_synth-col_real
+        col_synth    = set(synth.columns)
+        col_real     = set(real.columns)
+        not_in_real  = col_synth-col_real
         not_in_synth = col_real-col_synth
 
         if len(not_in_real)>0:
