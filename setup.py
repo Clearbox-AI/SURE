@@ -130,7 +130,7 @@ class CustomBuild(build_ext):
 setup(
     # Metadata about the package
     name="clearbox-sure",
-    version="0.1.6",
+    version="0.1.7",
     author="Clearbox AI",
     author_email="info@clearbox.ai",
     description="",
