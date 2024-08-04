@@ -113,8 +113,10 @@ class RegressionGarden():
     
 # ML UTILITY METRICS MODULE
 def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+                                   X_synth:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,                                   
                                    X_test:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                   y_train:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
+                                   y_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+                                   y_synth:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
                                    y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
                                    custom_metric: Callable       = None, 
                                    classifiers:   List[Callable] = "all",
@@ -127,14 +129,18 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
 
     # Initialise ClassificationGarden class and start training
     classifier = ClassificationGarden(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
+    print('Fitting original models:')
     models, pred = classifier.fit(X_train, X_test, y_train, y_test)
-    
-    _save_to_json("models", models)
+    print('Fitting synthetic models:')
+    models_synth, pred_synth = classifier.fit(X_synth, X_test, y_synth, y_test)
+    delta = models-models_synth
+    delta.columns = ['Delta Accuracy', 'Delta Balanced Accuracy', 'Delta ROC AUC', 'Delta F1 Score', 'Delta Time Taken']
+    _save_to_json("models",delta)
     
     if predictions:
-        return models, pred
+        return delta, pred_synth
     else:
-        return models
+        return delta
 
 def compute_utility_metrics_regr( X_train:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
                                   X_test:         pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
