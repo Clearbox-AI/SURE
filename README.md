@@ -100,7 +100,7 @@ X_train = synth_data_preprocessed.drop("label") # Assuming the datasets have a â
 y_train = synth_data_preprocessed["label"]
 X_test  = real_data_preprocessed.drop("label").limit(10000) # Test the trained models on a portion of the original real dataset (first 10k rows)
 y_test  = real_data_preprocessed["label"].limit(10000)
-TSTR_metrics = compute_utility_metrics_class(X_train, y_train, X_test, y_test, predictions=False)
+TSTR_metrics = compute_utility_metrics_class(X_train, X_test, y_train, y_test, predictions=False)
 
 # Distance to closest record
 dcr_train       = distance_to_closest_record("synth_train", synth_data_preprocessed, real_data_preprocessed)
@@ -112,9 +112,9 @@ dcr_zero_valid  = number_of_dcr_equal_to_zero("synth_val", dcr_valid)
 share           = validation_dcr_test(dcr_train, dcr_valid)
 
 # ML privacy attack sandbox initialization and simulation
-adversary_dataset = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
-adversary_guesses_ground_truth = adversary_dataset["privacy_test_is_training"]
-MIA               = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth)
+adversary_data = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
+adversary_guesses_ground_truth = adversary_data["privacy_test_is_training"]
+MIA               = membership_inference_test(adversary_data, synth_data_preprocessed, adversary_guesses_ground_truth)
 
 # Produce the final utility and privacy report
 report()
