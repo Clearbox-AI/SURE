@@ -1,22 +1,12 @@
 #!/bin/bash
 
-cd /io/
+set -e
 
-/opt/python/cp39-cp39/bin/pip install -U pip setuptools wheel Cython
-/opt/python/cp39-cp39/bin/pip install -r requirements.txt
-/opt/python/cp39-cp39/bin/python setup.py bdist_wheel
+cd /io
 
-/opt/python/cp310-cp310/bin/pip install -U pip setuptools wheel Cython
-/opt/python/cp310-cp310/bin/pip install -r requirements.txt
-/opt/python/cp310-cp310/bin/python setup.py bdist_wheel
-
-/opt/python/cp311-cp311/bin/pip install -U pip setuptools wheel Cython
-/opt/python/cp311-cp311/bin/pip install -r requirements.txt
-/opt/python/cp311-cp311/bin/python setup.py bdist_wheel
-
-/opt/python/cp312-cp312/bin/pip install -U pip setuptools wheel Cython
-/opt/python/cp312-cp312/bin/pip install -r requirements.txt
-/opt/python/cp312-cp312/bin/python setup.py bdist_wheel
+${PYTHON_PATH}/pip install -U pip setuptools wheel Cython
+${PYTHON_PATH}/pip install -r requirements.txt
+${PYTHON_PATH}/python setup.py bdist_wheel
 
 # Repair the wheels with auditwheel
 for whl in dist/*.whl; do
