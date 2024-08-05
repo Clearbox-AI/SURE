@@ -37,13 +37,15 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build --build-arg PYTHON_VERSION=${{ matrix.python-version }} -t my-python-wheels .
+        docker build -t my-python-wheels .
 
     - name: Run build script in Docker container
       run: |
         docker run --rm \
+          -e PYTHON_VERSION=${{ matrix.python-version }} \
+          -e PYTHON_PATH=${{ matrix.python-path }} \
           -v ${{ github.workspace }}:/io \
-          my-python-wheels /io/build_wheel.sh
+          my-python-wheels /build_wheel.sh
 
     - name: Upload Python wheels as artifacts
       uses: actions/upload-artifact@v2
@@ -56,4 +58,5 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
+
 
