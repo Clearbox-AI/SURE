@@ -11,4 +11,7 @@ ${PYTHON_PATH}/python setup.py bdist_wheel
 # Repair the wheels with auditwheel
 for whl in dist/*.whl; do
     auditwheel repair "$whl" --plat manylinux2014_x86_64 -w /io/wheelhouse/
+
+rm -rf dist
+mv wheelhouse dist
 done
