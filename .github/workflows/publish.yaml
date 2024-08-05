@@ -1,4 +1,5 @@
 name: Publish Libraty to PyPI
+
 on:
   push:
     branches:
@@ -34,12 +35,6 @@ jobs:
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
 
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Build Docker image
       run: |
         docker build --build-arg PYTHON_VERSION=${{ matrix.python-version }} -t my-python-wheels .
@@ -61,3 +56,4 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
+
