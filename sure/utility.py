@@ -132,6 +132,7 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
     print('Fitting original models:')
     models, pred = classifier.fit(X_train, X_test, y_train, y_test)
     print('Fitting synthetic models:')
+    X_test = _drop_real_cols(X_synth, X_test)
     classifier_synth = ClassificationGarden(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
     models_synth, pred_synth = classifier_synth.fit(X_synth, X_test, y_synth, y_test)
     delta = models-models_synth
@@ -163,6 +164,7 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
     print('Fitting original models:')
     models, pred = regressor.fit(X_train, X_test, y_train, y_test)
     print('Fitting synthetic models:')
+    X_test = _drop_real_cols(X_synth, X_test)
     regressor_synth = RegressionGarden(predictions=predictions, classifiers=regressors, custom_metric=custom_metric)
     models_synth, pred_synth = regressor_synth.fit(X_synth, X_test, y_synth, y_test)
     delta = models-models_synth
