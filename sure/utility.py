@@ -124,17 +124,21 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                  ): 
     ''' This function starts the training of a classification task on a pool of available classifiers and returns the metrics
     '''
-    # Drop columns that are present in the test set but not in the training set
-    X_test = _drop_real_cols(X_train, X_test)
 
     # Initialise ClassificationGarden class and start training
     classifier = ClassificationGarden(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
     print('Fitting original models:')
-    models, pred = classifier.fit(X_train, X_test, y_train, y_test)
+    models, pred = classifier.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
+                                  X_test[[w for w in X_train.columns if w in X_test.columns]], 
+                                  y_train, 
+                                  y_test)
+                                     
     print('Fitting synthetic models:')
-    X_test = _drop_real_cols(X_synth, X_test)
     classifier_synth = ClassificationGarden(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
-    models_synth, pred_synth = classifier_synth.fit(X_synth, X_test, y_synth, y_test)
+    models_synth, pred_synth = classifier_synth.fit(X_synth[[w for w in X_synth.columns if w in X_test.columns]], 
+                                                    X_test[[w for w in X_synth.columns if w in X_test.columns]], 
+                                                    y_synth, 
+                                                    y_test)
     delta = models-models_synth
     delta.columns = ['Delta Accuracy', 'Delta Balanced Accuracy', 'Delta ROC AUC', 'Delta F1 Score', 'Delta Time Taken']
     _save_to_json("models",delta)
@@ -156,9 +160,6 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
                                 ):
     ''' This function starts the training of a regression task on a pool of available regressors and returns the metrics
     '''
-    # Drop columns that are present in the test set but not in the training set
-    X_test = _drop_real_cols(X_train, X_test)
-
     # Initialise RegressionGarden class and start training
     regressor = RegressionGarden(predictions=predictions, classifiers=regressors, custom_metric=custom_metric)
     print('Fitting original models:')
@@ -167,7 +168,7 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
                                  y_train, 
                                  y_test)
     print('Fitting synthetic models:')
-    X_test = _drop_real_cols(X_synth, X_test)
+
     regressor_synth = RegressionGarden(predictions=predictions, classifiers=regressors, custom_metric=custom_metric)
     models_synth, pred_synth = regressor_synth.fit(X_synth[[w for w in X_synth.columns if w in X_test.columns]], 
                                                    X_test[[w for w in X_synth.columns if w in X_test.columns]], 
