@@ -43,6 +43,7 @@ jobs:
         path: dist/*.whl
     - name: Publish on PyPI
       run: |
+        pip install twine
         export TWINE_USERNAME=__token__
         export TWINE_PASSWORD=${{ secrets.PYPI_TOKEN }}      
         twine upload dist/*.whl
