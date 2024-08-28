@@ -115,7 +115,7 @@ class RegressionGarden():
 def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
                                    X_synth:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,                                   
                                    X_test:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                   y_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+                                   y_train:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
                                    y_synth:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
                                    y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
                                    custom_metric: Callable       = None, 
@@ -139,9 +139,13 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                                     X_test[[w for w in X_synth.columns if w in X_test.columns]], 
                                                     y_synth, 
                                                     y_test)
+    models.columns = ['Accuracy Real', 'Balanced Accuracy Real', 'ROC AUC Real', 'F1 Score Real', 'Time Taken Real']
+    models_synth.columns = ['Accuracy Synth', 'Balanced Accuracy Synth', 'ROC AUC Synth', 'F1 Score Synth', 'Time Taken Synth']
     delta = models-models_synth
-    delta.columns = ['Delta Accuracy', 'Delta Balanced Accuracy', 'Delta ROC AUC', 'Delta F1 Score', 'Delta Time Taken']
-    _save_to_json("models",delta)
+    delta.columns = ['Accuracy Delta', 'Balanced Accuracy Delta', 'ROC AUC Delta', 'F1 Score Delta', 'Time Taken Delta']
+    _save_to_json("models", models)
+    _save_to_json("models_synth", models_synth)
+    _save_to_json("models_delta", delta)
     
     if predictions:
         return delta, pred_synth
@@ -151,7 +155,7 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
 def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
                                   X_synth:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,                                   
                                   X_test:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                  y_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+                                  y_train:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
                                   y_synth:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
                                   y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
                                   custom_metric:  Callable       = None, 
@@ -161,7 +165,7 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
     ''' This function starts the training of a regression task on a pool of available regressors and returns the metrics
     '''
     # Initialise RegressionGarden class and start training
-    regressor = RegressionGarden(predictions=predictions, classifiers=regressors, custom_metric=custom_metric)
+    regressor = RegressionGarden(predictions=predictions, regressors=regressors, custom_metric=custom_metric)
     print('Fitting original models:')
     models, pred = regressor.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
                                  X_test[[w for w in X_train.columns if w in X_test.columns]], 
@@ -169,14 +173,19 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
                                  y_test)
     print('Fitting synthetic models:')
 
-    regressor_synth = RegressionGarden(predictions=predictions, classifiers=regressors, custom_metric=custom_metric)
+    regressor_synth = RegressionGarden(predictions=predictions, regressors=regressors, custom_metric=custom_metric)
     models_synth, pred_synth = regressor_synth.fit(X_synth[[w for w in X_synth.columns if w in X_test.columns]], 
                                                    X_test[[w for w in X_synth.columns if w in X_test.columns]], 
                                                    y_synth, 
                                                    y_test)
+    models.columns = ['Adjusted R-squared Real', 'R-squared Real', 'RMSE Real']
+    models_synth.columns = ['Adjusted R-squared Synth', 'R-squared Synth', 'RMSE Synth']
     delta = models-models_synth
-    delta.columns = ['Delta Accuracy', 'Delta Balanced Accuracy', 'Delta ROC AUC', 'Delta F1 Score', 'Delta Time Taken']
-    _save_to_json("models",delta)    
+    delta.columns = ['Adjusted R-squared Delta', 'R-squared Delta', 'RMSE Delta']
+    _save_to_json("models", models)
+    _save_to_json("models_synth", models_synth)
+    _save_to_json("models_delta", delta)
+
     if predictions:
         return models, pred
     else:

@@ -51,27 +51,34 @@ def _ml_utility():
 
     cols = st.columns([1.2,1])
     default = ["LinearSVC", "Perceptron", "LogisticRegression", "XGBClassifier", "SVC", "BaggingClassifier", "SGDClassifier", "RandomForestClassifier", "AdaBoostClassifier", "KNeighborsClassifier", "DecisionTreeClassifier", "DummyClassifier"]
-    models_df = _convert_to_dataframe(st.session_state["models"]).set_index(['Model'])
+    
+    models_real_df = _convert_to_dataframe(st.session_state["models"]).set_index(['Model'])
+    models_synth_df = _convert_to_dataframe(st.session_state["models_synth"]).set_index(['Model'])
+    models_df = pd.concat([models_real_df, models_synth_df], axis=1)
+    models_df = models_df[['Accuracy Real', 'Accuracy Synth', 'Balanced Accuracy Real', 'Balanced Accuracy Synth', 'ROC AUC Real', 'ROC AUC Synth', 'F1 Score Real', 'F1 Score Synth', 'Time Taken Real', 'Time Taken Synth']]    models_delta_df = _convert_to_dataframe(st.session_state["models_delta"]).set_index(['Model'])
+    models_delta_df = _convert_to_dataframe(st.session_state["models_delta"]).set_index(['Model'])
+    
     st.session_state["selected_models"] = default
     
-    with cols[1]:
-        options = st.multiselect(label="Select ML models to show in the table:", 
-                        options=models_df.index.values, 
-                        default= [x for x in st.session_state["selected_models"] if x in models_df.index.values], 
-                        placeholder="Select ML models...",
-                        key="models_multiselect")
-        subcols = st.columns([1,1,1])
-        with subcols[0]:    
-            butt1 = st.button("Select all models")
-        with subcols[1]:
-            butt2 = st.button("Deselect all models")
-        if butt1:
-            options = models_df.index.values
-        if butt2:
-            options = []
+    # with cols[1]:
+    options = st.multiselect(label="Select ML models to show in the table:", 
+                    options=models_df.index.values, 
+                    default= [x for x in st.session_state["selected_models"] if x in models_df.index.values], 
+                    placeholder="Select ML models...",
+                    key="models_multiselect")
+    subcols = st.columns([1,1,1])
+    with subcols[0]:    
+        butt1 = st.button("Select all models")
+    with subcols[1]:
+        butt2 = st.button("Deselect all models")
+    if butt1:
+        options = models_df.index.values
+    if butt2:
+        options = []
 
-    with cols[0]:
-        st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-1], color="#99ffcc"))
+    # with cols[0]:
+    st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-1], color="#99ffcc"))
+    st.dataframe(models_delta_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-1], color="#99ffcc"))
 
 # def _ml_utility(models_df):
 #     def _select_all():
