@@ -66,7 +66,7 @@ def _ml_utility():
                     default= [x for x in st.session_state["selected_models"] if x in models_df.index.values], 
                     placeholder="Select ML models...",
                     key="models_multiselect")
-    subcols = st.columns([1,1,1])
+    subcols = st.columns([1,1,3])
     with subcols[0]:    
         butt1 = st.button("Select all models")
     with subcols[1]:
@@ -77,8 +77,8 @@ def _ml_utility():
         options = []
 
     # with cols[0]:
-    st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-1], color="#99ffcc"))
-    st.dataframe(models_delta_df.loc[options].style.highlight_max(axis=0, subset=models_delta_df.columns[:-1], color="#99ffcc"))
+    st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-2], color="#178252"))
+    st.dataframe(models_delta_df.loc[options].style.highlight_min(axis=0, subset=models_delta_df.columns[:-1], color="#178252"))
 
 # def _ml_utility(models_df):
 #     def _select_all():
