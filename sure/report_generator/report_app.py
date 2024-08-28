@@ -55,7 +55,7 @@ def _ml_utility():
     models_real_df = _convert_to_dataframe(st.session_state["models"]).set_index(['Model'])
     models_synth_df = _convert_to_dataframe(st.session_state["models_synth"]).set_index(['Model'])
     models_df = pd.concat([models_real_df, models_synth_df], axis=1)
-    models_df = models_df[['Accuracy Real', 'Accuracy Synth', 'Balanced Accuracy Real', 'Balanced Accuracy Synth', 'ROC AUC Real', 'ROC AUC Synth', 'F1 Score Real', 'F1 Score Synth', 'Time Taken Real', 'Time Taken Synth']]    models_delta_df = _convert_to_dataframe(st.session_state["models_delta"]).set_index(['Model'])
+    models_df = models_df[['Accuracy Real', 'Accuracy Synth', 'Balanced Accuracy Real', 'Balanced Accuracy Synth', 'ROC AUC Real', 'ROC AUC Synth', 'F1 Score Real', 'F1 Score Synth', 'Time Taken Real', 'Time Taken Synth']]    
     models_delta_df = _convert_to_dataframe(st.session_state["models_delta"]).set_index(['Model'])
     
     st.session_state["selected_models"] = default
