@@ -73,11 +73,9 @@ Below is a code snippet example for the usage of the library:
 # Import the necessary modules from the SURE library
 from sure import Preprocessor, report
 from sure.utility import (compute_statistical_metrics, compute_mutual_info,
-			           compute_utility_metrics_class)
-from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test,
-			           adversary_dataset, membership_inference_test)
-
-# NOTE: The dataframes used in this example are imported with polars
+													compute_utility_metrics_class)
+from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
+													adversary_dataset, membership_inference_test)
 
 # Real dataset - Preprocessor initialization and query exacution
 preprocessor            = Preprocessor(real_data, get_discarded_info=False)
@@ -96,33 +94,30 @@ num_features_stats, cat_features_stats, temporal_feat_stats = compute_statistica
 corr_real, corr_synth, corr_difference                      = compute_mutual_info(real_data_preprocessed, synth_data_preprocessed)
 
 # ML utility: TSTR - Train on Synthetic, Test on Real
-## Original dataset
-X_train = real_data_preprocessed.drop("label") # Assuming the datasets have a “label” column for the machine learning task they are intended for
-y_train = real_data_preprocessed["label"]
-## Synthetic dataset
-X_synth = synth_data_preprocessed.drop("label") # Assuming the datasets have a “label” column for the machine learning task they are intended for
-y_synth = synth_data_preprocessed["label"]
-
-## Test dataset
-X_test  = real_data_preprocessed.drop("label").limit(10000) # Test the trained models on a portion of the original real dataset (first 10k rows)
-y_test  = real_data_preprocessed["label"].limit(10000)
-TSTR_metrics = compute_utility_metrics_class(X_train, X_synth, X_test, y_train, y_synth, y_test, predictions=False)
+X_train      = real_data_preprocessed.drop("label", axis=1) # Assuming the datasets have a “label” column for the machine learning task they are intended for
+y_train      = real_data_preprocessed["label"]
+X_synth      = synth_data_preprocessed.drop("label", axis=1)
+y_synth      = synth_data_preprocessed["label"]
+X_test       = valid_data_preprocessed.drop("label", axis=1).limit(10000) # Test the trained models on a portion of the original real dataset (first 10k rows)
+y_test       = valid_data_preprocessed["label"].limit(10000)
+TSTR_metrics = compute_utility_metrics_class(X_train, X_synth, X_test, y_train, y_synth, y_test)
 
 # Distance to closest record
-dcr_train       = distance_to_closest_record("synth_train", synth_data_preprocessed, real_data_preprocessed)
-dcr_valid       = distance_to_closest_record("synth_val", synth_data_preprocessed, valid_data_preprocessed)
-dcr_stats_train = dcr_stats("synth_train", dcr_train)
-dcr_stats_valid = dcr_stats("synth_val", dcr_valid)
-dcr_zero_train  = number_of_dcr_equal_to_zero("synth_train", dcr_train)
-dcr_zero_valid  = number_of_dcr_equal_to_zero("synth_val", dcr_valid)
-share           = validation_dcr_test(dcr_train, dcr_valid)
+dcr_synth_train       = distance_to_closest_record("synth_train", synth_data_preprocessed, real_data_preprocessed)
+dcr_synth_valid       = distance_to_closest_record("synth_val", synth_data_preprocessed, valid_data_preprocessed)
+dcr_stats_synth_train = dcr_stats("synth_train", dcr_train)
+dcr_stats_synth_valid = dcr_stats("synth_valid", dcr_valid)
+dcr_zero_synth_train  = number_of_dcr_equal_to_zero("synth_train", dcr_train)
+dcr_zero_synth_valid  = number_of_dcr_equal_to_zero("synth_val", dcr_valid)
+share                 = validation_dcr_test(dcr_train, dcr_valid)
 
 # ML privacy attack sandbox initialization and simulation
-adversary_data = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
-adversary_guesses_ground_truth = adversary_data["privacy_test_is_training"]
-MIA               = membership_inference_test(adversary_data, synth_data_preprocessed, adversary_guesses_ground_truth)
+adversary_dataset = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
+# The function adversary_dataset adds a column "privacy_test_is_training" to the adversary dataset, indicating whether the record was part of the training set or not
+adversary_guesses_ground_truth = adversary_dataset["privacy_test_is_training"] 
+MIA = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth)
 
-# Produce the final utility and privacy report
+# Report generation as HTML page
 report()
 ```
 
