@@ -139,10 +139,12 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                                     X_test[[w for w in X_synth.columns if w in X_test.columns]], 
                                                     y_synth, 
                                                     y_test)
-    models.columns = ['Accuracy Real', 'Balanced Accuracy Real', 'ROC AUC Real', 'F1 Score Real', 'Time Taken Real']
-    models_synth.columns = ['Accuracy Synth', 'Balanced Accuracy Synth', 'ROC AUC Synth', 'F1 Score Synth', 'Time Taken Synth']
+    
     delta = models-models_synth
     delta.columns = ['Accuracy Delta', 'Balanced Accuracy Delta', 'ROC AUC Delta', 'F1 Score Delta', 'Time Taken Delta']
+    models.columns = ['Accuracy Real', 'Balanced Accuracy Real', 'ROC AUC Real', 'F1 Score Real', 'Time Taken Real']
+    models_synth.columns = ['Accuracy Synth', 'Balanced Accuracy Synth', 'ROC AUC Synth', 'F1 Score Synth', 'Time Taken Synth']
+    
     _save_to_json("models", models)
     _save_to_json("models_synth", models_synth)
     _save_to_json("models_delta", delta)
@@ -178,10 +180,11 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
                                                    X_test[[w for w in X_synth.columns if w in X_test.columns]], 
                                                    y_synth, 
                                                    y_test)
-    models.columns = ['Adjusted R-squared Real', 'R-squared Real', 'RMSE Real']
-    models_synth.columns = ['Adjusted R-squared Synth', 'R-squared Synth', 'RMSE Synth']
     delta = models-models_synth
     delta.columns = ['Adjusted R-squared Delta', 'R-squared Delta', 'RMSE Delta']
+    models.columns = ['Adjusted R-squared Real', 'R-squared Real', 'RMSE Real']
+    models_synth.columns = ['Adjusted R-squared Synth', 'R-squared Synth', 'RMSE Synth']
+
     _save_to_json("models", models)
     _save_to_json("models_synth", models_synth)
     _save_to_json("models_delta", delta)
