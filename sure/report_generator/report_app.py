@@ -78,7 +78,7 @@ def _ml_utility():
 
     # with cols[0]:
     st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-1], color="#99ffcc"))
-    st.dataframe(models_delta_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-1], color="#99ffcc"))
+    st.dataframe(models_delta_df.loc[options].style.highlight_max(axis=0, subset=models_delta_df.columns[:-1], color="#99ffcc"))
 
 # def _ml_utility(models_df):
 #     def _select_all():
