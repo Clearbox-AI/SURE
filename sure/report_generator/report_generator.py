@@ -8,10 +8,10 @@ import polars as pl
 import numpy as np
 
 # Function to run the streamlit app
-def report():
+def report(path_to_data:str = ""):
     ''' Generate the report app
     '''
-    report_path = pkg_resources.resource_filename('sure.report_generator', 'report_app.py')
+    report_path = pkg_resources.resource_filename('sure.report_generator', 'report_app.py -p', path_to_data)
     process = subprocess.run(['streamlit', 'run', report_path])
     print("Streamlit app is running...")
     return process
