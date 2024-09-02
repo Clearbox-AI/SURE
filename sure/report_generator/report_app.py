@@ -170,12 +170,7 @@ def _ml_utility():
 #         "selected_models:"
 #         selected_models
 
-def main():
-    # Create an ArgumentParser object
-    parser = argparse.ArgumentParser(description="This script runs the utility and privacy report app of the SURE library.")
-    parser.add_argument('-p', '--path', type=str, help='path where the json file with the results is saved')
-    args = parser.parse_args()
-
+def main(path_to_json):
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
     
@@ -191,8 +186,8 @@ def main():
     st.sidebar.markdown("# Utility")
 
     # Load data in the session state, so that it is available in all the pages of the app
-    if args.path:
-        st.session_state = _load_from_json(args.path)
+    if path_to_json:
+        st.session_state = _load_from_json(path_to_json)
     else:
         st.session_state = _load_from_json("")
     
@@ -243,4 +238,9 @@ def main():
         _ml_utility()
         
 if __name__ == "__main__":
-    main()
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser(description="This script runs the utility and privacy report app of the SURE library.")
+    parser.add_argument('--path', type=str, default="", help='path where the json file with the results is saved')
+    args = parser.parse_args()
+
+    main(args.path)
