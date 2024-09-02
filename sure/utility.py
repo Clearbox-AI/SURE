@@ -301,6 +301,10 @@ def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.Dat
                                                         "synthetic" : synth_data.select(num_features).quantile(0.75,"nearest")}
         num_features_comparison["max"]              = { "real"      : real_data.select(pl.max(num_features)),
                                                         "synthetic" : synth_data.select(pl.max(num_features))}
+        num_features_comparison["skewness"]         = { "real"      : real_data.select(pl.col(num_features).skew()),
+                                                        "synthetic" : synth_data.select(pl.col(num_features).skew())}
+        num_features_comparison["kurtosis"]         = { "real"      : real_data.select(pl.col(num_features).kurtosis()),
+                                                        "synthetic" : synth_data.select(pl.col(num_features).kurtosis())}
     # Categorical features
     if len(cat_features) != 0:
         cat_features_comparison = dict()
