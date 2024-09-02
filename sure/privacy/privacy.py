@@ -88,6 +88,7 @@ def membership_inference_test(
     synthetic_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
     adversary_guesses_ground_truth: np.ndarray | pd.DataFrame | pl.DataFrame | pl.LazyFrame | pl.Series,
     parallel: bool = True,
+    path_to_json: str = ""
 ):
     ''' Simulate a Membership Inference Attack on the synthetic dataset provided, given an adversary dataset
     '''    
@@ -129,5 +130,5 @@ def membership_inference_test(
         "membership_inference_mean_risk_score": membership_inference_mean_risk_score,
     }
 
-    _save_to_json("MIA_attack", attack_output)
+    _save_to_json("MIA_attack", attack_output, path_to_json)
     return attack_output
