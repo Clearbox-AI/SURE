@@ -77,6 +77,8 @@ from sure.utility import (compute_statistical_metrics, compute_mutual_info,
 from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
 													adversary_dataset, membership_inference_test)
 
+# Assuming real_data, valid_data and synth_data are three pandas DataFrames
+
 # Real dataset - Preprocessor initialization and query exacution
 preprocessor            = Preprocessor(real_data, get_discarded_info=False)
 real_data_preprocessed  = preprocessor.collect(real_data, num_fill_null='forward', scaling='standardize')

@@ -128,7 +128,7 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
     # Initialise ClassificationGarden class and start training
     classifier = ClassificationGarden(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
     print('Fitting original models:')
-    models, pred = classifier.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
+    models_train, pred = classifier.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
                                   X_test[[w for w in X_train.columns if w in X_test.columns]], 
                                   y_train, 
                                   y_test)
@@ -140,19 +140,19 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                                     y_synth, 
                                                     y_test)
     
-    delta = models-models_synth
+    delta = models_train-models_synth
     delta.columns = ['Accuracy Delta', 'Balanced Accuracy Delta', 'ROC AUC Delta', 'F1 Score Delta', 'Time Taken Delta']
-    models.columns = ['Accuracy Real', 'Balanced Accuracy Real', 'ROC AUC Real', 'F1 Score Real', 'Time Taken Real']
+    models_train.columns = ['Accuracy Real', 'Balanced Accuracy Real', 'ROC AUC Real', 'F1 Score Real', 'Time Taken Real']
     models_synth.columns = ['Accuracy Synth', 'Balanced Accuracy Synth', 'ROC AUC Synth', 'F1 Score Synth', 'Time Taken Synth']
     
-    _save_to_json("models", models)
+    _save_to_json("models", models_train)
     _save_to_json("models_synth", models_synth)
     _save_to_json("models_delta", delta)
     
     if predictions:
-        return delta, pred_synth
+        return models_train, models_synth, delta, pred_synth
     else:
-        return delta
+        return models_train, models_synth, delta
 
 def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
                                   X_synth:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,                                   
@@ -169,7 +169,7 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
     # Initialise RegressionGarden class and start training
     regressor = RegressionGarden(predictions=predictions, regressors=regressors, custom_metric=custom_metric)
     print('Fitting original models:')
-    models, pred = regressor.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
+    models_train, pred = regressor.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
                                  X_test[[w for w in X_train.columns if w in X_test.columns]], 
                                  y_train, 
                                  y_test)
@@ -180,19 +180,19 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
                                                    X_test[[w for w in X_synth.columns if w in X_test.columns]], 
                                                    y_synth, 
                                                    y_test)
-    delta = models-models_synth
+    delta = models_train-models_synth
     delta.columns = ['Adjusted R-squared Delta', 'R-squared Delta', 'RMSE Delta']
-    models.columns = ['Adjusted R-squared Real', 'R-squared Real', 'RMSE Real']
+    models_train.columns = ['Adjusted R-squared Real', 'R-squared Real', 'RMSE Real']
     models_synth.columns = ['Adjusted R-squared Synth', 'R-squared Synth', 'RMSE Synth']
 
-    _save_to_json("models", models)
+    _save_to_json("models", models_train)
     _save_to_json("models_synth", models_synth)
     _save_to_json("models_delta", delta)
 
     if predictions:
-        return models, pred
+        return models_train, models_synth, delta, pred_synth
     else:
-        return models
+        return models_train, models_synth, delta
 
 # STATISTICAL SIMILARITIES METRICS MODULE
 def _value_count(data: pl.DataFrame, 
