@@ -240,7 +240,7 @@ def main(path_to_json):
 if __name__ == "__main__":
     # Create an ArgumentParser object
     parser = argparse.ArgumentParser(description="This script runs the utility and privacy report app of the SURE library.")
-    parser.add_argument('--path', type=str, default="", help='path where the json file with the results is saved')
+    parser.add_argument('path', type=str, default="", help='path where the json file with the results is saved')
     args = parser.parse_args()
 
     main(args.path)
