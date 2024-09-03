@@ -85,7 +85,8 @@ def distance_to_closest_record(
                         y_dataframe: pd.DataFrame | pl.DataFrame | pl.LazyFrame = None,
                         feature_weights: np.ndarray | List = None,
                         parallel: bool = True,
-                        save_output: bool = True
+                        save_output: bool = True,
+                        path_to_json: str = ""
                     ) -> np.ndarray:
     """
     Compute the distancees to closest record of dataframe X from dataframe Y using 
@@ -249,10 +250,12 @@ def distance_to_closest_record(
                     fill_diagonal,
                 )
     if save_output:
-        _save_to_json("dcr_"+dcr_name, dcr)
+        _save_to_json("dcr_"+dcr_name, dcr, path_to_json)
     return dcr
     
-def dcr_stats(dcr_name: str, distances_to_closest_record: np.ndarray) -> Dict:
+def dcr_stats(dcr_name: str, 
+              distances_to_closest_record: np.ndarray,
+              path_to_json: str = "") -> Dict:
     """
     This function returns the statisitcs for an array containing DCR computed previously.
 
@@ -286,10 +289,12 @@ def dcr_stats(dcr_name: str, distances_to_closest_record: np.ndarray) -> Dict:
         "75%": dcr_percentiles[3].item(),
         "max": dcr_percentiles[4].item(),
     }
-    _save_to_json("dcr_"+dcr_name+"_stats", dcr_stats)
+    _save_to_json("dcr_"+dcr_name+"_stats", dcr_stats, path_to_json)
     return dcr_stats
 
-def number_of_dcr_equal_to_zero(dcr_name: str, distances_to_closest_record: np.ndarray) -> int_type:
+def number_of_dcr_equal_to_zero(dcr_name: str, 
+                                distances_to_closest_record: np.ndarray,
+                                path_to_json: str = "") -> int_type:
     """
     Return the number of 0s in the given DCR array, that is the number of duplicates/clones detected.
 
@@ -308,14 +313,15 @@ def number_of_dcr_equal_to_zero(dcr_name: str, distances_to_closest_record: np.n
         raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
 
     zero_values_mask = distances_to_closest_record == 0.0
-    _save_to_json("dcr_"+dcr_name+"_num_of_zeros", zero_values_mask.sum())
+    _save_to_json("dcr_"+dcr_name+"_num_of_zeros", zero_values_mask.sum(), path_to_json)
     return zero_values_mask.sum()
 
 def dcr_histogram(
             dcr_name: str,
             distances_to_closest_record: np.ndarray, 
             bins: int = 20, 
-            scale_to_100: bool = True
+            scale_to_100: bool = True,
+            path_to_json: str = ""
         ) -> Dict:
     """
     Compute the histogram of a DCR array: the DCR values equal to 0 are extracted before the
@@ -374,12 +380,13 @@ def dcr_histogram(
         "bins_edge_without_zero": bins_without_zero.tolist(),
     }
     
-    _save_to_json("dcr_"+dcr_name+"_hist", dcr_hist)
+    _save_to_json("dcr_"+dcr_name+"_hist", dcr_hist, path_to_json)
     return dcr_hist
 
 def validation_dcr_test(
                 dcr_synth_train: np.ndarray, 
-                dcr_synth_validation: np.ndarray
+                dcr_synth_validation: np.ndarray,
+                path_to_json: str = ""
             ) -> float_type:
     """
     - If the returned percentage is close to (or smaller than) 50%, then the synthetic datset's records are equally close to the original training set and to the validation set.
@@ -434,5 +441,5 @@ def validation_dcr_test(
         percentage = synth_dcr_smaller_than_holdout_dcr_sum / number_of_rows * 100
     
     dcr_validation = {"percentage": round(percentage,4), "warnings": warnings}
-    _save_to_json("dcr_validation", dcr_validation)
+    _save_to_json("dcr_validation", dcr_validation, path_to_json)
     return dcr_validation

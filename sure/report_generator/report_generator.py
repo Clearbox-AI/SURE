@@ -8,11 +8,11 @@ import polars as pl
 import numpy as np
 
 # Function to run the streamlit app
-def report():
+def report(path_to_data:str = ""):
     ''' Generate the report app
     '''
     report_path = pkg_resources.resource_filename('sure.report_generator', 'report_app.py')
-    process = subprocess.run(['streamlit', 'run', report_path])
+    process = subprocess.run(['streamlit', 'run', report_path, '-- path', path_to_data])
     print("Streamlit app is running...")
     return process
 
@@ -49,13 +49,15 @@ def _convert_to_serializable(obj: object):
         return obj
 
 def _save_to_json(data_name: str, 
-                  new_data: object):
+                  new_data: object,
+                  path_to_json: str):
     ''' This function saves data into a JSON file in the folder where the user is working.
     '''
     # Check if the file exists
-    if os.path.exists("data.json"):
+    path = os.path.join(path_to_json,"data.json")
+    if os.path.exists(path):
         # Read the existing data from the file
-        with open("data.json", 'r') as file:
+        with open(path, 'r') as file:
             try:
                 data = json.load(file)
             except json.JSONDecodeError:
@@ -70,18 +72,21 @@ def _save_to_json(data_name: str,
     data[data_name] = serializable_data
 
     # Write the updated data back to the file
-    with open("data.json", 'w') as file:
+    with open(path, 'w') as file:
         json.dump(data, file, indent=4)
 
-def _load_from_json(data_name:str = None):
+def _load_from_json(path_to_json: str,
+                    data_name: str = None
+                    ):
     ''' This function loads data from a JSON file "data.json" in the folder where the user is working
     '''
     # Check if the file exists
-    if not os.path.exists("data.json"):
+    path = os.path.join(path_to_json,"data.json")
+    if not os.path.exists(path):
         raise FileNotFoundError("The data.json file does not exist.")
     
     # Read the data from the file
-    with open("data.json", 'r') as file:
+    with open(path, 'r') as file:
         try:
             data = json.load(file)
         except json.JSONDecodeError:

@@ -120,7 +120,8 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                    y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
                                    custom_metric: Callable       = None, 
                                    classifiers:   List[Callable] = "all",
-                                   predictions:   bool = False
+                                   predictions:   bool = False,
+                                   path_to_json:  str = ""
                                  ): 
     ''' This function starts the training of a classification task on a pool of available classifiers and returns the metrics
     '''
@@ -145,9 +146,9 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
     models_train.columns = ['Accuracy Real', 'Balanced Accuracy Real', 'ROC AUC Real', 'F1 Score Real', 'Time Taken Real']
     models_synth.columns = ['Accuracy Synth', 'Balanced Accuracy Synth', 'ROC AUC Synth', 'F1 Score Synth', 'Time Taken Synth']
     
-    _save_to_json("models", models_train)
-    _save_to_json("models_synth", models_synth)
-    _save_to_json("models_delta", delta)
+    _save_to_json("models", models_train, path_to_json)
+    _save_to_json("models_synth", models_synth, path_to_json)
+    _save_to_json("models_delta", delta, path_to_json)
     
     if predictions:
         return models_train, models_synth, delta, pred_synth
@@ -160,9 +161,10 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
                                   y_train:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
                                   y_synth:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
                                   y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
-                                  custom_metric:  Callable       = None, 
-                                  regressors:     List[Callable] = "all",
-                                  predictions:    bool = False
+                                  custom_metric: Callable       = None, 
+                                  regressors:    List[Callable] = "all",
+                                  predictions:   bool = False,
+                                  path_to_json:  str = ""
                                 ):
     ''' This function starts the training of a regression task on a pool of available regressors and returns the metrics
     '''
@@ -185,9 +187,9 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
     models_train.columns = ['Adjusted R-squared Real', 'R-squared Real', 'RMSE Real']
     models_synth.columns = ['Adjusted R-squared Synth', 'R-squared Synth', 'RMSE Synth']
 
-    _save_to_json("models", models_train)
-    _save_to_json("models_synth", models_synth)
-    _save_to_json("models_delta", delta)
+    _save_to_json("models", models_train, path_to_json)
+    _save_to_json("models_synth", models_synth, path_to_json)
+    _save_to_json("models_delta", delta, path_to_json)
 
     if predictions:
         return models_train, models_synth, delta, pred_synth
@@ -233,8 +235,10 @@ def _most_frequent_values(data: pl.DataFrame,
     
     return most_frequent_dict
 
-def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray) -> Tuple[Dict, Dict, Dict]:
+def compute_statistical_metrics(real_data:    pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+                                synth_data:   pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
+                                path_to_json: str = ""
+                                ) -> Tuple[Dict, Dict, Dict]:
     ''' This function computes statistical metrics for numerical, categorical, and temporal features 
         in both real and synthetic datasets.
         
@@ -301,10 +305,6 @@ def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.Dat
                                                         "synthetic" : synth_data.select(num_features).quantile(0.75,"nearest")}
         num_features_comparison["max"]              = { "real"      : real_data.select(pl.max(num_features)),
                                                         "synthetic" : synth_data.select(pl.max(num_features))}
-        num_features_comparison["skewness"]         = { "real"      : real_data.select(pl.col(num_features).skew()),
-                                                        "synthetic" : synth_data.select(pl.col(num_features).skew())}
-        num_features_comparison["kurtosis"]         = { "real"      : real_data.select(pl.col(num_features).kurtosis()),
-                                                        "synthetic" : synth_data.select(pl.col(num_features).kurtosis())}
     # Categorical features
     if len(cat_features) != 0:
         cat_features_comparison = dict()
@@ -329,14 +329,18 @@ def compute_statistical_metrics(real_data:  pl.DataFrame | pl.LazyFrame | pd.Dat
         time_features_comparison["most_frequent"]       = { "real"      : _most_frequent_values(real_data, time_features),
                                                             "synthetic" : _most_frequent_values(synth_data, time_features)}
 
-    _save_to_json("num_features_comparison", num_features_comparison)
-    _save_to_json("cat_features_comparison", cat_features_comparison)
-    _save_to_json("time_features_comparison", time_features_comparison)
+    _save_to_json("num_features_comparison", num_features_comparison, path_to_json)
+    _save_to_json("cat_features_comparison", cat_features_comparison, path_to_json)
+    _save_to_json("time_features_comparison", time_features_comparison, path_to_json)
+
+    # _save_to_json("real_data", real_data)
+    # _save_to_json("synth_data", synth_data)
 
     return num_features_comparison, cat_features_comparison, time_features_comparison
 
 def compute_mutual_info(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                        synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray):
+                        synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
+                        path_to_json: str = ""):
     ''' This function computes the correlation matrix for both the real and synthetic datasets,
         and calculates the difference between these matrices.
         
@@ -399,8 +403,8 @@ def compute_mutual_info(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame |
     synth_corr = synth_corr.insert_column(0, pl.Series("Columns", synth_corr.columns))
     diff_corr  = diff_corr.insert_column(0, pl.Series("Columns", diff_corr.columns))
 
-    _save_to_json("real_corr", real_corr)
-    _save_to_json("synth_corr", synth_corr)
-    _save_to_json("diff_corr", diff_corr)
+    _save_to_json("real_corr", real_corr, path_to_json)
+    _save_to_json("synth_corr", synth_corr, path_to_json)
+    _save_to_json("diff_corr", diff_corr, path_to_json)
 
     return real_corr, synth_corr, diff_corr

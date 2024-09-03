@@ -1,7 +1,33 @@
 import streamlit as st
 import pandas as pd
+import altair as alt
+import argparse
 
 from report_generator import _load_from_json, _convert_to_dataframe
+
+def plot_distribution(train_data, synth_data, feature):
+        ''' This function plots the synth-train DCR and synth-validation DCR histograms
+        '''
+        # Convert data to pandas DataFrame
+        df = pd.DataFrame({'DCR': train_data[feature], 'Data': 'Real Data'})
+        if synth_data is not None:
+            df_synth = pd.DataFrame({'DCR': synth_data[feature], 'Data': 'Synthetic Data'})
+            df = pd.concat([df, df_synth])
+
+        # Create Altair chart
+        colors = ['#6268ff','#ccccff']
+        chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
+            alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
+            alt.Y('count()', stack=None),
+            color=alt.Color('Data:N', scale=alt.Scale(range=colors))
+        ).properties(
+            title='Distribution of Real and Synthetic {feature} feature',
+            width=600,
+            height=400
+        )
+
+        # Display chart in Streamlit
+        st.altair_chart(chart)
 
 def _display_feature_data(data):
     ''' This function displays the data for a selected feature
@@ -144,7 +170,7 @@ def _ml_utility():
 #         "selected_models:"
 #         selected_models
 
-def main():
+def main(path_to_json):
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
     
@@ -160,10 +186,16 @@ def main():
     st.sidebar.markdown("# Utility")
 
     # Load data in the session state, so that it is available in all the pages of the app
-    st.session_state = _load_from_json()
+    if path_to_json:
+        st.session_state = _load_from_json(path_to_json)
+    else:
+        st.session_state = _load_from_json("")
     
     ## Statistical similarity
     st.subheader("Statistical similarity")
+
+    # Features distribution
+    # plot_distribution()
 
     # General statistics
     if "num_features_comparison" in st.session_state and st.session_state["num_features_comparison"]:
@@ -206,4 +238,9 @@ def main():
         _ml_utility()
         
 if __name__ == "__main__":
-    main()
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser(description="This script runs the utility and privacy report app of the SURE library.")
+    parser.add_argument('path', type=str, default="", help='path where the json file with the results is saved')
+    args = parser.parse_args()
+
+    main(args.path)
