@@ -86,7 +86,6 @@ def _ml_utility():
     
     st.session_state["selected_models"] = default
     
-    # with cols[1]:
     options = st.multiselect(label="Select ML models to show in the table:", 
                     options=models_df.index.values, 
                     default= [x for x in st.session_state["selected_models"] if x in models_df.index.values], 
@@ -102,9 +101,14 @@ def _ml_utility():
     if butt2:
         options = []
 
-    # with cols[0]:
+    st.text("") # vertical space
+    st.text("") # vertical space
+    st.text("ML Metrics")
     st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-2], color="#178252"))
-    st.dataframe(models_delta_df.loc[options].style.highlight_min(axis=0, subset=models_delta_df.columns[:-1], color="#178252"))
+    st.text("") # vertical space
+    st.text("") # vertical space
+    st.text("ML Delta Metrics")
+    st.dataframe(models_delta_df.abs().loc[options].style.highlight_min(axis=0, subset=models_delta_df.columns[:-1], color="#178252").highlight_max(axis=0, subset=models_delta_df.columns[:-1], color="#a83232"))
 
 # def _ml_utility(models_df):
 #     def _select_all():
