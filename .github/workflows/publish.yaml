@@ -14,10 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
         include:
-          - python-version: "3.9"
-            python-path: "/opt/python/cp39-cp39/bin"
           - python-version: "3.10"
             python-path: "/opt/python/cp310-cp310/bin"
           - python-version: "3.11"
