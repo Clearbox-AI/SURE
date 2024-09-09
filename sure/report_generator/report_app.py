@@ -29,14 +29,13 @@ def plot_distribution(train_data, synth_data, feature):
         # Display chart in Streamlit
         st.altair_chart(chart)
 
-def _display_feature_data(data, label):
+def _display_feature_data(data):
     ''' This function displays the data for a selected feature
     '''
     # Get list of feature names
     feature_names = list(data.keys())
 
     # Create dropdown menu for feature selection
-    st.text(label)
     selected_feature = st.selectbox(label               = 'Select a statistical quantity:', 
                                     options             = ["Select a statistical quantity..."] + feature_names, 
                                     index               = None, 
@@ -82,7 +81,8 @@ def _ml_utility():
     models_real_df = _convert_to_dataframe(st.session_state["models"]).set_index(['Model'])
     models_synth_df = _convert_to_dataframe(st.session_state["models_synth"]).set_index(['Model'])
     models_df = pd.concat([models_real_df, models_synth_df], axis=1)
-    models_df = models_df[['Accuracy Real', 'Accuracy Synth', 'Balanced Accuracy Real', 'Balanced Accuracy Synth', 'ROC AUC Real', 'ROC AUC Synth', 'F1 Score Real', 'F1 Score Synth', 'Time Taken Real', 'Time Taken Synth']]    
+    interleaved_columns = [col for pair in zip(models_real_df.columns, models_synth_df.columns) for col in pair]
+    models_df = models_df[interleaved_columns]    
     models_delta_df = _convert_to_dataframe(st.session_state["models_delta"]).set_index(['Model'])
     
     st.session_state["selected_models"] = default
@@ -204,23 +204,19 @@ def main(path_to_json):
 
     # General statistics
     if "num_features_comparison" in st.session_state and st.session_state["num_features_comparison"]:
-        # num_features_comparison = st.session_state["num_features_comparison"]
-        _display_feature_data(st.session_state["num_features_comparison"], "Numerical Features")
+        features_comparison = st.session_state["num_features_comparison"]
     if "cat_features_comparison" in st.session_state and st.session_state["cat_features_comparison"]:
-        # if "features_comparison" in locals():
-        #     features_comparison = {**features_comparison, **st.session_state["cat_features_comparison"]}
-        # else:
-        #     features_comparison = st.session_state["cat_features_comparison"]
-        _display_feature_data(st.session_state["cat_features_comparison"], "Categorical Features")
+        if "features_comparison" in locals():
+            features_comparison = {**features_comparison, **st.session_state["cat_features_comparison"]}
+        else:
+            features_comparison = st.session_state["cat_features_comparison"]
     if "time_features_comparison" in st.session_state and st.session_state["time_features_comparison"]:
-        # if "features_comparison" in locals():
-        #     features_comparison = {**features_comparison, **st.session_state["time_features_comparison"]}
-        # else:
-        #     features_comparison = st.session_state["time_features_comparison"]
-        _display_feature_data(st.session_state["time_features_comparison"], "Temporal Features")
-    # if features_comparison:
-    #     label = "Numerical Features"
-    #     _display_feature_data(features_comparison, label)
+        if "features_comparison" in locals():
+            features_comparison = {**features_comparison, **st.session_state["time_features_comparison"]}
+        else:
+            features_comparison = st.session_state["time_features_comparison"]
+    if features_comparison:
+        _display_feature_data(features_comparison)
 
     st.markdown('###')
 
