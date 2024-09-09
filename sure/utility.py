@@ -125,11 +125,20 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                  ): 
     ''' This function starts the training of a classification task on a pool of available classifiers and returns the metrics
     '''
+    # Store DataFrame type information for returning the same type
+    was_pd = True
+    was_pl = False
+    was_np = False
+
+    if isinstance(X_train, pl.DataFrame) or isinstance(X_train, pl.LazyFrame):
+         was_pl = True
+    elif isinstance(X_train, np.ndarray):
+         was_np = True
 
     # Initialise ClassificationGarden class and start training
     classifier = ClassificationGarden(predictions=predictions, classifiers=classifiers, custom_metric=custom_metric)
     print('Fitting original models:')
-    models_train, pred = classifier.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
+    models_train, pred_train = classifier.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
                                   X_test[[w for w in X_train.columns if w in X_test.columns]], 
                                   y_train, 
                                   y_test)
@@ -140,18 +149,48 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
                                                     X_test[[w for w in X_synth.columns if w in X_test.columns]], 
                                                     y_synth, 
                                                     y_test)
-    
     delta = models_train-models_synth
-    delta.columns = ['Accuracy Delta', 'Balanced Accuracy Delta', 'ROC AUC Delta', 'F1 Score Delta', 'Time Taken Delta']
-    models_train.columns = ['Accuracy Real', 'Balanced Accuracy Real', 'ROC AUC Real', 'F1 Score Real', 'Time Taken Real']
-    models_synth.columns = ['Accuracy Synth', 'Balanced Accuracy Synth', 'ROC AUC Synth', 'F1 Score Synth', 'Time Taken Synth']
+    col_names_delta = [s + " Delta" for s in list(delta.columns)]
+    delta.columns = col_names_delta
+    col_names_train= [s + " Real" for s in list(models_train.columns)]
+    models_train.columns = col_names_train
+    col_names_synth = [s + " Synth" for s in list(models_synth.columns)]
+    models_synth.columns = col_names_synth
     
     _save_to_json("models", models_train, path_to_json)
     _save_to_json("models_synth", models_synth, path_to_json)
     _save_to_json("models_delta", delta, path_to_json)
     
+    # Transform the output DataFrames into the type used for the input DataFrames
+    if was_pl:
+         models_train = pl.from_pandas(models_train)
+         models_synth = pl.from_pandas(models_synth)
+         delta = pl.from_pandas(delta)
+    elif was_np:
+         models_train = pl.from_numpy(models_train)
+         models_synth = pl.from_numpy(models_synth)
+         delta = pl.from_numpy(delta)
+
     if predictions:
-        return models_train, models_synth, delta, pred_synth
+        if isinstance(y_train, (pl.DataFrame,pl.LazyFrame)):
+            y_train = y_train.to_pandas()
+            y_synth = y_synth.to_pandas()
+        elif isinstance(y_train, np.ndarray):
+            y_train = pd.DataFrame(y_train)
+            y_synth = pd.DataFrame(y_synth)
+
+        pred_train = pd.concat([y_train,pred_train], axis=1)
+        pred_train.columns.values[0] = 'Ground truth'
+        pred_synth = pd.concat([y_synth,pred_synth], axis=1)
+        pred_synth.columns.values[0] = 'Ground truth'
+
+        if was_pl:
+            pred_train = pl.from_pandas(pred_train)
+            pred_synth = pl.from_pandas(pred_synth)
+        elif was_np:
+            pred_train = pred_train.to_numpy()
+            pred_synth = pred_synth.to_numpy()
+        return models_train, models_synth, delta, pred_train, pred_synth
     else:
         return models_train, models_synth, delta
 
@@ -168,10 +207,20 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
                                 ):
     ''' This function starts the training of a regression task on a pool of available regressors and returns the metrics
     '''
+    # Store DataFrame type information for returning the same type
+    was_pd = True
+    was_pl = False
+    was_np = False
+
+    if isinstance(X_train, pl.DataFrame) or isinstance(X_train, pl.LazyFrame):
+         was_pl = True
+    elif isinstance(X_train, np.ndarray):
+         was_np = True
+
     # Initialise RegressionGarden class and start training
     regressor = RegressionGarden(predictions=predictions, regressors=regressors, custom_metric=custom_metric)
     print('Fitting original models:')
-    models_train, pred = regressor.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
+    models_train, pred_train = regressor.fit(X_train[[w for w in X_train.columns if w in X_test.columns]], 
                                  X_test[[w for w in X_train.columns if w in X_test.columns]], 
                                  y_train, 
                                  y_test)
@@ -183,16 +232,52 @@ def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | p
                                                    y_synth, 
                                                    y_test)
     delta = models_train-models_synth
-    delta.columns = ['Adjusted R-squared Delta', 'R-squared Delta', 'RMSE Delta']
-    models_train.columns = ['Adjusted R-squared Real', 'R-squared Real', 'RMSE Real']
-    models_synth.columns = ['Adjusted R-squared Synth', 'R-squared Synth', 'RMSE Synth']
+    col_names_delta = [s + " Delta" for s in list(delta.columns)]
+    delta.columns = col_names_delta
+    col_names_train= [s + " Real" for s in list(models_train.columns)]
+    models_train.columns = col_names_train
+    col_names_synth = [s + " Synth" for s in list(models_synth.columns)]
+    models_synth.columns = col_names_synth
 
     _save_to_json("models", models_train, path_to_json)
     _save_to_json("models_synth", models_synth, path_to_json)
     _save_to_json("models_delta", delta, path_to_json)
 
+    pred_train = pd.concat([y_train.to_pandas(),pred_train], axis=1)
+    pred_train.columns.values[0] = 'Ground truth'
+    pred_synth = pd.concat([y_synth.to_pandas(),pred_synth], axis=1)
+    pred_synth.columns.values[0] = 'Ground truth'
+
+    # Transform the output DataFrames into the type used for the input DataFrames
+    if isinstance(y_train, (pl.DataFrame, pl.LazyFrame)):
+        y_train = y_train.to_pandas()
+        y_synth = y_synth.to_pandas()
+    elif isinstance(y_train, np.ndarray):
+        y_train = pd.DataFrame(y_train)
+        y_synth = pd.DataFrame(y_synth)
+
+    pred_train = pd.concat([y_train,pred_train], axis=1)
+    pred_train.columns.values[0] = 'Groud truth'
+    pred_synth = pd.concat([y_synth,pred_synth], axis=1)
+    pred_synth.columns.values[0] = 'Groud truth'    
+    
+    if was_pl:
+         models_train = pl.from_pandas(models_train)
+         models_synth = pl.from_pandas(models_synth)
+         delta = pl.from_pandas(delta)
+    elif was_np:
+         models_train = pl.from_numpy(models_train)
+         models_synth = pl.from_numpy(models_synth)
+         delta = pl.from_numpy(delta)
+
     if predictions:
-        return models_train, models_synth, delta, pred_synth
+        if was_pl:
+            pred_train = pl.from_pandas(pred_train)
+            pred_synth = pl.from_pandas(pred_synth)
+        elif was_np:
+            pred_train = pl.from_numpy(pred_train)
+            pred_synth = pl.from_numpy(pred_synth)
+        return models_train, models_synth, delta, pred_train, pred_synth
     else:
         return models_train, models_synth, delta
 
