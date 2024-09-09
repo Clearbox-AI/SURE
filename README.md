@@ -107,11 +107,11 @@ TSTR_metrics = compute_utility_metrics_class(X_train, X_synth, X_test, y_train, 
 # Distance to closest record
 dcr_synth_train       = distance_to_closest_record("synth_train", synth_data_preprocessed, real_data_preprocessed)
 dcr_synth_valid       = distance_to_closest_record("synth_val", synth_data_preprocessed, valid_data_preprocessed)
-dcr_stats_synth_train = dcr_stats("synth_train", dcr_train)
-dcr_stats_synth_valid = dcr_stats("synth_valid", dcr_valid)
-dcr_zero_synth_train  = number_of_dcr_equal_to_zero("synth_train", dcr_train)
-dcr_zero_synth_valid  = number_of_dcr_equal_to_zero("synth_val", dcr_valid)
-share                 = validation_dcr_test(dcr_train, dcr_valid)
+dcr_stats_synth_train = dcr_stats("synth_train", dcr_synth_train)
+dcr_stats_synth_valid = dcr_stats("synth_valid", dcr_synth_valid)
+dcr_zero_synth_train  = number_of_dcr_equal_to_zero("synth_train", dcr_synth_train)
+dcr_zero_synth_valid  = number_of_dcr_equal_to_zero("synth_val", dcr_synth_valid)
+share                 = validation_dcr_test(dcr_synth_train, dcr_synth_valid)
 
 # ML privacy attack sandbox initialization and simulation
 adversary_dataset = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
