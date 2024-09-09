@@ -73,9 +73,9 @@ Below is a code snippet example for the usage of the library:
 # Import the necessary modules from the SURE library
 from sure import Preprocessor, report
 from sure.utility import (compute_statistical_metrics, compute_mutual_info,
-													compute_utility_metrics_class)
+			  compute_utility_metrics_class)
 from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
-													adversary_dataset, membership_inference_test)
+			  adversary_dataset, membership_inference_test)
 
 # Assuming real_data, valid_data and synth_data are three pandas DataFrames
 
