@@ -6,6 +6,11 @@ cython
 wheel
 streamlit
 clearbox-preprocessor
-lazypredict-nightly
 plotly
 altair
+click
+scikit-learn
+tqdm
+joblib
+lightgbm
+xgboost

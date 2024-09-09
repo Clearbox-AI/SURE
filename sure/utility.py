@@ -6,7 +6,7 @@ import polars as pl
 import polars.selectors as cs
 
 from sure import _save_to_json
-from lazypredict import LazyClassifier, LazyRegressor
+from _lazypredict import LazyClassifier, LazyRegressor
 
 def _to_numpy(data):
     ''' This functions transforms polars or pandas DataFrames or LazyFrames into numpy arrays'''
