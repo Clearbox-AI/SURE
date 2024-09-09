@@ -598,7 +598,12 @@ class LazyRegressor:
                         steps=[("preprocessor", preprocessor), ("regressor", model())]
                     )
 
-                pipe.fit(X_train, y_train, verbose=False)
+                if model.__name__=="LGBMRegressor":
+                    callbacks = [lightgbm.early_stopping(10, verbose=0), lightgbm.log_evaluation(period=0)]
+                    pipe.fit(X_train, y_train,callbacks=callbacks)
+                else:
+                    pipe.fit(X_train, y_train)
+
                 self.models[name] = pipe
                 y_pred = pipe.predict(X_test)
 
