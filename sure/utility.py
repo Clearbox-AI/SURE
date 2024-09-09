@@ -172,7 +172,7 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
          delta = pl.from_numpy(delta)
 
     if predictions:
-        if isinstance(y_train, (pl.DataFrame,pl.LazyFrame)):
+        if isinstance(y_train, (pl.DataFrame, pl.LazyFrame, pl.Series)):
             y_train = y_train.to_pandas()
             y_synth = y_synth.to_pandas()
         elif isinstance(y_train, np.ndarray):
