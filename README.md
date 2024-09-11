@@ -9,7 +9,7 @@ The SURE package is an open-source Python library intended to be used for the as
 The SURE library features multiple Python modules that can be easily imported and seamlessly integrated into any Python script after installing the library.
 
 > [!WARNING]
-> This is a beta version of the library and only runs on Linux for the moment.
+> This is a beta version of the library and only runs on Linux and MacOS for the moment.
 
 # Installation
 
