@@ -19,7 +19,7 @@ To install the library run the following command in your terminal:
 $ pip install clearbox-sure
 ```
 
-### Modules overview
+# Modules overview
 
 The SURE library features the following modules:
 
