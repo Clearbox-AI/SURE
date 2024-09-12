@@ -11,6 +11,9 @@ The SURE library features multiple Python modules that can be easily imported an
 > [!WARNING]
 > This is a beta version of the library and only runs on Linux and MacOS for the moment.
 
+> [!IMPORTANT]
+> Requires Python >= 3.10
+
 # Installation
 
 To install the library run the following command in your terminal:
