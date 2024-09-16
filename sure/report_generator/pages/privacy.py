@@ -1,6 +1,4 @@
 import streamlit as st
-# import plotly.figure_factory as ff
-# import altair as alt
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt

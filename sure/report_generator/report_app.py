@@ -1,35 +1,11 @@
 import streamlit as st
 import pandas as pd
-# import altair as alt
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 import argparse
-# import matplotlib.pyplot as plt
-# import seaborn as sns
 
 from report_generator import _load_from_json, _convert_to_dataframe
-
-# def plot_distribution(train_data, synth_data, feature):
-#         ''' This function plots the synth-train DCR and synth-validation DCR histograms
-#         '''
-#         # Convert data to pandas DataFrame
-#         df = pd.DataFrame({'DCR': train_data[feature], 'Data': 'Real Data'})
-#         if synth_data is not None:
-#             df_synth = pd.DataFrame({'DCR': synth_data[feature], 'Data': 'Synthetic Data'})
-#             df = pd.concat([df, df_synth])
-
-#         # Create Altair chart
-#         colors = ['#6268ff','#ccccff']
-#         chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
-#             alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
-#             alt.Y('count()', stack=None),
-#             color=alt.Color('Data:N', scale=alt.Scale(range=colors))
-#         ).properties(
-#             title='Distribution of Real and Synthetic {feature} feature',
-#             width=600,
-#             height=400
-#         )
-
-#         # Display chart in Streamlit
-#         st.altair_chart(chart)
 
 def _display_feature_data(data):
     ''' This function displays the data for a selected feature
@@ -107,11 +83,11 @@ def _ml_utility():
     st.text("") # vertical space
     st.text("") # vertical space
     st.text("ML Metrics")
-    st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-2], color="#178252"))
+    st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-2], color="#5cbd91"))
     st.text("") # vertical space
     st.text("") # vertical space
     st.text("ML Delta Metrics")
-    st.dataframe(models_delta_df.abs().loc[options].style.highlight_min(axis=0, subset=models_delta_df.columns[:-1], color="#178252").highlight_max(axis=0, subset=models_delta_df.columns[:-1], color="#a83232"))
+    st.dataframe(models_delta_df.abs().loc[options].style.highlight_min(axis=0, subset=models_delta_df.columns[:-1], color="#5cbd91").highlight_max(axis=0, subset=models_delta_df.columns[:-1], color="#c45454"))
 
 # def _ml_utility(models_df):
 #     def _select_all():
@@ -177,6 +153,33 @@ def _ml_utility():
 #         "selected_models:"
 #         selected_models
 
+def plot_heatmap(data, title):
+    df = pd.DataFrame(data)
+    df = df.drop(columns=["Columns"])
+    # Generate a mask for the upper triangle
+    mask = np.triu(np.ones_like(df, dtype=bool), 1)
+
+    # Set up the matplotlib figure
+    f, ax = plt.subplots(figsize=(13, 11))
+
+    # Generate a custom diverging colormap
+    cmap = sns.diverging_palette(20, 265, as_cmap=True)
+
+    # Draw the heatmap with the mask, correct aspect ratio, and column names as labels
+    sns.heatmap(df, cmap=cmap, center=0, 
+                square=True, mask=mask, linewidths=.5, 
+                cbar_kws={"shrink": .75},
+                xticklabels=df.columns,  # Display column names on x-axis
+                yticklabels=df.columns   # Display column names on y-axis
+                )
+
+    # Rotate x-axis labels for better readability and add title
+    plt.xticks(rotation=45, ha='right')
+    ax.set_title(title, fontsize=16, pad=20)
+
+    # Display the plot
+    st.pyplot(f)
+
 def main(path_to_json):
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
@@ -227,15 +230,15 @@ def main(path_to_json):
     if "real_corr" in st.session_state:
         cb_rea_corr = st.checkbox("Show original dataset correlation matrix", value=False)
         if cb_rea_corr:
-            st.dataframe(st.session_state["real_corr"])
+            plot_heatmap(st.session_state["real_corr"], 'Original Dataset Correlation Matrix Heatmap')
     if "synth_corr" in st.session_state:
         cb_synth_corr = st.checkbox("Show synthetic dataset correlation matrix", value=False)
         if cb_synth_corr:
-            st.dataframe(st.session_state["synth_corr"])
+            plot_heatmap(st.session_state["synth_corr"], 'Synthetic Dataset Correlation Matrix Heatmap')
     if "diff_corr" in st.session_state:
         cb_diff_corr = st.checkbox("Show difference between the correlation matrix of the original dataset and the one of the synthetic dataset", value=False)
         if cb_diff_corr:
-            st.dataframe(st.session_state["diff_corr"])
+            plot_heatmap(st.session_state["diff_corr"], 'Original-Synthetic Dataset Correlation Matrix Difference Heatmap')
 
     st.divider()
 
