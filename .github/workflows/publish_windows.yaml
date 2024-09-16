@@ -36,11 +36,12 @@ jobs:
       run: |
         python setup.py bdist_wheel
 
-    - name: Upload Python wheels as artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-wheels
-        path: dist/*.whl
+    # - name: Upload Python wheels as artifacts
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: python-wheels
+    #     path: dist/*.whl
+
     - name: Publish on PyPI
       run: |
         pip install twine
