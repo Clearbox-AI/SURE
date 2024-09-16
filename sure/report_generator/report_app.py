@@ -86,7 +86,7 @@ def _ml_utility():
     st.dataframe(models_df.loc[options].style.highlight_max(axis=0, subset=models_df.columns[:-2], color="#5cbd91"))
     st.text("") # vertical space
     st.text("") # vertical space
-    st.text("ML Delta Metrics", help("Difference between the metrics of the original dataset and the synthetic dataset."))
+    st.text("ML Delta Metrics", help="Difference between the metrics of the original dataset and the synthetic dataset.")
     st.dataframe(models_delta_df.abs().loc[options].style.highlight_min(axis=0, subset=models_delta_df.columns[:-1], color="#5cbd91").highlight_max(axis=0, subset=models_delta_df.columns[:-1], color="#c45454"))
 
 # def _ml_utility(models_df):
