@@ -6,7 +6,7 @@ cython
 wheel
 streamlit
 clearbox-preprocessor
-matploltib
+matplotlib
 seaborn
 click
 scikit-learn
