@@ -46,7 +46,7 @@ jobs:
           my-python-wheels /build_wheel.sh
 
     - name: Upload Python wheels as artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: python-wheels
         path: dist/*.whl
