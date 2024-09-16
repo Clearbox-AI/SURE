@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import seaborn.objects as so
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import argparse
 
@@ -180,6 +182,39 @@ def plot_heatmap(data, title):
     # Display the plot
     st.pyplot(f)
 
+def plot_hist(real_data, synth_data):
+    ''' This function plots the synth-train DCR and synth-validation DCR histograms
+    '''
+    # Convert data to pandas DataFrame
+    df_real = pd.DataFrame({'df': real_data, 'Data': 'Real'})
+    df_synth = pd.DataFrame({'df': synth_data, 'Data': 'Synthetic'})
+    df = pd.concat([df_real, df_synth])
+
+    # colors = ['#6268ff','#ccccff']
+    # chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
+    #     alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
+    #     alt.Y('count()', stack=None),
+    #     color=alt.Color('Data:N', scale=alt.Scale(range=colors))
+    # ).properties(
+    #     title='Histograms of Synthetic Train and Validation Data' if val_data is not None else 'Histograms of Synthetic Train',
+    #     width=600,
+    #     height=400
+    # )
+    # # Display chart in Streamlit
+    # st.altair_chart(chart)
+
+    f = mpl.figure.Figure(figsize=(8, 4))
+    sf1= f.subfigures(1, 1)
+    (
+        so.Plot(df, x="df")
+        .facet("Data")
+        .add(so.Bars(color="#6268ff"), so.Hist())
+        .on(sf1)
+        .plot()
+    )
+    # Display the plot in Streamlit
+    st.pyplot(f)
+
 def main(real_df, synth_df, path_to_json):
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
@@ -187,7 +222,7 @@ def main(real_df, synth_df, path_to_json):
     # Load real dataset
     real_df = pd.read_pickle(real_df)
     real_df
-    real_df = pd.read_pickle(real_df)
+    real_df = pd.read_pickle(synth_df)
     synth_df
 
     # Header and subheader and description
@@ -200,6 +235,9 @@ def main(real_df, synth_df, path_to_json):
     ### UTILITY
     st.header('Utility', divider='violet')
     st.sidebar.markdown("# Utility")
+
+    # Plot real and synthetic data distributions
+    plot_hist(real_df, synth_df)
 
     # Load data in the session state, so that it is available in all the pages of the app
     if path_to_json:
