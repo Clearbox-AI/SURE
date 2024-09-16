@@ -3,7 +3,7 @@ import streamlit as st
 # import altair as alt
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn.object as so
+import seaborn.objects as so
 
 @st.cache_data
 def plot_DCR(train_data, val_data=None):
