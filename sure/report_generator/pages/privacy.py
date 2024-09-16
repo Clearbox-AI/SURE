@@ -2,6 +2,7 @@ import streamlit as st
 # import plotly.figure_factory as ff
 # import altair as alt
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn.objects as so
 
@@ -15,19 +16,30 @@ def plot_DCR(train_data, val_data=None):
         df_val = pd.DataFrame({'DCR': val_data, 'Data': 'Synthetic-Validation DCR'})
         df = pd.concat([df, df_val])
 
-    # Create the Seaborn plot
-    plot = (
+    # colors = ['#6268ff','#ccccff']
+    # chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
+    #     alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
+    #     alt.Y('count()', stack=None),
+    #     color=alt.Color('Data:N', scale=alt.Scale(range=colors))
+    # ).properties(
+    #     title='Histograms of Synthetic Train and Validation Data' if val_data is not None else 'Histograms of Synthetic Train',
+    #     width=600,
+    #     height=400
+    # )
+    # # Display chart in Streamlit
+    # st.altair_chart(chart)
+
+    f = mpl.figure.Figure(figsize=(8, 4))
+    sf1= f.subfigures(1, 1)
+    (
         so.Plot(df, x="DCR")
         .facet("Data")
         .add(so.Bars(color="#6268ff"), so.Hist())
+        .on(sf1)
+        .plot()
     )
-
-    # Render the plot
-    fig, ax = plt.subplots()
-    plot.on(ax)  # Draw the plot on the current figure
-
     # Display the plot in Streamlit
-    st.pyplot(fig)
+    st.pyplot(f)
 
 @st.cache_data
 def dcr_stats_table(train_stats, val_stats=None):
@@ -55,13 +67,13 @@ def dcr_validation(dcr_val, dcr_zero_train=None, dcr_zero_val=None):
         # st.caption("N.B. the closer this value is to 50%, the less the synthetic dataset is vulnerable to reidentification attacks!")
     
     cols2 = st.columns(2)
-    with cols2[0]:
-        if dcr_zero_train:
-            # Table with the number of DCR equal to zero
-            st.metric("Clones Synth-Train", dcr_zero_train, help="The number of clones shows how many rows of the synthetic dataset have an identical match in the training dataset. A very low value indicates a low risk in terms of privacy. Ideally this value should be close to 0, but some peculiar characteristics of the training dataset (small size or low column cardinality) may lead to a higher value. The duplicatestable shows the number of duplicates (identical rows) in the training dataset and the synthetic dataset: similar percentages mean higher utility.")
-    with cols2[1]:
-        if dcr_zero_val:
-            st.metric("Clones Synth-Val", dcr_zero_val, help="The number of clones shows how many rows of the synthetic dataset have an identical match in the validation dataset. A very low value indicates a low risk in terms of privacy. Ideally this value should be close to 0, but some peculiar characteristics of the training dataset (small size or low column cardinality) may lead to a higher value.")
+    # with cols2[0]:
+    if dcr_zero_train:
+        # Table with the number of DCR equal to zero
+        st.metric("Clones Synth-Train", dcr_zero_train, help="The number of clones shows how many rows of the synthetic dataset have an identical match in the training dataset. A very low value indicates a low risk in terms of privacy. Ideally this value should be close to 0, but some peculiar characteristics of the training dataset (small size or low column cardinality) may lead to a higher value. The duplicatestable shows the number of duplicates (identical rows) in the training dataset and the synthetic dataset: similar percentages mean higher utility.")
+    # with cols2[1]:
+    if dcr_zero_val:
+        st.metric("Clones Synth-Val", dcr_zero_val, help="The number of clones shows how many rows of the synthetic dataset have an identical match in the validation dataset. A very low value indicates a low risk in terms of privacy. Ideally this value should be close to 0, but some peculiar characteristics of the training dataset (small size or low column cardinality) may lead to a higher value.")
 
 def _MIA():
     cols = st.columns([1,3,2])
@@ -88,22 +100,23 @@ def main():
     
     ## Distance to closest record
     st.subheader("Distance to closest record", help="Distances-to-Closest-Record are individual-level distances of synthetic records with respect to their corresponding nearest neighboring records from the training dataset. A DCR of 0 corresponds to an identical match. These histograms are used to assess whether the synthetic data is a simple copy or minor perturbation of the training data, resulting in high risk of disclosure. There is one DCR histogram computed only on the Training Set (in purple) and one computed for the Synthetic Set vs Training Set (in orange). Ideally, the two histograms should have a similar shape and, above all, the orange histogram should be far enough away from 0.")
+    # DCR statistics
+    st.write("DCR statistics")
     col1, buff, col2 = st.columns([3,0.5,3])
     with col1:
-        # DCR statistics
-        st.write("DCR statistics")
         if "dcr_synth_train_stats" in st.session_state:
             dcr_stats_table(st.session_state["dcr_synth_train_stats"], 
                             st.session_state["dcr_synth_val_stats"])
+    with col2:
         if "dcr_validation" in st.session_state:
             dcr_validation(st.session_state["dcr_validation"],
-                           st.session_state["dcr_synth_train_num_of_zeros"], 
-                           st.session_state["dcr_synth_val_num_of_zeros"])
-    with col2:
-        # Synth-train DCR and synth-validation DCR histograms
-        if "dcr_synth_train" in st.session_state:
-            plot_DCR(st.session_state["dcr_synth_train"], 
-                     st.session_state["dcr_synth_val"])
+                            st.session_state["dcr_synth_train_num_of_zeros"], 
+                            st.session_state["dcr_synth_val_num_of_zeros"])
+        
+    # Synth-train DCR and synth-validation DCR histograms
+    if "dcr_synth_train" in st.session_state:
+        plot_DCR(st.session_state["dcr_synth_train"], 
+                    st.session_state["dcr_synth_val"])
     
     st.divider()
 
