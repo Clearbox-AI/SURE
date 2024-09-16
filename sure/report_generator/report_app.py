@@ -180,15 +180,16 @@ def plot_heatmap(data, title):
     # Display the plot
     st.pyplot(f)
 
-def main(real_df, path_to_json):
+def main(real_df, synth_df, path_to_json):
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
     
     # Load real dataset
-    # if real_df:
     real_df = pd.read_pickle(real_df)
     real_df
-    
+    real_df = pd.read_pickle(real_df)
+    synth_df
+
     # Header and subheader and description
     st.title('SURE')
     st.subheader('Synthetic Data: Utility, Regulatory compliance, and Ethical privacy')
@@ -255,7 +256,9 @@ def main(real_df, path_to_json):
 if __name__ == "__main__":
     # Create an ArgumentParser object
     parser = argparse.ArgumentParser(description="This script runs the utility and privacy report app of the SURE library.")
+    parser.add_argument('real_data', type=str, default="", help='real dataframe')
+    parser.add_argument('synth_data', type=str, default="", help='synthetic dataframe')
     parser.add_argument('path', type=str, default="", help='path where the json file with the results is saved')
     args = parser.parse_args()
 
-    main(args.path)
+    main(args.real_data, args.synth_data, args.path)

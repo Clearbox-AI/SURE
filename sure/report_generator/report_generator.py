@@ -11,17 +11,22 @@ import numpy as np
 
 # Function to run the streamlit app
 def report(df_real: pd.DataFrame, 
+           df_synth: pd.DataFrame, 
            path_to_json:str = ""):
     ''' Generate the report app
     '''
     # Save the DataFrame to a temporary file (pickle format)
     # if df_real:
     with tempfile.NamedTemporaryFile(delete=False, suffix='.pkl') as tmpfile:
-        df_path = tmpfile.name
-        df_real.to_pickle(df_path)  # Save the DataFrame as a pickle file
+        df_path_real = tmpfile.name
+        df_real.to_pickle(df_path_real)  # Save the DataFrame as a pickle file
+        
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pkl') as tmpfile:
+        df_path_synth = tmpfile.name
+        df_synth.to_pickle(df_path_synth)  # Save the DataFrame as a pickle file
 
     report_path = pkg_resources.resource_filename('sure.report_generator', 'report_app.py')
-    process = subprocess.run(['streamlit', 'run', report_path, df_path, path_to_json])
+    process = subprocess.run(['streamlit', 'run', report_path, df_path_real, df_path_synth, path_to_json])
     return process
 
 def _convert_to_serializable(obj: object):

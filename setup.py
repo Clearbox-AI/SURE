@@ -25,6 +25,7 @@ EXCLUDE_FILES = [
     "sure/report_generator/__init__.py",
     "sure/report_generator/pages/privacy.py",
     "sure/report_generator/.streamlit/config.toml",
+    "sure/_lazypredict.py"
 ]
 
 def get_extensions_paths(root_dir, exclude_files):
