@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import argparse
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from report_generator import _load_from_json, _convert_to_dataframe
 
@@ -16,18 +18,31 @@ def plot_distribution(train_data, synth_data, feature):
 
         # Create Altair chart
         colors = ['#6268ff','#ccccff']
-        chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
-            alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
-            alt.Y('count()', stack=None),
-            color=alt.Color('Data:N', scale=alt.Scale(range=colors))
-        ).properties(
-            title='Distribution of Real and Synthetic {feature} feature',
-            width=600,
-            height=400
-        )
+        # chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
+        #     alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
+        #     alt.Y('count()', stack=None),
+        #     color=alt.Color('Data:N', scale=alt.Scale(range=colors))
+        # ).properties(
+        #     title='Distribution of Real and Synthetic {feature} feature',
+        #     width=600,
+        #     height=400
+        # )
 
-        # Display chart in Streamlit
-        st.altair_chart(chart)
+        # # Display chart in Streamlit
+        # st.altair_chart(chart)
+        # Create a figure for the Seaborn plot
+        plt.figure(figsize=(10, 6))
+
+        # Plot using Seaborn
+        sns.histplot(data=df, x='DCR', hue='Data', bins=15, palette=colors, alpha=0.6, multiple='layer')
+
+        # Set title and labels
+        plt.title(f'Distribution of Real and Synthetic {feature} feature')
+        plt.xlabel('DCR')
+        plt.ylabel('Count')
+
+        # Display the plot in Streamlit
+        st.pyplot(plt)
 
 def _display_feature_data(data):
     ''' This function displays the data for a selected feature
