@@ -155,7 +155,7 @@ def _ml_utility():
 
 def plot_heatmap(data, title):
     df = pd.DataFrame(data)
-    df = df.drop(columns=["Columns"])
+    df = df.drop(columns=["label"])
     # Generate a mask for the upper triangle
     mask = np.triu(np.ones_like(df, dtype=bool), 1)
 
@@ -180,9 +180,14 @@ def plot_heatmap(data, title):
     # Display the plot
     st.pyplot(f)
 
-def main(path_to_json):
+def main(real_df, path_to_json):
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
+    
+    # Load real dataset
+    # if real_df:
+    real_df = pd.read_pickle(real_df)
+    real_df
     
     # Header and subheader and description
     st.title('SURE')

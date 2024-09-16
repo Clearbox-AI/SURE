@@ -488,11 +488,6 @@ def compute_mutual_info(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame |
     # Substitute elements with abs value lower than 1e-5 with 0
     diff_corr = diff_corr.with_columns([pl.when(abs(pl.col(col)) < 1e-5).then(0).otherwise(pl.col(col)).alias(col) for col in diff_corr.columns])
 
-    # Add the Column names column as first coulmn
-    real_corr  = real_corr.insert_column(0, pl.Series("Columns", real_data.columns))
-    synth_corr = synth_corr.insert_column(0, pl.Series("Columns", synth_corr.columns))
-    diff_corr  = diff_corr.insert_column(0, pl.Series("Columns", diff_corr.columns))
-
     _save_to_json("real_corr", real_corr, path_to_json)
     _save_to_json("synth_corr", synth_corr, path_to_json)
     _save_to_json("diff_corr", diff_corr, path_to_json)

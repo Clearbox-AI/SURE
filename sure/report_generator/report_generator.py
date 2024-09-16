@@ -3,17 +3,25 @@ import pkg_resources
 
 import json
 import os
+import tempfile
+
 import pandas as pd
 import polars as pl
 import numpy as np
 
 # Function to run the streamlit app
-def report(path_to_json:str = ""):
+def report(df_real: pd.DataFrame, 
+           path_to_json:str = ""):
     ''' Generate the report app
     '''
+    # Save the DataFrame to a temporary file (pickle format)
+    # if df_real:
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pkl') as tmpfile:
+        df_path = tmpfile.name
+        df_real.to_pickle(df_path)  # Save the DataFrame as a pickle file
+
     report_path = pkg_resources.resource_filename('sure.report_generator', 'report_app.py')
-    process = subprocess.run(['streamlit', 'run', report_path, path_to_json])
-    print("Streamlit app is running...")
+    process = subprocess.run(['streamlit', 'run', report_path, df_path, path_to_json])
     return process
 
 def _convert_to_serializable(obj: object):
