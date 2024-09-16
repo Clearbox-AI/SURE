@@ -1,7 +1,9 @@
 import streamlit as st
-import plotly.figure_factory as ff
-import altair as alt
+# import plotly.figure_factory as ff
+# import altair as alt
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn.object as so
 
 @st.cache_data
 def plot_DCR(train_data, val_data=None):
@@ -13,20 +15,19 @@ def plot_DCR(train_data, val_data=None):
         df_val = pd.DataFrame({'DCR': val_data, 'Data': 'Synthetic-Validation DCR'})
         df = pd.concat([df, df_val])
 
-    # Create Altair chart
-    colors = ['#6268ff','#ccccff']
-    chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
-        alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
-        alt.Y('count()', stack=None),
-        color=alt.Color('Data:N', scale=alt.Scale(range=colors))
-    ).properties(
-        title='Histograms of Synthetic Train and Validation Data' if val_data is not None else 'Histograms of Synthetic Train',
-        width=600,
-        height=400
+    # Create the Seaborn plot
+    plot = (
+        so.Plot(df, x="DCR")
+        .facet("Data")
+        .add(so.Bars(color="#6268ff"), so.Hist())
     )
 
-    # Display chart in Streamlit
-    st.altair_chart(chart)
+    # Render the plot
+    fig, ax = plt.subplots()
+    plot.on(ax)  # Draw the plot on the current figure
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
 
 @st.cache_data
 def dcr_stats_table(train_stats, val_stats=None):

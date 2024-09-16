@@ -6,8 +6,8 @@ cython
 wheel
 streamlit
 clearbox-preprocessor
-plotly
-altair
+matploltib
+seaborn
 click
 scikit-learn
 tqdm
