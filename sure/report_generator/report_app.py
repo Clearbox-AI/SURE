@@ -9,6 +9,41 @@ import argparse
 
 from report_generator import _load_from_json, _convert_to_dataframe
 
+
+def _plot_hist(real_data, synth_data):
+    ''' This function plots the synth-train DCR and synth-validation DCR histograms
+    '''
+    # Convert data to pandas DataFrame
+    real_label = pd.DataFrame({'irs_real': ['Real']*len(real_data)})
+    df_real = pd.concat([real_data, real_label], axis=1)
+    synth_label = pd.DataFrame({'is_real': ['Synthetic']*len(synth_data)})
+    df_synth = pd.concat([synth_data, synth_label], axis=1)
+
+    df = pd.concat([df_real, df_synth])
+    cols = df.columns.to_list()
+    cols = cols.remove("is_real")
+
+    # Create dropdown menu for feature selection
+    selected_feature = st.selectbox(label               = 'Select a feature from the dataset:', 
+                                    options             = ["Select a feature..."] + cols, 
+                                    index               = None, 
+                                    placeholder         = "Select a feature...", 
+                                    label_visibility    = "collapsed")
+    
+    if selected_feature and selected_feature!="Select a statistical quantity...":
+        f = mpl.figure.Figure(figsize=(8, 4))
+        sf= f.subfigures(1, 1)
+        (
+            so.Plot(df, x="selected_feature")
+            .facet("is_real")
+            .add(so.Bars(color="#6268ff"), so.Hist())
+            .on(sf)
+            .plot()
+        )
+        # Display the plot in Streamlit
+        st.pyplot(f)
+
+
 def _display_feature_data(data):
     ''' This function displays the data for a selected feature
     '''
@@ -182,48 +217,9 @@ def plot_heatmap(data, title):
     # Display the plot
     st.pyplot(f)
 
-def plot_hist(real_data, synth_data):
-    ''' This function plots the synth-train DCR and synth-validation DCR histograms
-    '''
-    # Convert data to pandas DataFrame
-    df_real = pd.DataFrame({'df': real_data, 'Data': 'Real'})
-    df_synth = pd.DataFrame({'df': synth_data, 'Data': 'Synthetic'})
-    df = pd.concat([df_real, df_synth])
-
-    # colors = ['#6268ff','#ccccff']
-    # chart = alt.Chart(df).mark_bar(opacity=0.6).encode(
-    #     alt.X('DCR:Q', bin=alt.Bin(maxbins=15)),
-    #     alt.Y('count()', stack=None),
-    #     color=alt.Color('Data:N', scale=alt.Scale(range=colors))
-    # ).properties(
-    #     title='Histograms of Synthetic Train and Validation Data' if val_data is not None else 'Histograms of Synthetic Train',
-    #     width=600,
-    #     height=400
-    # )
-    # # Display chart in Streamlit
-    # st.altair_chart(chart)
-
-    f = mpl.figure.Figure(figsize=(8, 4))
-    sf1= f.subfigures(1, 1)
-    (
-        so.Plot(df, x="df")
-        .facet("Data")
-        .add(so.Bars(color="#6268ff"), so.Hist())
-        .on(sf1)
-        .plot()
-    )
-    # Display the plot in Streamlit
-    st.pyplot(f)
-
 def main(real_df, synth_df, path_to_json):
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
-    
-    # Load real dataset
-    real_df = pd.read_pickle(real_df)
-    real_df
-    real_df = pd.read_pickle(synth_df)
-    synth_df
 
     # Header and subheader and description
     st.title('SURE')
@@ -236,8 +232,12 @@ def main(real_df, synth_df, path_to_json):
     st.header('Utility', divider='violet')
     st.sidebar.markdown("# Utility")
 
+    # Load real dataset
+    real_df = pd.read_pickle(real_df)
+    synth_df = pd.read_pickle(synth_df)
+
     # Plot real and synthetic data distributions
-    plot_hist(real_df, synth_df)
+    _plot_hist(real_df, synth_df)
 
     # Load data in the session state, so that it is available in all the pages of the app
     if path_to_json:
