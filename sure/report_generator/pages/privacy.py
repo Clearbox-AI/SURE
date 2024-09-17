@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import matplotlib as mpl
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import seaborn.objects as so
 
 @st.cache_data
@@ -27,15 +26,23 @@ def plot_DCR(train_data, val_data=None):
     # # Display chart in Streamlit
     # st.altair_chart(chart)
 
-    f = mpl.figure.Figure(figsize=(8, 4))
-    sf1= f.subfigures(1, 1)
+    f = plt.figure(figsize=(8, 4))
+    sf = f.subfigures(1, 1)
     (
         so.Plot(df, x="DCR")
         .facet("Data")
         .add(so.Bars(color="#6268ff"), so.Hist())
-        .on(sf1)
+        .on(sf)
         .plot()
     )
+
+    for ax in sf.axes:
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right', fontsize=6)
+        plt.setp(ax.get_yticklabels(), fontsize=8)
+        ax.set_xlabel(ax.get_xlabel(), fontsize=6)  # Set x-axis label font size
+        ax.set_ylabel(ax.get_ylabel(), fontsize=6)  # Set y-axis label font size
+        ax.set_title(ax.get_title(), fontsize=8)    # Set title font size
+
     # Display the plot in Streamlit
     st.pyplot(f)
 

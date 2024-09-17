@@ -30,9 +30,9 @@ def _plot_hist(real_data, synth_data):
                                     placeholder         = "Select a feature...", 
                                     label_visibility    = "collapsed")
     
-    if selected_feature and selected_feature!="Select a statistical quantity...":
-        f = mpl.figure.Figure(figsize=(8, 4))
-        sf= f.subfigures(1, 1)
+    if selected_feature and selected_feature!="Select a feature...":
+        f = plt.figure(figsize=(8, 4))
+        sf = f.subfigures(1, 1)
         (
             so.Plot(df, x=selected_feature)
             .facet("is_real")
