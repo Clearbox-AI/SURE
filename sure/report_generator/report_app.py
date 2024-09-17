@@ -21,7 +21,7 @@ def _plot_hist(real_data, synth_data):
 
     df = pd.concat([df_real, df_synth])
     cols = df.columns.to_list()
-    cols = cols.remove("is_real")
+    cols.remove("is_real")
 
     # Create dropdown menu for feature selection
     selected_feature = st.selectbox(label               = 'Select a feature from the dataset:', 
