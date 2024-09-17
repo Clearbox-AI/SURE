@@ -14,7 +14,7 @@ def _plot_hist(real_data, synth_data):
     ''' This function plots the synth-train DCR and synth-validation DCR histograms
     '''
     # Convert data to pandas DataFrame
-    real_label = pd.DataFrame({'irs_real': ['Real']*len(real_data)})
+    real_label = pd.DataFrame({'is_real': ['Real']*len(real_data)})
     df_real = pd.concat([real_data, real_label], axis=1)
     synth_label = pd.DataFrame({'is_real': ['Synthetic']*len(synth_data)})
     df_synth = pd.concat([synth_data, synth_label], axis=1)
@@ -34,15 +34,50 @@ def _plot_hist(real_data, synth_data):
         f = mpl.figure.Figure(figsize=(8, 4))
         sf= f.subfigures(1, 1)
         (
-            so.Plot(df, x="selected_feature")
+            so.Plot(df, x=selected_feature)
             .facet("is_real")
-            .add(so.Bars(color="#6268ff"), so.Hist())
+            .add(so.Bars(color="#8763d4"), so.Hist())
             .on(sf)
             .plot()
         )
+        
+        for ax in sf.axes:
+            plt.setp(ax.get_xticklabels(), rotation=45, ha='right', fontsize=6)
+            plt.setp(ax.get_yticklabels(), fontsize=8)
+            ax.set_xlabel(ax.get_xlabel(), fontsize=6)  # Set x-axis label font size
+            ax.set_ylabel(ax.get_ylabel(), fontsize=6)  # Set y-axis label font size
+            ax.set_title(ax.get_title(), fontsize=8)    # Set title font size
+        
         # Display the plot in Streamlit
         st.pyplot(f)
 
+
+def _plot_heatmap(data, title):
+    df = pd.DataFrame(data)
+    df = df.drop(columns=["label"])
+    # Generate a mask for the upper triangle
+    mask = np.triu(np.ones_like(df, dtype=bool), 1)
+
+    # Set up the matplotlib figure
+    f, ax = plt.subplots(figsize=(13, 11))
+
+    # Generate a custom diverging colormap
+    cmap = sns.diverging_palette(20, 265, as_cmap=True)
+
+    # Draw the heatmap with the mask, correct aspect ratio, and column names as labels
+    sns.heatmap(df, cmap=cmap, center=0, 
+                square=True, mask=mask, linewidths=.5, 
+                cbar_kws={"shrink": .75},
+                xticklabels=df.columns,  # Display column names on x-axis
+                yticklabels=df.columns   # Display column names on y-axis
+                )
+
+    # Rotate x-axis labels for better readability and add title
+    plt.xticks(rotation=45, ha='right')
+    ax.set_title(title, fontsize=16, pad=20)
+
+    # Display the plot
+    st.pyplot(f)
 
 def _display_feature_data(data):
     ''' This function displays the data for a selected feature
@@ -190,33 +225,6 @@ def _ml_utility():
 #         "selected_models:"
 #         selected_models
 
-def plot_heatmap(data, title):
-    df = pd.DataFrame(data)
-    df = df.drop(columns=["label"])
-    # Generate a mask for the upper triangle
-    mask = np.triu(np.ones_like(df, dtype=bool), 1)
-
-    # Set up the matplotlib figure
-    f, ax = plt.subplots(figsize=(13, 11))
-
-    # Generate a custom diverging colormap
-    cmap = sns.diverging_palette(20, 265, as_cmap=True)
-
-    # Draw the heatmap with the mask, correct aspect ratio, and column names as labels
-    sns.heatmap(df, cmap=cmap, center=0, 
-                square=True, mask=mask, linewidths=.5, 
-                cbar_kws={"shrink": .75},
-                xticklabels=df.columns,  # Display column names on x-axis
-                yticklabels=df.columns   # Display column names on y-axis
-                )
-
-    # Rotate x-axis labels for better readability and add title
-    plt.xticks(rotation=45, ha='right')
-    ax.set_title(title, fontsize=16, pad=20)
-
-    # Display the plot
-    st.pyplot(f)
-
 def main(real_df, synth_df, path_to_json):
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
@@ -236,7 +244,8 @@ def main(real_df, synth_df, path_to_json):
     real_df = pd.read_pickle(real_df)
     synth_df = pd.read_pickle(synth_df)
 
-    # Plot real and synthetic data distributions
+    ## Plot real and synthetic data distributions
+    st.subheader("Dataset feature distribution")
     _plot_hist(real_df, synth_df)
 
     # Load data in the session state, so that it is available in all the pages of the app
@@ -274,15 +283,15 @@ def main(real_df, synth_df, path_to_json):
     if "real_corr" in st.session_state:
         cb_rea_corr = st.checkbox("Show original dataset correlation matrix", value=False)
         if cb_rea_corr:
-            plot_heatmap(st.session_state["real_corr"], 'Original Dataset Correlation Matrix Heatmap')
+            _plot_heatmap(st.session_state["real_corr"], 'Original Dataset Correlation Matrix Heatmap')
     if "synth_corr" in st.session_state:
         cb_synth_corr = st.checkbox("Show synthetic dataset correlation matrix", value=False)
         if cb_synth_corr:
-            plot_heatmap(st.session_state["synth_corr"], 'Synthetic Dataset Correlation Matrix Heatmap')
+            _plot_heatmap(st.session_state["synth_corr"], 'Synthetic Dataset Correlation Matrix Heatmap')
     if "diff_corr" in st.session_state:
         cb_diff_corr = st.checkbox("Show difference between the correlation matrix of the original dataset and the one of the synthetic dataset", value=False)
         if cb_diff_corr:
-            plot_heatmap(st.session_state["diff_corr"], 'Original-Synthetic Dataset Correlation Matrix Difference Heatmap')
+            _plot_heatmap(st.session_state["diff_corr"], 'Original-Synthetic Dataset Correlation Matrix Difference Heatmap')
 
     st.divider()
 
