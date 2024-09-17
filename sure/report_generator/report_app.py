@@ -245,7 +245,7 @@ def main(real_df, synth_df, path_to_json):
     synth_df = pd.read_pickle(synth_df)
 
     ## Plot real and synthetic data distributions
-    st.subheader("Dataset feature distribution")
+    st.subheader("Dataset feature distribution", help="Distribution histogram plot of the selected feature for the real and synthetic dataset (before pre-processing).")
     _plot_hist(real_df, synth_df)
 
     # Load data in the session state, so that it is available in all the pages of the app
@@ -255,7 +255,7 @@ def main(real_df, synth_df, path_to_json):
         st.session_state = _load_from_json("")
     
     ## Statistical similarity
-    st.subheader("Statistical similarity")
+    st.subheader("Statistical similarity", help="Statistical quantities computed for each feature of the real and synthetic dataset (after pre-processing).")
 
     # Features distribution
     # plot_distribution()
