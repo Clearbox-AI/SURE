@@ -1,5 +1,6 @@
 import subprocess
 import pkg_resources
+import sys
 
 import json
 import os
@@ -10,11 +11,23 @@ import polars as pl
 import numpy as np
 
 # Function to run the streamlit app
-def report(df_real: pd.DataFrame, 
-           df_synth: pd.DataFrame, 
+def report(df_real:  pd.DataFrame | pl.DataFrame | pl.LazyFrame, 
+           df_synth: pd.DataFrame | pl.DataFrame | pl.LazyFrame, 
            path_to_json:str = ""):
     ''' Generate the report app
     '''
+    # Check dataframe type
+    if isinstance(df_real, pd.DataFrame) and isinstance(df_synth, pd.DataFrame):
+        pass
+    elif isinstance(df_real, pl.DataFrame) and isinstance(df_synth, pl.DataFrame):
+        df_real  = df_real.to_pandas()
+        df_synth = df_synth.to_pandas()
+    elif isinstance(df_real, pl.LazyFrame) and isinstance(df_synth, pl.LazyFrame):
+        df_real  = df_real.collect().to_pandas()
+        df_synth = df_synth.collect().to_pandas()
+    else:
+        sys.exit('ErrorType\nThe datatype provided is not supported or the two datasets have different types.')
+
     # Save the DataFrame to a temporary file (pickle format)
     # if df_real:
     with tempfile.NamedTemporaryFile(delete=False, suffix='.pkl') as tmpfile:
