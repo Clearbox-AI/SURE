@@ -36,7 +36,7 @@ def _plot_hist(real_data, synth_data):
         (
             so.Plot(df, x=selected_feature)
             .facet("is_real")
-            .add(so.Bars(color="#8763d4"), so.Hist())
+            .add(so.Bars(color="#3e42a8"), so.Hist())
             .on(sf)
             .plot()
         )
