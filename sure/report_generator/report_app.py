@@ -296,7 +296,7 @@ def main(real_df, synth_df, path_to_json):
     st.divider()
 
     ## ML Utility 
-    st.subheader("ML utility")
+    st.subheader("ML utility", help="The datasets were evaluated using various machine learning models. The metrics presented below reflect the performance of each model tested, applied to both the real and synthetic datasets.")
     if "models" in st.session_state:
         _ml_utility()
         
