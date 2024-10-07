@@ -237,7 +237,7 @@ def main(real_df, synth_df, path_to_json):
             with the library [SURE](https://github.com/Clearbox-AI/SURE) on the synthetic dataset under test.""")
     
     ### UTILITY
-    st.header('Utility', divider='violet')
+    st.header('Utility', divider='black')
     st.sidebar.markdown("# Utility")
 
     # Load real dataset
