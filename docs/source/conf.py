@@ -15,7 +15,14 @@ extensions = [
 templates_path = ['_templates']
 exclude_patterns = []
 
-html_theme = 'classic'
+html_theme = "sphinx_rtd_theme"
+html_theme_options = {
+    "canonical_url": "https://synthetics.docs.gretel.ai/en/stable/",
+    "logo_only": True,
+    "display_version": True,
+    "style_nav_header_background": "#483a8f",
+}
+html_logo = "img/cb_purple_logo_compact.png"
 html_static_path = ['_static']
 
 master_doc = 'index'  # Ensure this points to your main document
