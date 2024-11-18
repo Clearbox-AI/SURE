@@ -15,7 +15,7 @@ extensions = [
 templates_path = ['_templates']
 exclude_patterns = []
 
-html_theme = 'alabaster'
+html_theme = 'classic'
 html_static_path = ['_static']
 
 master_doc = 'index'  # Ensure this points to your main document
