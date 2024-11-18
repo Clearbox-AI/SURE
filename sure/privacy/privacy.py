@@ -11,6 +11,7 @@ from sure import _save_to_json, _drop_real_cols
 
 # ATTACK SANDBOX
 def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
+    """Convert polars DataFrame to pandas DataFrame"""
     if isinstance(dataframe, pl.DataFrame):
         dataframe = dataframe.to_pandas()
     if isinstance(dataframe, pl.LazyFrame):
@@ -18,6 +19,7 @@ def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
     return dataframe
 
 def _pl_pd_to_numpy(dataframe: pl.DataFrame | pl.LazyFrame | pl.Series | pd.DataFrame):
+    """Convert polars or pandas DataFrame to numpy array"""
     if isinstance(dataframe, (pl.DataFrame, pl.Series, pd.DataFrame)):
         dataframe = dataframe.to_numpy()
     if isinstance(dataframe, pl.LazyFrame):
@@ -90,8 +92,33 @@ def membership_inference_test(
     parallel: bool = True,
     path_to_json: str = ""
 ):
-    ''' Simulate a Membership Inference Attack on the synthetic dataset provided, given an adversary dataset
-    '''    
+    """
+    Simulate a Membership Inference Attack on the provided synthetic dataset using an adversary dataset.
+
+    Parameters
+    ----------
+    adversary_dataset : pd.DataFrame, pl.DataFrame, or pl.LazyFrame
+        The dataset used by the adversary, containing features for the attack simulation.
+    synthetic_dataset : pd.DataFrame, pl.DataFrame, or pl.LazyFrame
+        The synthetic dataset on which the Membership Inference Attack is performed.
+    adversary_guesses_ground_truth : np.ndarray, pd.DataFrame, pl.DataFrame, pl.LazyFrame, or pl.Series
+        Ground truth labels indicating whether a sample is from the original training dataset or not.
+    parallel : bool, optional
+        Whether to use parallel processing for distance calculations, by default True.
+    path_to_json : str, optional
+        Path to save the attack output as a JSON file. If empty, the output is not saved, by default "".
+
+    Returns
+    -------
+    dict
+        A dictionary containing the attack results, including distance thresholds, precisions, and risk score.
+
+    Notes
+    -----
+    - This function simulates an attack where an adversary attempts to distinguish between real and synthetic samples.
+    - The attack results are saved to a JSON file if `path_to_json` is provided.
+    """
+   
     # Convert datasets
     adversary_dataset     = _polars_to_pandas(adversary_dataset)
     synthetic_dataset     = _polars_to_pandas(synthetic_dataset)

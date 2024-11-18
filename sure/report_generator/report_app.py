@@ -11,8 +11,7 @@ from report_generator import _load_from_json, _convert_to_dataframe
 
 
 def _plot_hist(real_data, synth_data):
-    ''' This function plots the synth-train DCR and synth-validation DCR histograms
-    '''
+    """Plot the synth-train DCR and synth-validation DCR histograms"""
     # Convert data to pandas DataFrame
     real_label = pd.DataFrame({'is_real': ['Real']*len(real_data)})
     df_real = pd.concat([real_data, real_label], axis=1)
@@ -80,8 +79,7 @@ def _plot_heatmap(data, title):
     st.pyplot(f)
 
 def _display_feature_data(data):
-    ''' This function displays the data for a selected feature
-    '''
+    """Display the data for a selected feature"""
     # Get list of feature names
     feature_names = list(data.keys())
 
@@ -226,6 +224,24 @@ def _ml_utility():
 #         selected_models
 
 def main(real_df, synth_df, path_to_json):
+    """
+    Main function to generate a Streamlit-based report for analyzing and visualizing
+    utility metrics of a synthetic dataset using the SURE library.
+
+    Parameters
+    ----------
+    real_df : str
+        Path to the pickle file containing the real dataset.
+    synth_df : str
+        Path to the pickle file containing the synthetic dataset.
+    path_to_json : str
+        Path to the JSON file for loading session state data. If not provided, the default session state is used.
+
+    Returns
+    -------
+    None
+        The function initializes and runs a Streamlit app for visualizing and comparing utility metrics.
+    """
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
 

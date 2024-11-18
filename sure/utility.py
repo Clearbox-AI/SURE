@@ -44,13 +44,32 @@ def _drop_real_cols(synth, real):
      
 # MODEL GARDEN MODULE
 class ClassificationGarden:
-    def __init__(self,
-                verbose         = 0,
-                ignore_warnings = True,
-                custom_metric   = None,
-                predictions     = False,
-                classifiers     = "all",
-                ):
+    """
+    A class to facilitate the training and evaluation of multiple classification models 
+    using LazyClassifier.
+
+    Parameters
+    ----------
+    verbose : int, optional
+        Verbosity level, by default 0.
+    ignore_warnings : bool, optional
+        Whether to ignore warnings, by default True.
+    custom_metric : callable, optional
+        Custom metric function for evaluation, by default None.
+    predictions : bool, optional
+        Whether to return predictions along with model performance, by default False.
+    classifiers : str or list, optional
+        List of classifiers to use, or "all" for using all available classifiers, by default "all".
+    """
+
+    def __init__(
+        self,
+        verbose         = 0,
+        ignore_warnings = True,
+        custom_metric   = None,
+        predictions     = False,
+        classifiers     = "all",
+    ):
         self.verbose            = verbose
         self.ignore_warnings    = ignore_warnings
         self.custom_metric      = custom_metric
@@ -63,12 +82,32 @@ class ClassificationGarden:
                                   predictions     = predictions,
                                   classifiers     = classifiers)
         
-    def fit(self, 
-            X_train: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-            X_test:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-            y_train: pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
-            y_test:  pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray
-            ) ->     pd.DataFrame | np.ndarray:
+    def fit(
+        self, 
+        X_train: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+        X_test:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+        y_train: pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
+        y_test:  pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray
+    ) ->     pd.DataFrame | np.ndarray:
+        """
+        Fit multiple classification models on the provided training data and evaluate on the test data.
+
+        Parameters
+        ----------
+        X_train : pl.DataFrame, pl.LazyFrame, pd.DataFrame, or np.ndarray
+            Training features.
+        X_test : pl.DataFrame, pl.LazyFrame, pd.DataFrame, or np.ndarray
+            Test features.
+        y_train : pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, or np.ndarray
+            Training labels.
+        y_test : pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, or np.ndarray
+            Test labels.
+
+        Returns
+        -------
+        pd.DataFrame or np.ndarray
+            Model performance metrics and predictions if specified.
+        """
         data = [X_train, X_test, y_train, y_test]
         
         for count, el in enumerate(data):
@@ -78,13 +117,31 @@ class ClassificationGarden:
         return models, predictions
 
 class RegressionGarden():
-    def __init__(self,
-                verbose         = 0,
-                ignore_warnings = True,
-                custom_metric   = None,
-                predictions     = False,
-                regressors      = "all"
-                ):
+    """
+    A class to facilitate the training and evaluation of multiple regression models 
+    using LazyRegressor.
+
+    Parameters
+    ----------
+    verbose : int, optional
+        Verbosity level, by default 0.
+    ignore_warnings : bool, optional
+        Whether to ignore warnings, by default True.
+    custom_metric : callable, optional
+        Custom metric function for evaluation, by default None.
+    predictions : bool, optional
+        Whether to return predictions along with model performance, by default False.
+    regressors : str or list, optional
+        List of regressors to use, or "all" for using all available regressors, by default "all".
+    """
+    def __init__(
+        self,
+        verbose         = 0,
+        ignore_warnings = True,
+        custom_metric   = None,
+        predictions     = False,
+        regressors      = "all"
+    ):
         self.verbose            = verbose
         self.ignore_warnings    =ignore_warnings
         self.custom_metric      = custom_metric
@@ -97,12 +154,32 @@ class RegressionGarden():
                                  predictions        = predictions,
                                  regressors         = regressors)
 
-    def fit(self, 
-            X_train: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-            X_test:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-            y_train: pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
-            y_test:  pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray
-            ) ->     pd.DataFrame | np.ndarray:
+    def fit(
+        self, 
+        X_train: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+        X_test:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+        y_train: pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
+        y_test:  pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray
+    ) ->     pd.DataFrame | np.ndarray:
+        """
+        Fit multiple regression models on the provided training data and evaluate on the test data.
+
+        Parameters
+        ----------
+        X_train : pl.DataFrame, pl.LazyFrame, pd.DataFrame, or np.ndarray
+            Training features.
+        X_test : pl.DataFrame, pl.LazyFrame, pd.DataFrame, or np.ndarray
+            Test features.
+        y_train : pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, or np.ndarray
+            Training labels.
+        y_test : pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, or np.ndarray
+            Test labels.
+
+        Returns
+        -------
+        pd.DataFrame or np.ndarray
+            Model performance metrics and predictions if specified.
+        """
         data = [X_train, X_test, y_train, y_test]
 
         for count, el in enumerate(data):
@@ -112,19 +189,49 @@ class RegressionGarden():
         return models, predictions
     
 # ML UTILITY METRICS MODULE
-def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                   X_synth:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,                                   
-                                   X_test:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                   y_train:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
-                                   y_synth:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
-                                   y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
-                                   custom_metric: Callable       = None, 
-                                   classifiers:   List[Callable] = "all",
-                                   predictions:   bool = False,
-                                   path_to_json:  str = ""
-                                 ): 
-    ''' This function starts the training of a classification task on a pool of available classifiers and returns the metrics
-    '''
+def compute_utility_metrics_class( 
+    X_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+    X_synth:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,                                   
+    X_test:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+    y_train:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
+    y_synth:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
+    y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
+    custom_metric: Callable       = None, 
+    classifiers:   List[Callable] = "all",
+    predictions:   bool = False,
+    path_to_json:  str = ""
+): 
+    """
+    Train and evaluate classification models on both real and synthetic datasets.
+
+    Parameters
+    ----------
+    X_train : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        Training features for real data.
+    X_synth : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        Training features for synthetic data.
+    X_test : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        Test features for evaluation.
+    y_train : Union[pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, np.ndarray]
+        Training labels for real data.
+    y_synth : Union[pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, np.ndarray]
+        Training labels for synthetic data.
+    y_test : Union[pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, np.ndarray]
+        Test labels for evaluation.
+    custom_metric : Callable, optional
+        Custom metric for model evaluation, by default None.
+    classifiers : List[Callable], optional
+        List of classifiers to use, or "all" for all available classifiers, by default "all".
+    predictions : bool, optional
+        If True, returns predictions along with model performance, by default False.
+    path_to_json : str, optional
+        Path to save the output JSON files, by default "".
+
+    Returns
+    -------
+    Union[pd.DataFrame, pl.DataFrame, np.ndarray]
+        Model performance metrics for both real and synthetic datasets, and optionally predictions.
+    """
     # Store DataFrame type information for returning the same type
     was_pd = True
     was_pl = False
@@ -194,19 +301,49 @@ def compute_utility_metrics_class( X_train:       pl.DataFrame | pl.LazyFrame | 
     else:
         return models_train, models_synth, delta
 
-def compute_utility_metrics_regr( X_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                  X_synth:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,                                   
-                                  X_test:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                  y_train:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
-                                  y_synth:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
-                                  y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
-                                  custom_metric: Callable       = None, 
-                                  regressors:    List[Callable] = "all",
-                                  predictions:   bool = False,
-                                  path_to_json:  str = ""
-                                ):
-    ''' This function starts the training of a regression task on a pool of available regressors and returns the metrics
-    '''
+def compute_utility_metrics_regr(
+    X_train:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+    X_synth:       pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,                                   
+    X_test:        pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+    y_train:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
+    y_synth:       pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray,  
+    y_test:        pl.DataFrame | pl.LazyFrame | pl.Series    | pd.Series | pd.DataFrame | np.ndarray, 
+    custom_metric: Callable       = None, 
+    regressors:    List[Callable] = "all",
+    predictions:   bool = False,
+    path_to_json:  str = ""
+):
+    """
+    Train and evaluate regression models on both real and synthetic datasets.
+
+    Parameters
+    ----------
+    X_train : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        Training features for real data.
+    X_synth : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        Training features for synthetic data.
+    X_test : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        Test features for evaluation.
+    y_train : Union[pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, np.ndarray]
+        Training labels for real data.
+    y_synth : Union[pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, np.ndarray]
+        Training labels for synthetic data.
+    y_test : Union[pl.DataFrame, pl.LazyFrame, pl.Series, pd.Series, pd.DataFrame, np.ndarray]
+        Test labels for evaluation.
+    custom_metric : Callable, optional
+        Custom metric for model evaluation, by default None.
+    regressors : List[Callable], optional
+        List of regressors to use, or "all" for all available regressors, by default "all".
+    predictions : bool, optional
+        If True, returns predictions along with model performance, by default False.
+    path_to_json : str, optional
+        Path to save the output JSON files, by default "".
+
+    Returns
+    -------
+    Union[pd.DataFrame, pl.DataFrame, np.ndarray]
+        Model performance metrics for both real and synthetic datasets, and optionally predictions.
+    """
     # Store DataFrame type information for returning the same type
     was_pd = True
     was_pl = False
@@ -320,22 +457,30 @@ def _most_frequent_values(data: pl.DataFrame,
     
     return most_frequent_dict
 
-def compute_statistical_metrics(real_data:    pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                                synth_data:   pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
-                                path_to_json: str = ""
-                                ) -> Tuple[Dict, Dict, Dict]:
-    ''' This function computes statistical metrics for numerical, categorical, and temporal features 
-        in both real and synthetic datasets.
-        
-        Parameters:
-        - real_data: The real dataset, can be in the form of Polars DataFrame, LazyFrame, pandas DataFrame, or numpy ndarray.
-        - synth_data: The synthetic dataset, in the same format as real_data.
-        
-        Returns:
-        - num_features_comparison: Dictionary containing statistical metrics for numerical features.
-        - cat_features_comparison: Dictionary containing statistical metrics for categorical features.
-        - time_features_comparison: Dictionary containing statistical metrics for temporal features.
-    '''    
+def compute_statistical_metrics(
+    real_data:    pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+    synth_data:   pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
+    path_to_json: str = ""
+) -> Tuple[Dict, Dict, Dict]:
+    """
+    Compute statistical metrics for numerical, categorical, and temporal features
+    in both real and synthetic datasets.
+
+    Parameters
+    ----------
+    real_data : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        The real dataset containing numerical, categorical, and/or temporal features.
+    synth_data : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        The synthetic dataset containing numerical, categorical, and/or temporal features.
+    path_to_json : str, optional
+        The file path to save the comparison metrics in JSON format, by default "".
+
+    Returns
+    -------
+    Tuple[Dict, Dict, Dict]
+        A tuple containing three dictionaries with statistical comparisons for
+        numerical, categorical, and temporal features, respectively.
+    """
     num_features_comparison  = None
     cat_features_comparison  = None
     time_features_comparison = None
@@ -423,27 +568,43 @@ def compute_statistical_metrics(real_data:    pl.DataFrame | pl.LazyFrame | pd.D
     _save_to_json("cat_features_comparison", cat_features_comparison, path_to_json)
     _save_to_json("time_features_comparison", time_features_comparison, path_to_json)
 
-    # _save_to_json("real_data", real_data)
-    # _save_to_json("synth_data", synth_data)
-
     return num_features_comparison, cat_features_comparison, time_features_comparison
 
-def compute_mutual_info(real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
-                        synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
-                        path_to_json: str = ""):
-    ''' This function computes the correlation matrix for both the real and synthetic datasets,
-        and calculates the difference between these matrices.
-        
-        Parameters:
-        - real_data: The real dataset, can be in the form of Polars DataFrame, LazyFrame, pandas DataFrame, or numpy ndarray.
-        - synth_data: The synthetic dataset, in the same format as real_data.
-        
-        Returns:
+def compute_mutual_info(
+    real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+    synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
+    path_to_json: str = ""
+) -> Tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
+    """
+    Compute the correlation matrices for both real and synthetic datasets, and
+    calculate the difference between these matrices.
+
+    Parameters
+    ----------
+    real_data : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        The real dataset, which can be in the form of a Polars DataFrame, LazyFrame,
+        pandas DataFrame, or numpy ndarray.
+    synth_data : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        The synthetic dataset, provided in the same format as `real_data`.
+    path_to_json : str, optional
+        File path to save the correlation matrices and their differences in JSON format,
+        by default "".
+
+    Returns
+    -------
+    Tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]
+        A tuple containing:
         - real_corr: Correlation matrix of the real dataset with column names included.
         - synth_corr: Correlation matrix of the synthetic dataset with column names included.
-        - diff_corr: Difference between the correlation matrices of real and synthetic datasets,
-                        with values smaller than 1e-5 substituted with 0.
-    '''
+        - diff_corr: Difference between the correlation matrices of the real and synthetic
+          datasets, with values smaller than 1e-5 substituted with 0.
+
+    Raises
+    ------
+    ValueError
+        If the features in the real and synthetic datasets do not match or if non-numerical
+        features are present.
+    """
     # Converting Real and Synthetic Dataset into pl.DataFrame
     if isinstance(real_data, pd.DataFrame):
             real_data = pl.from_pandas(real_data)

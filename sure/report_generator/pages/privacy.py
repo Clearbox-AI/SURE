@@ -5,8 +5,25 @@ import seaborn.objects as so
 
 @st.cache_data
 def plot_DCR(train_data, val_data=None):
-    ''' This function plots the synth-train DCR and synth-validation DCR histograms
-    '''
+    """
+    Plot histograms for Distance to Closest Record (DCR) for synthetic training and validation datasets.
+
+    This function creates histograms to visualize the distribution of DCR values for synthetic training data.
+    If validation data is provided, it also plots the DCR distribution for the synthetic validation data.
+
+    Parameters
+    ----------
+    train_data : array-like
+        DCR values for the synthetic training dataset.
+    val_data : array-like, optional
+        DCR values for the synthetic validation dataset. If None, only the synthetic training DCR histogram
+        is plotted. Default is None.
+
+    Returns
+    -------
+    None
+        The function does not return any value. It plots the histograms using Streamlit.
+    """
     # Convert data to pandas DataFrame
     df = pd.DataFrame({'DCR': train_data, 'Data': 'Synthetic-Trainining DCR'})
     if val_data is not None:
@@ -48,8 +65,21 @@ def plot_DCR(train_data, val_data=None):
 
 @st.cache_data
 def dcr_stats_table(train_stats, val_stats=None):
-    ''' This function displays the table with the DCR overall stats
-    '''
+    """
+    Display a table with overall Distance to Closest Record (DCR) statistics.
+
+    Parameters
+    ----------
+    train_stats : dict
+        Dictionary containing statistics for the synthetic training dataset.
+    val_stats : dict, optional
+        Dictionary containing statistics for the synthetic validation dataset. Default is None.
+
+    Returns
+    -------
+    None
+        The function outputs a table using Streamlit.
+    """
     df1 = pd.DataFrame.from_dict(train_stats, orient='index', columns=['Synth-Train'])
     if val_stats:
         df2 = pd.DataFrame.from_dict(val_stats, orient='index', columns=['Synth-Val'])
@@ -59,8 +89,23 @@ def dcr_stats_table(train_stats, val_stats=None):
 
 @st.cache_data
 def dcr_validation(dcr_val, dcr_zero_train=None, dcr_zero_val=None):
-    ''' This function displays the DCR share value
-    '''
+    """
+    Display the DCR share value and additional metrics for clones.
+
+    Parameters
+    ----------
+    dcr_val : dict
+        Dictionary containing DCR share values and warnings.
+    dcr_zero_train : int, optional
+        Number of clones in the synthetic training dataset. Default is None.
+    dcr_zero_val : int, optional
+        Number of clones in the synthetic validation dataset. Default is None.
+
+    Returns
+    -------
+    None
+        The function outputs metrics and information using Streamlit.
+    """
     perc = dcr_val["percentage"]
     # st.write("The share of records of the synthetic dataset that are closer to the training set than to the validation set is: ", round(perc,1),"%")
     cols = st.columns(2)
@@ -89,6 +134,17 @@ def _MIA():
         st.dataframe(df_MIA.drop(columns=df_MIA.columns[-1]).iloc[::-1], hide_index=True)
 
 def main():
+    """
+    Main function to configure and run the Streamlit application.
+
+    The application provides a report on privacy metrics for a synthetic dataset,
+    using the SURE library to visualize and interpret the data.
+
+    Returns
+    -------
+    None
+        The function runs the Streamlit app.
+    """
     # Set app conifgurations
     st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
 

@@ -1,3 +1,7 @@
+"""
+This file is taken from the library lazypredict-nightly
+"""
+
 import numpy as np
 import pandas as pd
 from tqdm import tqdm

@@ -198,9 +198,10 @@ def distance_to_closest_record(
     # Matrice delle feature numeriche di Y (num_rows_Y x num_num_feat)
     Y_numerical = Y[:, np.logical_not(categorical_features)].astype("float32")
 
-    # Il rango delle numeriche è necessario per il modo in cui sono calcolate le distanze Gower
-    # Trovo il minimo e il massimo per ogni numerica concatenando X e Y quindi il rango sottraendo
-    # tutti i minimi dai massimi.
+    # The range of the numerical features is necessary for the way Gower distances are calculated.
+    # I find the minimum and maximum for each numerical feature by concatenating X and Y, and then 
+    # calculate the range by subtracting all the minimum values from the maximum values.
+
     numericals_mins = np.amin(np.concatenate((X_numerical, Y_numerical)), axis=0)
     numericals_maxs = np.amax(np.concatenate((X_numerical, Y_numerical)), axis=0)
     numericals_ranges = numericals_maxs - numericals_mins

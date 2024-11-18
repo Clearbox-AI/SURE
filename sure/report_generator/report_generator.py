@@ -14,8 +14,7 @@ import numpy as np
 def report(df_real:  pd.DataFrame | pl.DataFrame | pl.LazyFrame, 
            df_synth: pd.DataFrame | pl.DataFrame | pl.LazyFrame, 
            path_to_json:str = ""):
-    ''' Generate the report app
-    '''
+    """Generate the report app"""
     # Check dataframe type
     if isinstance(df_real, pd.DataFrame) and isinstance(df_synth, pd.DataFrame):
         pass
@@ -43,8 +42,7 @@ def report(df_real:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
     return process
 
 def _convert_to_serializable(obj: object):
-    ''' Recursively convert DataFrames and other non-serializable objects in a nested dictionary to serializable formats
-    '''
+    """Recursively convert DataFrames and other non-serializable objects in a nested dictionary to serializable formats"""
     if isinstance(obj, (pd.DataFrame, pl.DataFrame, pl.LazyFrame)):
         if isinstance(obj, pl.DataFrame):
             obj = obj.to_pandas()
@@ -77,8 +75,7 @@ def _convert_to_serializable(obj: object):
 def _save_to_json(data_name: str, 
                   new_data: object,
                   path_to_json: str):
-    ''' This function saves data into a JSON file in the folder where the user is working.
-    '''
+    """Save data into a JSON file in the folder where the user is working"""
     # Check if the file exists
     path = os.path.join(path_to_json,"data.json")
     if os.path.exists(path):
@@ -104,8 +101,7 @@ def _save_to_json(data_name: str,
 def _load_from_json(path_to_json: str,
                     data_name: str = None
                     ):
-    ''' This function loads data from a JSON file "data.json" in the folder where the user is working
-    '''
+    """Load data from a JSON file "data.json" in the folder where the user is working"""
     # Check if the file exists
     path = os.path.join(path_to_json,"data.json")
     if not os.path.exists(path):
@@ -127,8 +123,7 @@ def _load_from_json(path_to_json: str,
     return data
 
 def _convert_to_dataframe(obj):
-    ''' Convert nested dictionaries back to DataFrames
-    '''
+    """Convert nested dictionaries back to DataFrames"""
     if isinstance(obj, list) and all(isinstance(item, dict) for item in obj):
         return pd.DataFrame(obj)
     elif isinstance(obj, dict):
