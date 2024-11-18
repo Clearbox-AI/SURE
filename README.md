@@ -1,4 +1,7 @@
 <a href="https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f"><img src="https://img.shields.io/badge/SURE-docs-blue?logo=mdbook" /></a>
+[![PyPI](https://badge.fury.io/py/clearbox-sure.svg)](https://badge.fury.io/py/clearbox-sure)
+[![Downloads](https://pepy.tech/badge/clearbox-sure)](https://pepy.tech/project/clearbox-sure)
+[![GitHub stars](https://img.shields.io/github/stars/Clearbox-AI/SURE?style=social)](https://github.com/Clearbox-AI/SURE)
 
 <img src="images/sure_logo.png" width="250">
 
