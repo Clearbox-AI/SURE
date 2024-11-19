@@ -15,4 +15,4 @@ joblib
 lightgbm
 xgboost
 sphinx_rtd_theme
-# m2r2
+myst_parser

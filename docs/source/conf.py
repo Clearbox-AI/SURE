@@ -11,8 +11,12 @@ extensions = [
     'sphinx.ext.autodoc',
     "sphinx.ext.coverage",
     'sphinx.ext.napoleon',
-    # "m2r2",
+    "myst_parser",
     'sphinx_rtd_theme'
+]
+
+myst_enable_extensions = [
+    "linkify",  # Auto-detects URLs
 ]
 
 source_suffix = [".rst", ".md"]
