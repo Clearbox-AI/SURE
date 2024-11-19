@@ -16,7 +16,7 @@ extensions = [
 ]
 
 myst_enable_extensions = [
-    "html_image",
+    "html_image", # Allows html images format conversion
 ]
 
 source_suffix = {

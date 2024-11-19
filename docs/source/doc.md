@@ -3,7 +3,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/Clearbox-AI/SURE?style=social)](https://github.com/Clearbox-AI/SURE)
 
 <p align="center">
-    <a href="https://clearbox.ai"><img width="350px" src="./img/sure_logo.png" /></a><br />
+    <a href="https://clearbox.ai"><img width="350px" src="img/sure_logo.png" /></a><br />
     <i>Synthetic Data: Utility, Regulatory compliance, and Ethical privacy</i>
 </p>
 
