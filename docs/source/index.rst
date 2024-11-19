@@ -3,15 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. .. image:: ./img/sure_logo.png
+.. image:: img/sure_logo.png
    :alt: SURE Logo
-
-```{image} img/sure_logo.png
-   :alt: logo
-   :class: bg-primary
-   :width: 350px
-   :align: center
-```
 
 .. include:: doc.md
    :parser: markdown
