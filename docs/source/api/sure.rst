@@ -1,6 +1,8 @@
 Utils
 =====
-
+.. toctree::
+   :maxdepth: 4
+   
 .. automodule:: sure
    :members:
 

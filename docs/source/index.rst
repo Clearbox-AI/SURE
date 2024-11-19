@@ -17,7 +17,7 @@ Modules
 .. toctree::
    :maxdepth: 2
 
-   api/sure
+   api/sure.rst
    
 Indices and tables
 ==================
