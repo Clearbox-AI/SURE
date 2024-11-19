@@ -1,13 +1,5 @@
-[![PyPI](https://badge.fury.io/py/clearbox-sure.svg)](https://badge.fury.io/py/clearbox-sure)
-[![Downloads](https://pepy.tech/badge/clearbox-sure)](https://pepy.tech/project/clearbox-sure)
-[![GitHub stars](https://img.shields.io/github/stars/Clearbox-AI/SURE?style=social)](https://github.com/Clearbox-AI/SURE)
-
-<p align="center">
-    <a href="https://clearbox.ai"><img width="350px" src="https://github.com/Clearbox-AI/SURE/blob/main/docs/source/img/sure_logo.png" /></a><br />
-    <i>Synthetic Data: Utility, Regulatory compliance, and Ethical privacy</i>
-</p>
-
 ## SURE
+<i>Synthetic Data: Utility, Regulatory compliance, and Ethical privacy</i><br />
 
 The SURE package is an open-source Python library for the assessment of the utility and privacy performance of any tabular **synthetic dataset**.
 
