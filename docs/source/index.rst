@@ -7,7 +7,8 @@
    :alt: SURE Logo
 
 .. include:: ../../README.md
-
+   :parser: markdown
+   
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
