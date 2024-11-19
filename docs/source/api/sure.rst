@@ -2,10 +2,11 @@ Utils
 =====
 .. toctree::
    :maxdepth: 4
-   
+
 .. automodule:: sure
    :members:
-
+   :undoc-members:
+   :show-inheritance:
 
 Utility
 =======
