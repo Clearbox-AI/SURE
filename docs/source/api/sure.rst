@@ -1,33 +1,25 @@
 Utils
-===========
+=====
 
 .. automodule:: sure
    :members:
-   :undoc-members:
-   :show-inheritance:
-   
+
 
 Utility
-============
+=======
 
 .. automodule:: sure.utility
    :members:
-   :undoc-members:
-   :show-inheritance:
 
 
 Privacy
-============
+=======
 
 .. automodule:: sure.privacy
    :members:
-   :undoc-members:
-   :show-inheritance:
 
 .. automodule:: sure.distance_metrics.distance
    :members:
-   :undoc-members:
-   :show-inheritance:
 
 
 
