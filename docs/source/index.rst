@@ -7,7 +7,8 @@
    :alt: SURE Logo
 
 .. mdinclude:: ../../README.md
-
+   :parser: myst_parser
+   
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
