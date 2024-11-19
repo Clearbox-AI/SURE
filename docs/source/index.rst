@@ -6,6 +6,13 @@
 .. .. image:: ./img/sure_logo.png
    :alt: SURE Logo
 
+```{image} img/sure_logo.png
+   :alt: logo
+   :class: bg-primary
+   :width: 350px
+   :align: center
+```
+
 .. include:: doc.md
    :parser: markdown
 
