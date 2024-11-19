@@ -31,7 +31,7 @@ html_theme_options = {
 }
 
 html_logo = "img/cb_white_logo_compact.png"
-html_static_path = ['_static']
+html_static_path = ['_static', 'img']
 
 master_doc = 'index'  # Ensure this points to your main document
 
