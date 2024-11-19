@@ -9,19 +9,23 @@
 .. include:: doc.md
    :parser: markdown
 
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+
 Modules
-=======
+-------
+
 .. toctree::
    :maxdepth: 2
 
    api/sure.rst
    
+
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

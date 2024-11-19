@@ -3,23 +3,25 @@
 [![GitHub stars](https://img.shields.io/github/stars/Clearbox-AI/SURE?style=social)](https://github.com/Clearbox-AI/SURE)
 
 <p align="center">
-    <a href="https://clearbox.ai"><img width="350px" src="img/sure_logo.png" /></a><br />
+    <a href="https://clearbox.ai"><img width="350px" src="https://github.com/Clearbox-AI/SURE/blob/main/docs/source/img/sure_logo.png" /></a><br />
     <i>Synthetic Data: Utility, Regulatory compliance, and Ethical privacy</i>
 </p>
 
-The SURE package is an open-source Python library for the assessment of the utility and privacy performance of any tabular synthetic dataset.
+### SURE
+
+The SURE package is an open-source Python library for the assessment of the utility and privacy performance of any tabular **synthetic dataset**.
 
 The SURE library works both with [pandas](https://pandas.pydata.org/) and [polars](https://pola.rs/) DataFrames.
 
-# Installation
+## Installation
 
-To install the library run the following command in your terminal:
+It is highly recommended to install the library in a virtual environment or container.
 
 ```shell
 $ pip install clearbox-sure
 ```
 
-# Usage
+## Usage
 
 The user must provide both the original real training dataset (which was used to train the generative model that produced the synthetic dataset), the real holdout dataset (which was NOT used to train the generative model that produced the synthetic dataset) and the corresponding synthetic dataset to enable the library's modules to perform the necessary computations for evaluation.
 
