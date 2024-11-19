@@ -6,9 +6,9 @@
 .. .. image:: ./img/sure_logo.png
    :alt: SURE Logo
 
-.. mdinclude:: ../../README.md
+.. include:: ../../README.md
    :parser: myst_parser
-   
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
