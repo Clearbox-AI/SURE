@@ -35,33 +35,30 @@ Privacy
 
 
 
-sure package
-============
+.. sure package
+.. ============
 
-Subpackages
------------
+.. Subpackages
+.. -----------
 
-.. toctree::
-   :maxdepth: 4
+..    sure.distance_metrics
+..    sure.privacy
 
-   sure.distance_metrics
-   sure.privacy
+.. Submodules
+.. ----------
 
-Submodules
-----------
+.. sure.utility module
+.. -------------------
 
-sure.utility module
--------------------
-
-.. automodule:: sure.utility
+.. .. automodule:: sure.utility
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+.. Module contents
+.. ---------------
 
-.. automodule:: sure
+.. .. automodule:: sure
    :members:
    :undoc-members:
    :show-inheritance:
