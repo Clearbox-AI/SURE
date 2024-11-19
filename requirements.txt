@@ -16,3 +16,4 @@ lightgbm
 xgboost
 sphinx_rtd_theme
 myst_parser
+linkify
