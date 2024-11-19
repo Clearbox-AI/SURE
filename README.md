@@ -4,7 +4,7 @@
 [![Downloads](https://pepy.tech/badge/clearbox-sure)](https://pepy.tech/project/clearbox-sure)
 [![GitHub stars](https://img.shields.io/github/stars/Clearbox-AI/SURE?style=social)](https://github.com/Clearbox-AI/SURE)
 
-<img src="docs/source/img/sure_logo.png" width="250">
+<img src="docs/source/img/sure_logo_nobg.png" width="250">
 
 ### Synthetic Data: Utility, Regulatory compliance, and Ethical privacy
 
