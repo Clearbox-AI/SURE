@@ -19,7 +19,11 @@ myst_enable_extensions = [
     "linkify",  # Auto-detects URLs
 ]
 
-source_suffix = [".rst", ".md"]
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'markdown',
+    '.md': 'markdown',
+}
 templates_path = ['_templates']
 exclude_patterns = []
 
