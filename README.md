@@ -131,4 +131,4 @@ report()
 
 Follow the step-by-step guide to test the library using the provided [instructions](https://github.com/Clearbox-AI/SURE/tree/main/testing).
 
-Review the dedicated [documentation](https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f) to learn how to further customize your synthetic data assessment pipeline.
+<!-- Review the dedicated [documentation](https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f) to learn how to further customize your synthetic data assessment pipeline. -->

@@ -317,72 +317,72 @@ def number_of_dcr_equal_to_zero(dcr_name: str,
     _save_to_json("dcr_"+dcr_name+"_num_of_zeros", zero_values_mask.sum(), path_to_json)
     return zero_values_mask.sum()
 
-def dcr_histogram(
-            dcr_name: str,
-            distances_to_closest_record: np.ndarray, 
-            bins: int = 20, 
-            scale_to_100: bool = True,
-            path_to_json: str = ""
-        ) -> Dict:
-    """
-    Compute the histogram of a DCR array: the DCR values equal to 0 are extracted before the
-    histogram computation so that the first bar represent only the 0 (duplicates/clones)
-    and the following bars represent the standard bins (with edge) of an histogram.
+# def dcr_histogram(
+#             dcr_name: str,
+#             distances_to_closest_record: np.ndarray, 
+#             bins: int = 20, 
+#             scale_to_100: bool = True,
+#             path_to_json: str = ""
+#         ) -> Dict:
+#     """
+#     Compute the histogram of a DCR array: the DCR values equal to 0 are extracted before the
+#     histogram computation so that the first bar represent only the 0 (duplicates/clones)
+#     and the following bars represent the standard bins (with edge) of an histogram.
 
-    Parameters
-    ----------
-    distances_to_closest_record : np.ndarray
-        A 1D-array containing the Distance to the Closest Record for each row of a dataframe
-        shape (dataframe rows, )
-    bins : int, optional
-        _description_, by default 20
-    scale_to_100 : bool, optional
-        Wheter to scale the histogram bins between 0 and 100 (instead of 0 and 1), by default True
+#     Parameters
+#     ----------
+#     distances_to_closest_record : np.ndarray
+#         A 1D-array containing the Distance to the Closest Record for each row of a dataframe
+#         shape (dataframe rows, )
+#     bins : int, optional
+#         _description_, by default 20
+#     scale_to_100 : bool, optional
+#         Wheter to scale the histogram bins between 0 and 100 (instead of 0 and 1), by default True
 
-    Returns
-    -------
-    Dict
-        A dict containing the following items:
-            * bins, histogram bins detected as string labels.
-              The first bin/label is 0 (duplicates/clones), then the format is [inf_edge, sup_edge).
-            * count, histogram values for each bin in bins
-            * bins_edge_without_zero, the bin edges as returned by the np.histogram function without 0.
-    """
-    if dcr_name != "synth_train" and dcr_name != "synth_val" and dcr_name != "other":
-        raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
+#     Returns
+#     -------
+#     Dict
+#         A dict containing the following items:
+#             * bins, histogram bins detected as string labels.
+#               The first bin/label is 0 (duplicates/clones), then the format is [inf_edge, sup_edge).
+#             * count, histogram values for each bin in bins
+#             * bins_edge_without_zero, the bin edges as returned by the np.histogram function without 0.
+#     """
+#     if dcr_name != "synth_train" and dcr_name != "synth_val" and dcr_name != "other":
+#         raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
 
-    range_bins_with_zero = ["0.0"]
-    number_of_dcr_zeros = number_of_dcr_equal_to_zero(dcr_name, distances_to_closest_record)
-    dcr_non_zeros = distances_to_closest_record[distances_to_closest_record > 0]
-    counts_without_zero, bins_without_zero = np.histogram(
-        dcr_non_zeros, bins=bins, range=(0.0, 1.0), density=False
-    )
-    if scale_to_100:
-        scaled_bins_without_zero = bins_without_zero * 100
-    else:
-        scaled_bins_without_zero = bins_without_zero
+#     range_bins_with_zero = ["0.0"]
+#     number_of_dcr_zeros = number_of_dcr_equal_to_zero(dcr_name, distances_to_closest_record)
+#     dcr_non_zeros = distances_to_closest_record[distances_to_closest_record > 0]
+#     counts_without_zero, bins_without_zero = np.histogram(
+#         dcr_non_zeros, bins=bins, range=(0.0, 1.0), density=False
+#     )
+#     if scale_to_100:
+#         scaled_bins_without_zero = bins_without_zero * 100
+#     else:
+#         scaled_bins_without_zero = bins_without_zero
 
-    range_bins_with_zero.append("(0.0-{:.2f})".format(scaled_bins_without_zero[1]))
-    for i, left_edge in enumerate(scaled_bins_without_zero[1:-2]):
-        range_bins_with_zero.append(
-            "[{:.2f}-{:.2f})".format(left_edge, scaled_bins_without_zero[i + 2])
-        )
-    range_bins_with_zero.append(
-        "[{:.2f}-{:.2f}]".format(
-            scaled_bins_without_zero[-2], scaled_bins_without_zero[-1]
-        )
-    )
+#     range_bins_with_zero.append("(0.0-{:.2f})".format(scaled_bins_without_zero[1]))
+#     for i, left_edge in enumerate(scaled_bins_without_zero[1:-2]):
+#         range_bins_with_zero.append(
+#             "[{:.2f}-{:.2f})".format(left_edge, scaled_bins_without_zero[i + 2])
+#         )
+#     range_bins_with_zero.append(
+#         "[{:.2f}-{:.2f}]".format(
+#             scaled_bins_without_zero[-2], scaled_bins_without_zero[-1]
+#         )
+#     )
 
-    counts_with_zero = np.insert(counts_without_zero, 0, number_of_dcr_zeros)
+#     counts_with_zero = np.insert(counts_without_zero, 0, number_of_dcr_zeros)
 
-    dcr_hist = {
-        "bins": range_bins_with_zero,
-        "counts": counts_with_zero.tolist(),
-        "bins_edge_without_zero": bins_without_zero.tolist(),
-    }
+#     dcr_hist = {
+#         "bins": range_bins_with_zero,
+#         "counts": counts_with_zero.tolist(),
+#         "bins_edge_without_zero": bins_without_zero.tolist(),
+#     }
     
-    _save_to_json("dcr_"+dcr_name+"_hist", dcr_hist, path_to_json)
-    return dcr_hist
+#     _save_to_json("dcr_"+dcr_name+"_hist", dcr_hist, path_to_json)
+#     return dcr_hist
 
 def validation_dcr_test(
                 dcr_synth_train: np.ndarray, 

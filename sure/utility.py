@@ -60,6 +60,8 @@ class ClassificationGarden:
         Whether to return predictions along with model performance, by default False.
     classifiers : str or list, optional
         List of classifiers to use, or "all" for using all available classifiers, by default "all".
+
+    :meta private:
     """
 
     def __init__(
@@ -107,6 +109,8 @@ class ClassificationGarden:
         -------
         pd.DataFrame or np.ndarray
             Model performance metrics and predictions if specified.
+
+        :meta private:
         """
         data = [X_train, X_test, y_train, y_test]
         
@@ -133,6 +137,8 @@ class RegressionGarden():
         Whether to return predictions along with model performance, by default False.
     regressors : str or list, optional
         List of regressors to use, or "all" for using all available regressors, by default "all".
+
+    :meta private:
     """
     def __init__(
         self,
@@ -179,6 +185,8 @@ class RegressionGarden():
         -------
         pd.DataFrame or np.ndarray
             Model performance metrics and predictions if specified.
+
+        :meta private:
         """
         data = [X_train, X_test, y_train, y_test]
 
