@@ -15,9 +15,9 @@ extensions = [
     'sphinx_rtd_theme'
 ]
 
-# myst_enable_extensions = [
-#     "linkify",  # Auto-detects URLs
-# ]
+myst_enable_extensions = [
+    "html_image",
+]
 
 source_suffix = {
     '.rst': 'restructuredtext',
