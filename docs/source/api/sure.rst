@@ -1,27 +1,31 @@
-Utils
-=====
+sure package
+============
+
+Subpackages
+-----------
+
 .. toctree::
    :maxdepth: 4
+
+   sure.distance_metrics
+   sure.privacy
+   sure.report_generator
+
+Submodules
+----------
+
+sure.utility module
+-------------------
+
+.. automodule:: sure.utility
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
 
 .. automodule:: sure
    :members:
    :undoc-members:
    :show-inheritance:
-
-Utility
-=======
-
-.. automodule:: sure.utility
-   :members:
-
-
-Privacy
-=======
-.. toctree::
-   :maxdepth: 2
-   
-.. automodule:: sure.privacy.privacy
-   :members:
-
-.. automodule:: sure.distance_metrics.distance
-   :members:
