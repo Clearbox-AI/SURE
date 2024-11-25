@@ -25,7 +25,6 @@ Modules
    :maxdepth: 2
 
    api/sure.rst
-   api/sure.privacy
 
 Indices and tables
 ------------------

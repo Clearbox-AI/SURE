@@ -18,7 +18,7 @@ Utility
 Privacy
 =======
 
-.. automodule:: sure.privacy
+.. automodule:: sure.privacy.privacy
    :members:
 
 .. automodule:: sure.distance_metrics.distance
