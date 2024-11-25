@@ -23,5 +23,5 @@ Privacy
 .. automodule:: sure.privacy
    :members:
 
-.. automodule:: sure.distance_metrics.distance
+.. .. automodule:: sure.distance_metrics.distance
    :members:
