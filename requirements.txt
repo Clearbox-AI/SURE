@@ -7,6 +7,7 @@ wheel
 streamlit
 clearbox-preprocessor
 matplotlib
+matplotlib-inline
 seaborn
 click
 scikit-learn
