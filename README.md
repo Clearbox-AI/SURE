@@ -127,7 +127,7 @@ adversary_guesses_ground_truth = adversary_dataset["privacy_test_is_training"]
 MIA = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth)
 
 # Report generation as HTML page
-report()
+report(real_data, synth_data)
 ```
 
 Follow the step-by-step guide to test the library using the provided [instructions](https://github.com/Clearbox-AI/SURE/tree/main/testing).
