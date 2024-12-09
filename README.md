@@ -1,6 +1,10 @@
 <a href="https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f"><img src="https://img.shields.io/badge/SURE-docs-blue?logo=mdbook" /></a>
+[![Documentation Status](https://readthedocs.org/projects/clearbox-sure/badge/?version=latest)](https://clearbox-sure.readthedocs.io/en/latest/?badge=latest)
+[![PyPI](https://badge.fury.io/py/clearbox-sure.svg)](https://badge.fury.io/py/clearbox-sure)
+[![Downloads](https://pepy.tech/badge/clearbox-sure)](https://pepy.tech/project/clearbox-sure)
+[![GitHub stars](https://img.shields.io/github/stars/Clearbox-AI/SURE?style=social)](https://github.com/Clearbox-AI/SURE)
 
-<img src="images/sure_logo.png" width="250">
+<img src="docs/source/img/sure_logo_nobg.png" width="250">
 
 ### Synthetic Data: Utility, Regulatory compliance, and Ethical privacy
 
@@ -62,7 +66,7 @@ Eventually, the report generator provides a summary of the utility and privacy m
 
 This following diagram serves as a visual representation of how each module contributes to the utility-privacy assessment process and highlights the seamless interconnection and synergy between individual blocks.
 
-<img src="images/SURE_workflow_.png" alt="drawing" width="500"/>
+<img src="docs/source/img/SURE_workflow_.png" alt="drawing" width="500"/>
 
 # Usage
 
@@ -123,9 +127,9 @@ adversary_guesses_ground_truth = adversary_dataset["privacy_test_is_training"]
 MIA = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth)
 
 # Report generation as HTML page
-report()
+report(real_data, synth_data)
 ```
 
 Follow the step-by-step guide to test the library using the provided [instructions](https://github.com/Clearbox-AI/SURE/tree/main/testing).
 
-Review the dedicated [documentation](https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f) to learn how to further customize your synthetic data assessment pipeline.
+<!-- Review the dedicated [documentation](https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f) to learn how to further customize your synthetic data assessment pipeline. -->
