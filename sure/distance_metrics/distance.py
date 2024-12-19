@@ -139,14 +139,14 @@ def distance_to_closest_record(
     if dcr_name != "synth_train" and dcr_name != "synth_val" and dcr_name != "other":
         raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
 
-    # Converting X Dataset in to pd.DataFrame
+    # Converting X Dataset to pd.DataFrame
     X = _polars_to_pandas(x_dataframe)
       
     # Convert any temporal features to int
     temporal_columns = X.select_dtypes(include=['datetime']).columns
     X[temporal_columns] = X[temporal_columns].astype('int64')
   
-    # se c'è un secondo dataframe le distanze vengono calcolate con esso, altrimente X con sè stesso
+    # If a second dataframe is provided, the distances are calculated using it; otherwise, they are calculated within X itself.
     if y_dataframe is None:
         Y = X
         fill_diagonal = True
