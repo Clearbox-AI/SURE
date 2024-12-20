@@ -13,7 +13,7 @@ float_type  = Union[float, np.float16, np.float32, np.float64]
 
 from ..report_generator.report_generator import _save_to_json
 
-from sure import _drop_real_cols
+from sure import _drop_cols
 
 pyximport.install(setup_args={"include_dirs": np.get_include()})
 from sure.distance_metrics.gower_matrix_c import gower_matrix_c
@@ -156,8 +156,8 @@ def distance_to_closest_record(
         fill_diagonal = False
         Y[temporal_columns] = Y[temporal_columns].astype('int64')
 
-    # Drop columns that are present in Y but are missing in X
-    Y = _drop_real_cols(X, Y)
+    # Drop columns that are present in Y but are missing in X and vice versa
+    X, Y = _drop_cols(X, Y)
     
     if not isinstance(X, np.ndarray):
         if not np.array_equal(X.columns, Y.columns):

@@ -20,7 +20,7 @@ def _to_numpy(data):
         print("The dataframe must be a Polars LazyFrame or a Pandas DataFrame")
         return
     
-def _drop_real_cols(synth, real):
+def _drop_cols(synth, real):
     ''' This function returns the real dataset without the columns that are not present in the synthetic one
     '''
     if not isinstance(synth, np.ndarray) and not isinstance(real, np.ndarray):
@@ -29,9 +29,16 @@ def _drop_real_cols(synth, real):
         not_in_real  = col_synth-col_real
         not_in_synth = col_real-col_synth
 
+        # Drop columns that are present in the real dataset but are missing in the synthetic one
         if len(not_in_real)>0:
-            print(f"The following columns of the synthetic dataset are not present in the real dataset:\n{not_in_real}")
-            return
+            print(f"Warning: The following columns of the synthetic dataset are not present in the real dataset:\n{not_in_real}\n\n...
+                  If you used only a subset of the dataset for computation, consider increasing the number of rows to ensure that all categorical values are adequately represented after one-hot-encoding.")
+        if isinstance(synth, pd.DataFrame):
+            synth = synth.drop(columns=list(not_in_real))
+        if isinstance(synth, pl.DataFrame):
+            synth = synth.drop(list(not_in_real))
+        if isinstance(synth, pl.LazyFrame):
+            synth = synth.collect.drop(list(not_in_real))
 
         # Drop columns that are present in the real dataset but are missing in the synthetic one
         if isinstance(real, pd.DataFrame):
@@ -40,7 +47,7 @@ def _drop_real_cols(synth, real):
             real = real.drop(list(not_in_synth))
         if isinstance(real, pl.LazyFrame):
             real = real.collect.drop(list(not_in_synth))
-    return real
+    return synth, real
      
 # MODEL GARDEN MODULE
 class ClassificationGarden:
@@ -507,8 +514,8 @@ def compute_statistical_metrics(
     if isinstance(synth_data, pl.LazyFrame):
             synth_data = synth_data.collect()
 
-    # Drop columns that are present in the real dataset but not in the synthetic dataset
-    real_data = _drop_real_cols(synth_data, real_data)
+    # Drop columns that are present in the real dataset but not in the synthetic dataset and vice versa
+    synth_data, real_data = _drop_cols(synth_data, real_data)
 
     # Check that the real features and the synthetic ones match
     if not real_data.columns==synth_data.columns:
@@ -627,8 +634,8 @@ def compute_mutual_info(
     if isinstance(synth_data, pl.LazyFrame):
             synth_data = synth_data.collect()
 
-    # Drop columns that are present in the real dataset but not in the synthetic dataset
-    real_data = _drop_real_cols(synth_data, real_data)
+    # Drop columns that are present in the real dataset but not in the synthetic dataset and vice versa
+    synth_data, real_data = _drop_cols(synth_data, real_data)
 
     # Check that the real features and the synthetic ones match
     if not real_data.columns==synth_data.columns:

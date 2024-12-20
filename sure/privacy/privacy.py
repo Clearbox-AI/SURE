@@ -7,7 +7,7 @@ from typing import Dict, List, Tuple
 from sklearn.metrics import precision_score
 
 from sure.privacy import distance_to_closest_record
-from sure import _save_to_json, _drop_real_cols
+from sure import _save_to_json, _drop_cols
 
 # ATTACK SANDBOX
 def _polars_to_pandas(dataframe: pl.DataFrame | pl.LazyFrame):
@@ -126,8 +126,8 @@ def membership_inference_test(
 
     adversary_dataset=adversary_dataset.drop(["privacy_test_is_training"],axis=1)
     
-    # Drop columns that are present in Y but are missing in X
-    adversary_dataset = _drop_real_cols(synthetic_dataset, adversary_dataset)
+    # Drop columns that are present in adversary_dataset but are missing in synthetic_dataset and vice versa
+    synthetic_dataset, adversary_dataset = _drop_cols(synthetic_dataset, adversary_dataset)
 
     dcr_adversary_synth = distance_to_closest_record("other",
                                                 adversary_dataset,
