@@ -87,11 +87,11 @@ from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_e
 # Assuming real_data, valid_data and synth_data are three pandas DataFrames
 
 # Real dataset - Preprocessor initialization and query execution on the real, synthetic and validation datasets
-preprocessor            = Preprocessor(real_data, get_discarded_info=False)
+preprocessor            = Preprocessor(real_data, get_discarded_info=False, num_fill_null='forward', scaling='standardize')
 
-real_data_preprocessed  = preprocessor.transform(real_data, num_fill_null='forward', scaling='standardize')
-valid_data_preprocessed = preprocessor.transform(valid_data, num_fill_null='forward', scaling='standardize')
-synth_data_preprocessed = preprocessor.transform(synth_data, num_fill_null='forward', scaling='standardize')
+real_data_preprocessed  = preprocessor.transform(real_data)
+valid_data_preprocessed = preprocessor.transform(valid_data)
+synth_data_preprocessed = preprocessor.transform(synth_data)
 
 # Statistical properties and mutual information
 num_features_stats, cat_features_stats, temporal_feat_stats = compute_statistical_metrics(real_data_preprocessed, synth_data_preprocessed)
