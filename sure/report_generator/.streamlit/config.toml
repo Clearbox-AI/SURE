@@ -3,3 +3,6 @@ base="light"
 primaryColor="#6f329a"
 secondaryBackgroundColor="#a58cc9"
 textColor="#3d3d3d"
+
+[browser]
+gatherUsageStats = false
