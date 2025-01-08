@@ -1,13 +1,12 @@
-clearbox-preprocessor
 setuptools
-pandas
-polars<=1.17.1
-numpy
+pandas<2.0.0,>=1.4.2
+polars>=0.20.31,<1.0.0
+numpy<2.0.0
 cython
 wheel
 streamlit
+clearbox-preprocessor
 matplotlib
-matplotlib-inline
 seaborn
 click
 scikit-learn
@@ -15,5 +14,3 @@ tqdm
 joblib
 lightgbm
 xgboost
-sphinx_rtd_theme
-myst_parser
