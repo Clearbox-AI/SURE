@@ -8,7 +8,7 @@ from Cython.Distutils import build_ext
 
 # Read the content of the README.md for the long_description metadata
 with open("README.md", "r") as readme:
-    long_description = '' #readme.read()
+    long_description = readme.read()
 
 # Parse the requirements.txt file to get a list of dependencies
 with open("requirements.txt") as f:
