@@ -33,8 +33,9 @@ html_theme_options = {
     "style_nav_header_background": "#483a8f",
 }
 
-html_logo = "img/cb_white_logo_compact.png"
 html_static_path = ['_static', 'img']
+html_logo = "img/cb_white_logo_compact.png"
+html_favicon = "img/favicon.ico"
 
 master_doc = 'index'  # Ensure this points to your main document
 
