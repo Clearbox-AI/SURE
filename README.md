@@ -116,10 +116,10 @@ dcr_zero_synth_valid  = number_of_dcr_equal_to_zero("synth_val", dcr_synth_valid
 share                 = validation_dcr_test(dcr_synth_train, dcr_synth_valid)
 
 # ML privacy attack sandbox initialization and simulation
-adversary_dataset = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
+adversary_df = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
 # The function adversary_dataset adds a column "privacy_test_is_training" to the adversary dataset, indicating whether the record was part of the training set or not
-adversary_guesses_ground_truth = adversary_dataset["privacy_test_is_training"] 
-MIA = membership_inference_test(adversary_dataset, synth_data_preprocessed, adversary_guesses_ground_truth)
+adversary_guesses_ground_truth = adversary_df["privacy_test_is_training"] 
+MIA = membership_inference_test(adversary_dfv, synth_data_preprocessed, adversary_guesses_ground_truth)
 
 # Report generation as HTML page
 report(real_data, synth_data)
