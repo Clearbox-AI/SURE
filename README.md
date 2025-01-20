@@ -86,7 +86,7 @@ from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_e
 
 # Assuming real_data, valid_data and synth_data are three pandas DataFrames
 
-# Real dataset - Preprocessor initialization and query execution on the real, synthetic and validation datasets
+# Preprocessor initialization and query execution on the real, synthetic and validation datasets
 preprocessor            = Preprocessor(real_data, get_discarded_info=False, num_fill_null='forward', scaling='standardize')
 
 real_data_preprocessed  = preprocessor.transform(real_data)
