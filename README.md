@@ -125,6 +125,6 @@ MIA = membership_inference_test(adversary_dfv, synth_data_preprocessed, adversar
 report(real_data, synth_data)
 ```
 
-Follow the step-by-step guide to test the library using the provided [instructions](https://github.com/Clearbox-AI/SURE/tree/main/testing).
+Follow the step-by-step [guide](https://github.com/Clearbox-AI/SURE/tree/main/examples) to test the library.
 
 <!-- Review the dedicated [documentation](https://dario-brunelli-clearbox-ai.notion.site/SURE-Documentation-2c17db370641488a8db5bce406032c1f) to learn how to further customize your synthetic data assessment pipeline. -->
