@@ -32,7 +32,9 @@ html_theme_options = {
     "logo_only": True,
     "style_nav_header_background": "#483a8f",
 }
-
+html_css_files = [
+    'style.css',
+]
 html_static_path = ['_static', 'img']
 html_logo = "img/cb_white_logo_compact.png"
 html_favicon = "img/favicon.ico"
