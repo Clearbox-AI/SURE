@@ -42,7 +42,7 @@ preprocessor            = Preprocessor(synth_data, get_discarded_info=False)
 synth_data_preprocessed = preprocessor.transform(synth_data, num_fill_null='forward', scaling='standardize')
 
 # Statistical properties and mutual information
-num_features_stats, cat_features_stats, temporal_feat_stats = compute_statistical_metrics(real_data_preprocessed, synth_data_preprocessed)
+num_features_stats, cat_features_stats, temporal_feat_stats = compute_statistical_metrics(real_data, synth_data)
 corr_real, corr_synth, corr_difference                      = compute_mutual_info(real_data_preprocessed, synth_data_preprocessed)
 
 # ML utility: TSTR - Train on Synthetic, Test on Real
@@ -55,8 +55,8 @@ y_test       = valid_data_preprocessed["label"].limit(10000)
 TSTR_metrics = compute_utility_metrics_class(X_train, X_synth, X_test, y_train, y_synth, y_test)
 
 # Distance to closest record
-dcr_synth_train       = distance_to_closest_record("synth_train", synth_data_preprocessed, real_data_preprocessed)
-dcr_synth_valid       = distance_to_closest_record("synth_val", synth_data_preprocessed, valid_data_preprocessed)
+dcr_synth_train       = distance_to_closest_record("synth_train", synth_data, real_data)
+dcr_synth_valid       = distance_to_closest_record("synth_val", synth_data, valid_data)
 dcr_stats_synth_train = dcr_stats("synth_train", dcr_synth_train)
 dcr_stats_synth_valid = dcr_stats("synth_val", dcr_synth_valid)
 dcr_zero_synth_train  = number_of_dcr_equal_to_zero("synth_train", dcr_synth_train)
