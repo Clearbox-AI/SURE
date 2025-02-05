@@ -6,6 +6,7 @@ import seaborn.objects as so
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import argparse
+import os
 
 from report_generator import _load_from_json, _convert_to_dataframe
 
@@ -243,7 +244,10 @@ def main(real_df, synth_df, path_to_json):
         The function initializes and runs a Streamlit app for visualizing and comparing utility metrics.
     """
     # Set app conifgurations
-    st.set_page_config(layout="wide", page_title='SURE', page_icon='../../docs/source/img/favicon.ico')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
+    favicon_path = os.path.join(root_dir, "docs", "source", "img", "favicon.ico")
+    st.set_page_config(layout="wide", page_title='SURE', page_icon=favicon_path)
 
     # Header and subheader and description
     st.title('SURE')
