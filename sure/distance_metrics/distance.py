@@ -187,11 +187,12 @@ def distance_to_closest_record(
     weight_sum = feature_weights.sum().astype("float32")
 
     # Perform label encoding on categorical features of X and Y
-    encoder = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
+    if categorical_features.any():
+        encoder = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
 
-    # Apply the encoder on all categorical columns at once
-    X[:, categorical_features] = encoder.fit_transform(X[:, categorical_features])
-    Y[:, categorical_features] = encoder.transform(Y[:, categorical_features])
+        # Apply the encoder on all categorical columns at once
+        X[:, categorical_features] = encoder.fit_transform(X[:, categorical_features])
+        Y[:, categorical_features] = encoder.transform(Y[:, categorical_features])
 
     # Categorical feature matrix of X (num_rows_X x num_cat_feat)
     X_categorical = X[:, categorical_features].astype("uint8")
