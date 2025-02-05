@@ -244,10 +244,7 @@ def main(real_df, synth_df, path_to_json):
         The function initializes and runs a Streamlit app for visualizing and comparing utility metrics.
     """
     # Set app conifgurations
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    root_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
-    favicon_path = os.path.join(root_dir, "docs", "source", "img", "favicon.ico")
-    st.set_page_config(layout="wide", page_title='SURE', page_icon=favicon_path)
+    st.set_page_config(layout="wide", page_title='SURE', page_icon='https://raw.githubusercontent.com/Clearbox-AI/SURE/main/docs/source/img/favicon.ico')
 
     # Header and subheader and description
     st.title('SURE')
