@@ -243,7 +243,7 @@ def main(real_df, synth_df, path_to_json):
         The function initializes and runs a Streamlit app for visualizing and comparing utility metrics.
     """
     # Set app conifgurations
-    st.set_page_config(layout="wide", page_title='SURE', page_icon=':large_purple_square:')
+    st.set_page_config(layout="wide", page_title='SURE', page_icon='../../docs/source/img/favicon.ico')
 
     # Header and subheader and description
     st.title('SURE')
