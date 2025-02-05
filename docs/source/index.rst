@@ -9,7 +9,6 @@
 .. image:: img/sure_logo_nobg.png
    :alt: SURE Logo
    :width: 450px
-   :align: right
 
 .. include:: doc_2.md
    :parser: markdown
