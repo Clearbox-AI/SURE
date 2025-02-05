@@ -6,7 +6,7 @@
 .. include:: doc_1.md
    :parser: markdown
 
-.. image:: img/sure_logo.png
+.. image:: img/sure_logo_nobg.png
    :alt: SURE Logo
 
 .. include:: doc_2.md
