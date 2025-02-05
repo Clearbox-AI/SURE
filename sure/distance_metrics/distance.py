@@ -186,7 +186,7 @@ def distance_to_closest_record(
     # The sum of the weights is necessary to compute the mean value in the end (division)
     weight_sum = feature_weights.sum().astype("float32")
 
-    # Perfrom label encoding on categorical features
+    # Perfrom label encoding on categorical features of X
     for i,col in enumerate(categorical_features):
         if col:
             le = LabelEncoder()
@@ -197,6 +197,12 @@ def distance_to_closest_record(
 
     # Numerical feature matrix of X (num_rows_X x num_num_feat)
     X_numerical = X[:, np.logical_not(categorical_features)].astype("float32")
+
+    # Perfrom label encoding on categorical features of Y
+    for i,col in enumerate(categorical_features):
+        if col:
+            le = LabelEncoder()
+            Y[:,i] = le.fit_transform(Y[:,i])
 
     # Categorical feature matrix of Y (num_rows_Y x num_cat_feat)
     Y_categorical = Y[:, categorical_features].astype("uint8")
