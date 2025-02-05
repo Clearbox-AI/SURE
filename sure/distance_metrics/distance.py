@@ -5,7 +5,7 @@ from multiprocessing import Pool
 import numpy  as np
 import pandas as pd
 import polars as pl
-import polars.selectors as cs
+from sklearn.preprocessing import LabelEncoder
 
 from typing import Dict, List, Tuple, Union
 int_type    = Union[int, np.int8, np.uint8, np.int16, np.uint16, np.int32, np.uint32, np.int64, np.uint64]
@@ -171,31 +171,37 @@ def distance_to_closest_record(
     if not isinstance(categorical_features, np.ndarray):
         categorical_features = np.array(categorical_features)
 
-    # Entrambi i dataframe vengono trasformati in array/matrice numpy
+    # Both datafrmaes are turned into numpy arrays
     if not isinstance(X, np.ndarray):
         X = np.asarray(X)
     if not isinstance(Y, np.ndarray):
         Y = np.asarray(Y)
 
     if feature_weights is None:
-        # se non ho passato pesi specifici, tutti i pesi sono 1
+        # If no weights are specified, all weights are 1
         feature_weights = np.ones(X.shape[1])
     else:
         feature_weights = np.array(feature_weights)
 
-    # La somma dei pesi è necessaria per fare la media alla fine (divisione)
+    # The sum of the weights is necessary to compute the mean value in the end (division)
     weight_sum = feature_weights.sum().astype("float32")
 
-    # Matrice delle feature categoriche di X (num_rows_X x num_cat_feat)
+    # Perfrom label encoding on categorical features
+    for i,col in enumerate(categorical_features):
+        if col:
+            le = LabelEncoder()
+            X[:,i] = le.fit_transform(X[:,i])
+
+    # Categorical feature matrix of X (num_rows_X x num_cat_feat)
     X_categorical = X[:, categorical_features].astype("uint8")
 
-    # Matrice delle feature numeriche di X (num_rows_X x num_num_feat)
+    # Numerical feature matrix of X (num_rows_X x num_num_feat)
     X_numerical = X[:, np.logical_not(categorical_features)].astype("float32")
 
-    # Matrice delle feature categoriche di Y (num_rows_Y x num_cat_feat)
+    # Categorical feature matrix of Y (num_rows_Y x num_cat_feat)
     Y_categorical = Y[:, categorical_features].astype("uint8")
 
-    # Matrice delle feature numeriche di Y (num_rows_Y x num_num_feat)
+    # Numerical feature matrix ofMatrice delle feature numeriche di Y (num_rows_Y x num_num_feat)
     Y_numerical = Y[:, np.logical_not(categorical_features)].astype("float32")
 
     # The range of the numerical features is necessary for the way Gower distances are calculated.
