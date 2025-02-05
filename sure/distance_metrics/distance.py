@@ -5,7 +5,7 @@ from multiprocessing import Pool
 import numpy  as np
 import pandas as pd
 import polars as pl
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OrdinalEncoder
 
 from typing import Dict, List, Tuple, Union
 int_type    = Union[int, np.int8, np.uint8, np.int16, np.uint16, np.int32, np.uint32, np.int64, np.uint64]
@@ -186,23 +186,18 @@ def distance_to_closest_record(
     # The sum of the weights is necessary to compute the mean value in the end (division)
     weight_sum = feature_weights.sum().astype("float32")
 
-    # Perfrom label encoding on categorical features of X
-    for i,col in enumerate(categorical_features):
-        if col:
-            le = LabelEncoder()
-            X[:,i] = le.fit_transform(X[:,i])
+    # Perform label encoding on categorical features of X and Y
+    encoder = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
+
+    # Apply the encoder on all categorical columns at once
+    X[:, categorical_features] = encoder.fit_transform(X[:, categorical_features])
+    Y[:, categorical_features] = encoder.transform(Y[:, categorical_features])
 
     # Categorical feature matrix of X (num_rows_X x num_cat_feat)
     X_categorical = X[:, categorical_features].astype("uint8")
 
     # Numerical feature matrix of X (num_rows_X x num_num_feat)
     X_numerical = X[:, np.logical_not(categorical_features)].astype("float32")
-
-    # Perfrom label encoding on categorical features of Y
-    for i,col in enumerate(categorical_features):
-        if col:
-            le = LabelEncoder()
-            Y[:,i] = le.fit_transform(Y[:,i])
 
     # Categorical feature matrix of Y (num_rows_Y x num_cat_feat)
     Y_categorical = Y[:, categorical_features].astype("uint8")
