@@ -35,6 +35,11 @@ jobs:
     - name: Build Python wheels
       run: |
         python setup.py bdist_wheel
+
+    - name: Install wheel
+      run: |
+        pip install dist/*.whl
+
     - name: Install test dependencies
       run: |
         pip install pytest
