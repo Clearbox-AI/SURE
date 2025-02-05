@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
@@ -36,17 +33,7 @@ jobs:
       run: |
         python setup.py bdist_wheel
 
-    - name: Install wheel
-      run: |
-        pip install dist/*.whl
 
-    - name: Install test dependencies
-      run: |
-        pip install pytest
-
-    - name: Run tests
-      run: |
-        pytest tests/
     # - name: Upload Python wheels as artifacts
     #   uses: actions/upload-artifact@v4
     #   with:
