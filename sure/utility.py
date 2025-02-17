@@ -31,8 +31,7 @@ def _drop_cols(synth, real):
 
         # Drop columns that are present in the real dataset but are missing in the synthetic one
         if len(not_in_real)>0:
-            print(f"""Warning: The following columns of the synthetic dataset are not present in the real dataset:\n{not_in_real}\n\n...
-                  If you used only a subset of the dataset for computation, consider increasing the number of rows to ensure that all categorical values are adequately represented after one-hot-encoding.""")
+            print(f"""Warning: The following columns of the synthetic dataset are not present in the real dataset and were dropped to carry on with the computation:\n{not_in_real}\nIf you used only a subset of the dataset for computation, consider increasing the number of rows to ensure that all categorical values are adequately represented after one-hot-encoding.""")
         if isinstance(synth, pd.DataFrame):
             synth = synth.drop(columns=list(not_in_real))
         if isinstance(synth, pl.DataFrame):
