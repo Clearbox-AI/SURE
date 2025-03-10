@@ -210,7 +210,7 @@ def distance_to_closest_record(
     numericals_maxs = np.amax(np.concatenate((X_numerical, Y_numerical)), axis=0)
     numericals_ranges = numericals_maxs - numericals_mins
 
-    X_rows = X_categorical.shape[0]
+    X_rows = X.shape[0]
 
     """
     Perform a parallel calculation on a DataFrame by dividing the data into chunks

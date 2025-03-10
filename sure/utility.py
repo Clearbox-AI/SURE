@@ -641,8 +641,8 @@ def compute_mutual_info(
         if col not in real_data.columns:
             raise KeyError(f"Column {col} not found in DataFrame.")
 
-    real_data.drop(exclude_columns)
-    synth_data.drop(exclude_columns)
+    real_data  = real_data.drop(exclude_columns)
+    synth_data = synth_data.drop(exclude_columns)
 
     # Drop columns that are present in the real dataset but not in the synthetic dataset and vice versa
     synth_data, real_data = _drop_cols(synth_data, real_data)
