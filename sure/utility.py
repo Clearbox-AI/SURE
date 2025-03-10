@@ -587,6 +587,7 @@ def compute_statistical_metrics(
 def compute_mutual_info(
     real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
     synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
+    exclude_columns: List = [],
     path_to_json: str = ""
 ) -> Tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     """
@@ -600,6 +601,9 @@ def compute_mutual_info(
         pandas DataFrame, or numpy ndarray.
     synth_data : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
         The synthetic dataset, provided in the same format as `real_data`.
+    exclude_columns: List, option
+        A list of columns to exclude from the computaion of mutual information,
+        by default [].
     path_to_json : str, optional
         File path to save the correlation matrices and their differences in JSON format,
         by default "".
@@ -632,6 +636,13 @@ def compute_mutual_info(
             real_data = real_data.collect()
     if isinstance(synth_data, pl.LazyFrame):
             synth_data = synth_data.collect()
+
+    for col in exclude_columns:
+        if col not in real_data.columns:
+            raise KeyError(f"Column {col} not found in DataFrame.")
+
+    real_data.drop(exclude_columns)
+    synth_data.drop(exclude_columns)
 
     # Drop columns that are present in the real dataset but not in the synthetic dataset and vice versa
     synth_data, real_data = _drop_cols(synth_data, real_data)

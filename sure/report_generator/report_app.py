@@ -54,7 +54,6 @@ def _plot_hist(real_data, synth_data):
 
 def _plot_heatmap(data, title):
     df = pd.DataFrame(data)
-    df = df.drop(columns=["label"])
     # Generate a mask for the upper triangle
     mask = np.triu(np.ones_like(df, dtype=bool), 1)
 
