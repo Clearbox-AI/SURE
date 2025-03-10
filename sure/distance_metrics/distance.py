@@ -196,9 +196,6 @@ def distance_to_closest_record(
         # Categorical feature matrix of Y (num_rows_Y x num_cat_feat)
         Y_categorical = encoder.transform(Y[:, categorical_features])
 
-    # Categorical feature matrix of X (num_rows_X x num_cat_feat)
-    X_categorical = X[:, categorical_features].astype("uint8")
-
     # Numerical feature matrix of X (num_rows_X x num_num_feat)
     X_numerical = X[:, np.logical_not(categorical_features)].astype("float32")
 
