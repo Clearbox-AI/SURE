@@ -188,20 +188,19 @@ def distance_to_closest_record(
 
     # Perform label encoding on categorical features of X and Y
     if categorical_features.any():
-        encoder = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
+        encoder = OrdinalEncoder(handle_unknown='use_encoded_value', dtype=int, unknown_value=-1, encoded_missing_value=-1)
 
         # Apply the encoder on all categorical columns at once
-        X[:, categorical_features] = encoder.fit_transform(X[:, categorical_features])
-        Y[:, categorical_features] = encoder.transform(Y[:, categorical_features])
+        # Categorical feature matrix of X (num_rows_X x num_cat_feat)
+        X_categorical = encoder.fit_transform(X[:, categorical_features])
+        # Categorical feature matrix of Y (num_rows_Y x num_cat_feat)
+        Y_categorical = encoder.transform(Y[:, categorical_features])
 
     # Categorical feature matrix of X (num_rows_X x num_cat_feat)
     X_categorical = X[:, categorical_features].astype("uint8")
 
     # Numerical feature matrix of X (num_rows_X x num_num_feat)
     X_numerical = X[:, np.logical_not(categorical_features)].astype("float32")
-
-    # Categorical feature matrix of Y (num_rows_Y x num_cat_feat)
-    Y_categorical = Y[:, categorical_features].astype("uint8")
 
     # Numerical feature matrix ofMatrice delle feature numeriche di Y (num_rows_Y x num_num_feat)
     Y_numerical = Y[:, np.logical_not(categorical_features)].astype("float32")
