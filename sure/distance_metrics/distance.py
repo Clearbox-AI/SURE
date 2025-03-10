@@ -170,6 +170,8 @@ def distance_to_closest_record(
     categorical_features = np.array(X.dtypes)==pl.Utf8
     if not isinstance(categorical_features, np.ndarray):
         categorical_features = np.array(categorical_features)
+    X_categorical = X[:, categorical_features]
+    Y_categorical = Y[:, categorical_features]
 
     # Both datafrmaes are turned into numpy arrays
     if not isinstance(X, np.ndarray):
@@ -192,9 +194,9 @@ def distance_to_closest_record(
 
         # Apply the encoder on all categorical columns at once
         # Categorical feature matrix of X (num_rows_X x num_cat_feat)
-        X_categorical = encoder.fit_transform(X[:, categorical_features])
+        X_categorical = encoder.fit_transform(X_categorical)
         # Categorical feature matrix of Y (num_rows_Y x num_cat_feat)
-        Y_categorical = encoder.transform(Y[:, categorical_features])
+        Y_categorical = encoder.transform(Y_categorical)
 
     # Numerical feature matrix of X (num_rows_X x num_num_feat)
     X_numerical = X[:, np.logical_not(categorical_features)].astype("float32")
