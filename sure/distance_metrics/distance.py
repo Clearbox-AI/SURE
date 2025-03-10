@@ -151,7 +151,7 @@ def distance_to_closest_record(
         Y = X
         fill_diagonal = True
     else:
-        # Converting X Dataset in to pd.DataFrame
+        # Converting X Dataset into pd.DataFrame
         Y = _polars_to_pandas(y_dataframe)
         fill_diagonal = False
         Y[temporal_columns] = Y[temporal_columns].astype('int64')
@@ -168,16 +168,15 @@ def distance_to_closest_record(
         
     # Get categorical features
     categorical_features = np.array(X.dtypes)==pl.Utf8
-    if not isinstance(categorical_features, np.ndarray):
-        categorical_features = np.array(categorical_features)
-    X_categorical = X[:, categorical_features]
-    Y_categorical = Y[:, categorical_features]
 
     # Both datafrmaes are turned into numpy arrays
     if not isinstance(X, np.ndarray):
         X = np.asarray(X)
     if not isinstance(Y, np.ndarray):
         Y = np.asarray(Y)
+
+    X_categorical = X[:, categorical_features]
+    Y_categorical = Y[:, categorical_features]
 
     if feature_weights is None:
         # If no weights are specified, all weights are 1
@@ -190,13 +189,21 @@ def distance_to_closest_record(
 
     # Perform label encoding on categorical features of X and Y
     if categorical_features.any():
-        encoder = OrdinalEncoder(handle_unknown='use_encoded_value', dtype=int, unknown_value=-1, encoded_missing_value=-1)
+        encoder = OrdinalEncoder(
+            handle_unknown='use_encoded_value', 
+            dtype="uint8", 
+            unknown_value=-1, 
+            encoded_missing_value=-1
+        )
 
         # Apply the encoder on all categorical columns at once
         # Categorical feature matrix of X (num_rows_X x num_cat_feat)
         X_categorical = encoder.fit_transform(X_categorical)
         # Categorical feature matrix of Y (num_rows_Y x num_cat_feat)
         Y_categorical = encoder.transform(Y_categorical)
+    else:
+        X_categorical = X_categorical.astype("uint8")
+        Y_categorical = Y_categorical.astype("uint8")   
 
     # Numerical feature matrix of X (num_rows_X x num_num_feat)
     X_numerical = X[:, np.logical_not(categorical_features)].astype("float32")
