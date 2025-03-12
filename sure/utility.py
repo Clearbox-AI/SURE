@@ -4,9 +4,28 @@ import numpy  as np
 import pandas as pd
 import polars as pl
 import polars.selectors as cs
+from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.preprocessing import LabelEncoder
+from clearbox_preprocessor import Preprocessor
 
 from sure import _save_to_json
 from sure._lazypredict import LazyClassifier, LazyRegressor
+# from report_generator.report_generator import _save_to_json
+# from _lazypredict import LazyClassifier, LazyRegressor
+
+def _to_polars_df(df):
+    """Converting Real and Synthetic Dataset into pl.DataFrame"""
+    if isinstance(df, pd.DataFrame):
+            df = pl.from_pandas(df)
+    elif isinstance(df, np.ndarray):
+            df = pl.from_numpy(df)
+    elif isinstance(df, pl.LazyFrame):
+            df = df.collect()
+    elif isinstance(df, pl.DataFrame):
+        pass
+    else:
+        raise TypeError("Invalid type for dataframe")
+    return df
 
 def _to_numpy(data):
     ''' This functions transforms polars or pandas DataFrames or LazyFrames into numpy arrays'''
@@ -500,18 +519,8 @@ def compute_statistical_metrics(
     time_features_comparison = None
 
     # Converting Real and Synthetic Dataset into pl.DataFrame
-    if isinstance(real_data, pd.DataFrame):
-            real_data = pl.from_pandas(real_data)
-    if isinstance(synth_data, pd.DataFrame):
-            synth_data = pl.from_pandas(synth_data)
-    if isinstance(real_data, np.ndarray):
-            real_data = pl.from_numpy(real_data)
-    if isinstance(synth_data, np.ndarray):
-            synth_data = pl.from_numpy(synth_data)
-    if isinstance(real_data, pl.LazyFrame):
-            real_data = real_data.collect()
-    if isinstance(synth_data, pl.LazyFrame):
-            synth_data = synth_data.collect()
+    real_data = _to_polars_df(real_data)
+    synth_data = _to_polars_df(synth_data)
 
     # Drop columns that are present in the real dataset but not in the synthetic dataset and vice versa
     synth_data, real_data = _drop_cols(synth_data, real_data)
@@ -624,19 +633,9 @@ def compute_mutual_info(
         features are present.
     """
     # Converting Real and Synthetic Dataset into pl.DataFrame
-    if isinstance(real_data, pd.DataFrame):
-            real_data = pl.from_pandas(real_data)
-    if isinstance(synth_data, pd.DataFrame):
-            synth_data = pl.from_pandas(synth_data)
-    if isinstance(real_data, np.ndarray):
-            real_data = pl.from_numpy(real_data)
-    if isinstance(synth_data, np.ndarray):
-            synth_data = pl.from_numpy(synth_data)
-    if isinstance(real_data, pl.LazyFrame):
-            real_data = real_data.collect()
-    if isinstance(synth_data, pl.LazyFrame):
-            synth_data = synth_data.collect()
-
+    real_data = _to_polars_df(real_data)
+    synth_data = _to_polars_df(synth_data)
+    
     for col in exclude_columns:
         if col not in real_data.columns:
             raise KeyError(f"Column {col} not found in DataFrame.")
@@ -657,15 +656,18 @@ def compute_mutual_info(
     real_data   = real_data.with_columns(cs.temporal().as_expr().dt.timestamp('ms'))
     synth_data  = synth_data.with_columns(cs.temporal().as_expr().dt.timestamp('ms'))
     
-    # Check that only numerical features are present
-    for col in real_data.columns:
-          if not real_data[col].dtype.is_numeric():
-            raise ValueError("Some non-numierical features is presnt in the dataset. Make sure to run the Preprocessor before evluating mutual information.")       
-    
-    # Real dataset correlation matrix
-    real_corr = real_data.corr()
+    # Label Encoding of categorical features to compute mutual information
+    encoder = LabelEncoder()
+    for col in real_data.select(cs.string()).columns:
+        real_data = real_data.with_columns([
+            pl.Series(col, encoder.fit_transform(real_data[col].to_list())),
+        ])
+        synth_data = synth_data.with_columns([
+            pl.Series(col, encoder.fit_transform(synth_data[col].to_list())),
+        ])
 
-    # Synthetic dataset correlation matrix
+    # Real and Synthetic dataset correlation matrix
+    real_corr = real_data.corr()
     synth_corr = synth_data.corr()
 
     # Difference between the correlation matrix of the real dataset and the correlation matrix of the synthetic dataset
@@ -679,3 +681,126 @@ def compute_mutual_info(
     _save_to_json("diff_corr", diff_corr, path_to_json)
 
     return real_corr, synth_corr, diff_corr
+
+def get_detection_score(
+        df_original, 
+        df_synthetic, 
+        preprocessor: Preprocessor=None, 
+        features_to_hide=[], 
+        path_to_json=""):
+    """ 
+    """
+    import xgboost as xgb
+    from sklearn.model_selection import train_test_split
+
+    if preprocessor is None:
+        preprocessor = Preprocessor(df_original)
+
+    df_original = _to_polars_df(df_original)
+    df_synthetic = _to_polars_df(df_synthetic)
+
+    # Sample from the original dataset to match the size of the synthetic dataset
+    df_original = df_original.head(len(df_synthetic))
+    
+    # Replace minority labels in the original data
+    for i in preprocessor.discarded[1].keys():
+        list_minority_labels = preprocessor.discarded[1][i]
+        for j in list_minority_labels:
+            df_original = df_original.with_columns(
+                pl.when(pl.col(i) == j)
+                .then(pl.lit("other"))
+                .otherwise(pl.col(i))
+                .alias(i)
+            )
+
+    # Preprocess and label the original data
+    preprocessed_df_original = preprocessor.transform(df_original)
+    df_original = preprocessor.inverse_transform(preprocessed_df_original)
+    df_original = df_original.with_columns([
+        pl.Series("label", np.zeros(len(df_original)).astype(int)),
+    ])
+
+    # Preprocess and label the synthetic data
+    preprocessed_df_synthetic = preprocessor.transform(df_synthetic)
+    df_synthetic = preprocessor.inverse_transform(preprocessed_df_synthetic)
+    df_synthetic = df_synthetic.with_columns([
+        pl.Series("label", np.ones(len(df_synthetic)).astype(int)),
+    ])
+
+    df = pl.concat([df_original, df_synthetic])
+    preprocessor_ = Preprocessor(df, target_column = "label")
+    df_preprocessed = preprocessor_.transform(df)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        df_preprocessed.select(pl.exclude("label")), 
+        df_preprocessed.select(pl.col("label")), 
+        test_size=0.33, 
+        random_state=42
+    )
+    
+    # train_ds = preprocessor_.transform(X_train)
+    # test_ds = preprocessor_.transform(X_test)
+
+    model = xgb.XGBClassifier(max_depth=3, n_estimators=50, use_label_encoder=False, eval_metric="logloss")
+    model.fit(X_train, y_train)
+
+    # Make predictions and compute metrics
+    y_pred = model.predict(X_test)
+    detection_score = {}
+    detection_score["accuracy"] = round(
+        accuracy_score(y_true=y_test, y_pred=y_pred), 4
+    )
+    detection_score["ROC_AUC"] = round(
+        roc_auc_score(
+            y_true=y_test,
+            y_score=model.predict_proba(X_test)[:, 1],
+            average=None,
+        ),
+        4,
+    )
+    detection_score["score"] = (
+        1
+        if detection_score["ROC_AUC"] <= 0.5
+        else (1 - detection_score["ROC_AUC"]) * 2
+    )
+
+    detection_score["feature_importances"] = {}
+
+    # Determine feature importances
+    numerical_features_sizes, categorical_features_sizes = preprocessor.get_features_sizes()
+
+    numerical_features = preprocessor.numerical_features
+    categorical_features = preprocessor.categorical_features
+    datetime_features = preprocessor.datetime_features
+
+    index = 0
+    for feature, importance in zip(numerical_features, model.feature_importances_):
+        if feature not in features_to_hide:
+            detection_score["feature_importances"][feature] = round(float(importance), 4)
+        index += 1
+
+    if len(datetime_features)>0:
+        for feature, importance in zip(datetime_features, model.feature_importances_[index:]):
+            if feature not in features_to_hide:
+                detection_score["feature_importances"][feature] = round(float(importance), 4)
+            index += 1
+
+    for feature, feature_size in zip(categorical_features, categorical_features_sizes):
+        importance = np.sum(model.feature_importances_[index : index + feature_size])
+        index += feature_size
+        if feature not in features_to_hide:
+            detection_score["feature_importances"][feature] = round(float(importance), 4)
+            
+    return detection_score
+
+if __name__ == "__main__":
+    import os
+    
+    file_path = "https://raw.githubusercontent.com/Clearbox-AI/SURE/main/examples/data/census_dataset"
+
+    real_data  = pl.from_pandas(pd.read_csv(os.path.join(file_path,"census_dataset_training.csv")))#.lazy() 
+    real_data = real_data.with_columns(pl.col("label").alias("Label"))
+    synth_data = pl.from_pandas(pd.read_csv(os.path.join(file_path,"census_dataset_synthetic.csv")))#.lazy()
+    synth_data = synth_data.with_columns(pl.col("label").alias("Label"))
+
+    detection_score = get_detection_score(real_data, synth_data)
