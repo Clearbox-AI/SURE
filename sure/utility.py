@@ -4,14 +4,14 @@ import numpy  as np
 import pandas as pd
 import polars as pl
 import polars.selectors as cs
+import random
+from functools import reduce
 from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.preprocessing import LabelEncoder
 from clearbox_preprocessor import Preprocessor
 
 from sure import _save_to_json
 from sure._lazypredict import LazyClassifier, LazyRegressor
-# from report_generator.report_generator import _save_to_json
-# from _lazypredict import LazyClassifier, LazyRegressor
 
 def _to_polars_df(df):
     """Converting Real and Synthetic Dataset into pl.DataFrame"""
@@ -682,13 +682,81 @@ def compute_mutual_info(
 
     return real_corr, synth_corr, diff_corr
 
-def get_detection_score(
-        df_original, 
-        df_synthetic, 
-        preprocessor: Preprocessor=None, 
-        features_to_hide=[], 
-        path_to_json=""):
-    """ 
+def detection_score(
+        df_original:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
+        df_synthetic:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,  
+        preprocessor: Preprocessor = None, 
+        features_to_hide: List = [], 
+        path_to_json: str = ""
+    ) -> Dict:
+    """
+    Computes the detection score by training an XGBoost model to differentiate between
+    original and synthetic data. The lower the model's accuracy, the higher the quality
+    of the synthetic data.
+
+    Parameters
+    ----------
+    features_to_hide : list, optional
+        List of features to exclude from importance analysis. Defaults to an empty list.
+
+    Returns
+    -------
+    dict
+        A dictionary containing accuracy, ROC AUC score, detection score, and feature importances.
+
+    Notes
+    -----
+    The method operates through the following steps:
+
+    1. Prepares the datasets:
+
+        - Samples the original dataset to match the size of the synthetic dataset.
+        - Preprocesses both datasets to ensure consistent feature representation.
+        - Labels original data as `0` and synthetic data as `1`.
+    
+    2. Builds a classification model:
+
+        - Uses XGBoost to train a model that classifies data points as either real or synthetic.
+        - Splits the data into training and test sets.
+        - Trains the model using a 33% test split.
+
+    3. Computes Evaluation Metrics:
+
+        - Accuracy: Measures classification correctness.
+        - ROC-AUC Score: Measures the model’s discriminatory power.
+        - Detection Score
+        
+    4. Extracts Feature Importances:
+    
+        - Identifies which features contribute most to distinguishing real vs. synthetic data.
+        - Helps detect which synthetic features deviate from real-world patterns.
+
+    
+    The detection score is calculated as:
+
+    .. code-block:: python
+
+        detection_score["score"] = (1 - detection_score["ROC_AUC"]) * 2
+
+    - If ``ROC_AUC <= 0.5``, the synthetic data is considered indistinguishable (``score = 1``).
+    - A lower score means better synthetic data quality.
+    - Feature importance analysis helps detect which synthetic features deviate most from real data.
+
+    Examples
+    --------
+    Example of dictionary returned:
+
+    .. code-block:: python
+
+        >>> detection_results = detection_score(original_df, synthetic_df)
+        >>> print(detection_results)
+        {
+            "accuracy": 0.85,   # How often the model classifies correctly
+            "ROC_AUC": 0.90,   # The ability to distinguish real vs synthetic
+            "score": 0.2,     # The final detection score (lower = better)
+            "feature_importances": {"feature_1": 0.34, "feature_2": 0.21, ...} 
+        }
+
     """
     import xgboost as xgb
     from sklearn.model_selection import train_test_split
@@ -696,7 +764,7 @@ def get_detection_score(
     if preprocessor is None:
         preprocessor = Preprocessor(df_original)
 
-    df_original = _to_polars_df(df_original)
+    df_original  = _to_polars_df(df_original)
     df_synthetic = _to_polars_df(df_synthetic)
 
     # Sample from the original dataset to match the size of the synthetic dataset
@@ -715,8 +783,8 @@ def get_detection_score(
 
     # Preprocess and label the original data
     preprocessed_df_original = preprocessor.transform(df_original)
-    df_original = preprocessor.inverse_transform(preprocessed_df_original)
-    df_original = df_original.with_columns([
+    df_original              = preprocessor.inverse_transform(preprocessed_df_original)
+    df_original              = df_original.with_columns([
         pl.Series("label", np.zeros(len(df_original)).astype(int)),
     ])
 
@@ -737,9 +805,6 @@ def get_detection_score(
         test_size=0.33, 
         random_state=42
     )
-    
-    # train_ds = preprocessor_.transform(X_train)
-    # test_ds = preprocessor_.transform(X_test)
 
     model = xgb.XGBClassifier(max_depth=3, n_estimators=50, use_label_encoder=False, eval_metric="logloss")
     model.fit(X_train, y_train)
@@ -791,16 +856,124 @@ def get_detection_score(
         if feature not in features_to_hide:
             detection_score["feature_importances"][feature] = round(float(importance), 4)
             
+    _save_to_json("detection_score", detection_score, path_to_json)
+
     return detection_score
 
-if __name__ == "__main__":
-    import os
+def query_power(
+        df_original: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
+        df_synthetic: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
+        preprocessor: Preprocessor = None,
+        path_to_json: str = ""
+        ) -> dict:
+    """
+    Generates and runs queries to compare the original and synthetic datasets.
+
+    This method creates random queries that filter data from both datasets.
+    The similarity between the sizes of the filtered results is used to score
+    the quality of the synthetic data.
+
+    Returns:
+        dict: A dictionary containing query texts, the number of matches for each
+                query in both datasets, and an overall score indicating the quality
+                of the synthetic data.
+    """
+    def polars_query(feat_type, feature, op, value):
+        if feat_type == 'num':
+            if op == "<=":
+                query = pl.col(feature) <= value
+            elif op == ">=":
+                query = pl.col(feature) >= value
+        elif feat_type == 'cat':
+            if op == "==":
+                query = pl.col(feature) == value
+            elif op == "!=":
+                query = pl.col(feature) != value
+        return query
     
-    file_path = "https://raw.githubusercontent.com/Clearbox-AI/SURE/main/examples/data/census_dataset"
+    query_power = {"queries": []}
 
-    real_data  = pl.from_pandas(pd.read_csv(os.path.join(file_path,"census_dataset_training.csv")))#.lazy() 
-    real_data = real_data.with_columns(pl.col("label").alias("Label"))
-    synth_data = pl.from_pandas(pd.read_csv(os.path.join(file_path,"census_dataset_synthetic.csv")))#.lazy()
-    synth_data = synth_data.with_columns(pl.col("label").alias("Label"))
+    if preprocessor is None:
+        preprocessor = Preprocessor(df_original)
 
-    detection_score = get_detection_score(real_data, synth_data)
+    df_original  = _to_polars_df(df_original)
+    df_synthetic = _to_polars_df(df_synthetic)
+
+    df_original = df_original.sample(len(df_synthetic)).clone()
+    df_original_preprocessed = preprocessor.transform(df_original)
+    df_original = preprocessor.inverse_transform(df_original_preprocessed)
+
+    df_synthetic_preprocessed = preprocessor.transform(df_synthetic)
+    df_synthetic = preprocessor.inverse_transform(df_synthetic_preprocessed)
+
+    # Extract feature types
+    numerical_features = preprocessor.numerical_features
+    categorical_features = preprocessor.categorical_features
+    datetime_features = preprocessor.datetime_features
+    boolean_features = preprocessor.boolean_features
+
+    # Prepare the feature list, excluding datetime features
+    features = list(set(df_original.columns) - set(datetime_features))
+
+    # Define query parameters
+    quantiles = [0.25, 0.5, 0.75]
+    numerical_ops = ["<=", ">="]
+    categorical_ops = ["==", "!="]
+    logical_ops = ["and"]
+
+    queries_score = []
+
+    # Generate and run up to 5 queries
+    while len(features) >= 2 and len(query_power["queries"]) < 5:
+        # Randomly select two features for the query
+        feats = [random.choice(features)]
+        features.remove(feats[0])
+        feats.append(random.choice(features))
+        features.remove(feats[1])
+
+        queries = []
+        queries_text = []
+        # Construct query conditions for each selected feature
+        for feature in feats:
+            if feature in numerical_features:
+                feat_type = 'num'
+                op = random.choice(numerical_ops)
+                value = df_original.select(
+                    pl.col(feature).quantile(
+                        random.choice(quantiles), interpolation="nearest"
+                    )).item()
+            elif feature in categorical_features or feature in boolean_features:
+                feat_type = 'cat'
+                op = random.choice(categorical_ops)
+                value = random.choice(df_original[feature].unique())
+            else:
+                continue
+
+            queries_text.append(f"`{feature}` {op} `{value}`")
+            queries.append(polars_query(feat_type, feature, op, value))
+
+        # Combine query conditions with a logical operator
+        text = f" {random.choice(logical_ops)} ".join(queries_text)
+        combined_query = reduce(lambda a, b: a & b, queries)
+
+        try:
+            query = {
+                "text": text,
+                "original_df": len(df_original.filter(combined_query)),
+                "synthetic_df": len(df_synthetic.filter(combined_query)),
+            }
+        except Exception:
+            query = {"text": "Invalid query", "original_df": 0, "synthetic_df": 0}
+
+        # Append the query and calculate the score
+        query_power["queries"].append(query)
+        queries_score.append(
+            1 - abs(query["original_df"] - query["synthetic_df"]) / len(df_original)
+        )
+
+    # Calculate the overall query power score
+    query_power["score"] = round(float(sum(queries_score) / len(queries_score)), 4)
+
+    _save_to_json("query_power", query_power, path_to_json)
+
+    return query_power
