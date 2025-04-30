@@ -28,7 +28,7 @@ def validation_data():
 
 def test_statistical_metrics(real_data, synthetic_data):
     """Test computation of statistical metrics between real and synthetic data"""
-    preprocessor = Preprocessor(real_data, get_discarded_info=False, num_fill_null='forward', scaling='standardize')
+    preprocessor = Preprocessor(real_data, num_fill_null='forward', scaling='standardize')
     real_preprocessed = preprocessor.transform(real_data)
     synth_preprocessed = preprocessor.transform(synthetic_data)
     
@@ -38,7 +38,7 @@ def test_statistical_metrics(real_data, synthetic_data):
 
 def test_mutual_info(real_data, synthetic_data):
     """Test computation of mutual information metrics"""
-    preprocessor = Preprocessor(real_data, get_discarded_info=False, num_fill_null='forward', scaling='standardize')
+    preprocessor = Preprocessor(real_data, num_fill_null='forward', scaling='standardize')
     real_preprocessed = preprocessor.transform(real_data)
     synth_preprocessed = preprocessor.transform(synthetic_data)
     
@@ -48,7 +48,7 @@ def test_mutual_info(real_data, synthetic_data):
 
 def test_privacy_metrics(real_data, synthetic_data, validation_data):
     """Test computation of privacy metrics"""
-    preprocessor = Preprocessor(real_data, get_discarded_info=False, num_fill_null='forward', scaling='standardize')
+    preprocessor = Preprocessor(real_data, num_fill_null='forward', scaling='standardize')
     real_preprocessed = preprocessor.transform(real_data)
     synth_preprocessed = preprocessor.transform(synthetic_data)
     valid_preprocessed = preprocessor.transform(validation_data)
@@ -68,7 +68,7 @@ def test_privacy_metrics(real_data, synthetic_data, validation_data):
 
 def test_membership_inference(real_data, synthetic_data, validation_data):
     """Test membership inference attack"""
-    preprocessor = Preprocessor(real_data, get_discarded_info=False, num_fill_null='forward', scaling='standardize')
+    preprocessor = Preprocessor(real_data, num_fill_null='forward', scaling='standardize')
     real_preprocessed = preprocessor.transform(real_data)
     synth_preprocessed = preprocessor.transform(synthetic_data)
     valid_preprocessed = preprocessor.transform(validation_data)
