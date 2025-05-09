@@ -1,8 +1,8 @@
 clearbox-preprocessor
 setuptools
-pandas
+pandas<=2.2.3
 polars<=1.17.1
-numpy
+numpy<2.0.0
 cython
 wheel
 streamlit
