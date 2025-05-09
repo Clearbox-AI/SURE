@@ -85,7 +85,7 @@ def distance_to_closest_record(
                         y_dataframe: pd.DataFrame | pl.DataFrame | pl.LazyFrame = None,
                         feature_weights: np.ndarray | List = None,
                         parallel: bool = True,
-                        save_output: bool = True,
+                        save_data: bool = True,
                         path_to_json: str = ""
                     ) -> np.ndarray:
     """
@@ -120,8 +120,10 @@ def distance_to_closest_record(
         If None, each feature weight is 1.0
     parallel : Boolean, optional
         Whether to enable the parallelization to compute Gower matrix, by default True
-    save_output : bool
+    save_data : bool
         If True, saves the DCR information into the JSON file used to generate the final report.
+    path_to_json : str
+        Path to the JSON file used to generate the final report.
 
     Returns
     -------
@@ -263,12 +265,13 @@ def distance_to_closest_record(
                     weight_sum,
                     fill_diagonal,
                 )
-    if save_output:
+    if save_data:
         _save_to_json("dcr_"+dcr_name, dcr, path_to_json)
     return dcr
     
 def dcr_stats(dcr_name: str, 
               distances_to_closest_record: np.ndarray,
+              save_data: bool = True,
               path_to_json: str = "") -> Dict:
     """
     This function returns the statisitcs for an array containing DCR computed previously.
@@ -284,6 +287,10 @@ def dcr_stats(dcr_name: str,
     distances_to_closest_record : np.ndarray
         A 1D-array containing the Distance to the Closest Record for each row of a dataframe
         shape (dataframe rows, )
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report.
+    path_to_json : str
+        Path to the JSON file used to generate the final report.
 
     Returns
     -------
@@ -303,11 +310,13 @@ def dcr_stats(dcr_name: str,
         "75%": dcr_percentiles[3].item(),
         "max": dcr_percentiles[4].item(),
     }
-    _save_to_json("dcr_"+dcr_name+"_stats", dcr_stats, path_to_json)
+    if save_data:
+        _save_to_json("dcr_"+dcr_name+"_stats", dcr_stats, path_to_json)
     return dcr_stats
 
 def number_of_dcr_equal_to_zero(dcr_name: str, 
                                 distances_to_closest_record: np.ndarray,
+                                save_data: bool = True,
                                 path_to_json: str = "") -> int_type:
     """
     Return the number of 0s in the given DCR array, that is the number of duplicates/clones detected.
@@ -317,6 +326,10 @@ def number_of_dcr_equal_to_zero(dcr_name: str,
     distances_to_closest_record : np.ndarray
         A 1D-array containing the Distance to the Closest Record for each row of a dataframe
         shape (dataframe rows, )
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report.
+    path_to_json : str
+        Path to the JSON file used to generate the final report.
 
     Returns
     -------
@@ -327,7 +340,8 @@ def number_of_dcr_equal_to_zero(dcr_name: str,
         raise TypeError("dcr_name must be one of the following:\n    -\"synth_train\"\n    -\"synth_val\"\n    -\"other\"")
 
     zero_values_mask = distances_to_closest_record == 0.0
-    _save_to_json("dcr_"+dcr_name+"_num_of_zeros", zero_values_mask.sum(), path_to_json)
+    if save_data:
+        _save_to_json("dcr_"+dcr_name+"_num_of_zeros", zero_values_mask.sum(), path_to_json)
     return zero_values_mask.sum()
 
 # def dcr_histogram(
@@ -335,6 +349,7 @@ def number_of_dcr_equal_to_zero(dcr_name: str,
 #             distances_to_closest_record: np.ndarray, 
 #             bins: int = 20, 
 #             scale_to_100: bool = True,
+#             save_data: bool = True,
 #             path_to_json: str = ""
 #         ) -> Dict:
 #     """
@@ -394,12 +409,14 @@ def number_of_dcr_equal_to_zero(dcr_name: str,
 #         "bins_edge_without_zero": bins_without_zero.tolist(),
 #     }
     
-#     _save_to_json("dcr_"+dcr_name+"_hist", dcr_hist, path_to_json)
+#        if save_data:
+#        _save_to_json("dcr_"+dcr_name+"_hist", dcr_hist, path_to_json)
 #     return dcr_hist
 
 def validation_dcr_test(
                 dcr_synth_train: np.ndarray, 
                 dcr_synth_validation: np.ndarray,
+                save_data: bool = True,
                 path_to_json: str = ""
             ) -> float_type:
     """
@@ -416,6 +433,10 @@ def validation_dcr_test(
     dcr_synth_validation : np.ndarray
         A 1D-array containing the Distance to the Closest Record for each row of the synthetic
         dataset wrt the validation dataset, shape (synthetic rows, )
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report.
+    path_to_json : str
+        Path to the JSON file used to generate the final report.
 
     Returns
     -------
@@ -455,5 +476,6 @@ def validation_dcr_test(
         percentage = synth_dcr_smaller_than_holdout_dcr_sum / number_of_rows * 100
     
     dcr_validation = {"percentage": round(percentage,4), "warnings": warnings}
-    _save_to_json("dcr_validation", dcr_validation, path_to_json)
+    if save_data:
+        _save_to_json("dcr_validation", dcr_validation, path_to_json)
     return dcr_validation

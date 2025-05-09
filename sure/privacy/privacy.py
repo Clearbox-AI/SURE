@@ -90,6 +90,7 @@ def membership_inference_test(
     synthetic_dataset:  pd.DataFrame | pl.DataFrame | pl.LazyFrame,
     adversary_guesses_ground_truth: np.ndarray | pd.DataFrame | pl.DataFrame | pl.LazyFrame | pl.Series,
     parallel: bool = True,
+    save_data = True,
     path_to_json: str = ""
 ):
     """
@@ -105,6 +106,8 @@ def membership_inference_test(
         Ground truth labels indicating whether a sample is from the original training dataset or not.
     parallel : bool, optional
         Whether to use parallel processing for distance calculations, by default True.
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report, by default True.
     path_to_json : str, optional
         Path to save the attack output as a JSON file. If empty, the output is not saved, by default "".
 
@@ -157,5 +160,6 @@ def membership_inference_test(
         "membership_inference_mean_risk_score": membership_inference_mean_risk_score,
     }
 
-    _save_to_json("MIA_attack", attack_output, path_to_json)
+    if save_data:
+        _save_to_json("MIA_attack", attack_output, path_to_json)
     return attack_output
