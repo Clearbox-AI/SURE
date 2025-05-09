@@ -232,6 +232,7 @@ def compute_utility_metrics_class(
     custom_metric: Callable       = None, 
     classifiers:   List[Callable] = "all",
     predictions:   bool = False,
+    save_data = True,
     path_to_json:  str = ""
 ): 
     """
@@ -257,6 +258,8 @@ def compute_utility_metrics_class(
         List of classifiers to use, or "all" for all available classifiers, by default "all".
     predictions : bool, optional
         If True, returns predictions along with model performance, by default False.
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report, by default True.
     path_to_json : str, optional
         Path to save the output JSON files, by default "".
 
@@ -297,10 +300,11 @@ def compute_utility_metrics_class(
     col_names_synth = [s + " Synth" for s in list(models_synth.columns)]
     models_synth.columns = col_names_synth
     
-    _save_to_json("models", models_train, path_to_json)
-    _save_to_json("models_synth", models_synth, path_to_json)
-    _save_to_json("models_delta", delta, path_to_json)
-    
+    if save_data:
+        _save_to_json("models", models_train, path_to_json)
+        _save_to_json("models_synth", models_synth, path_to_json)
+        _save_to_json("models_delta", delta, path_to_json)
+        
     # Transform the output DataFrames into the type used for the input DataFrames
     if was_pl:
          models_train = pl.from_pandas(models_train)
@@ -344,6 +348,7 @@ def compute_utility_metrics_regr(
     custom_metric: Callable       = None, 
     regressors:    List[Callable] = "all",
     predictions:   bool = False,
+    save_data = True,
     path_to_json:  str = ""
 ):
     """
@@ -369,6 +374,8 @@ def compute_utility_metrics_regr(
         List of regressors to use, or "all" for all available regressors, by default "all".
     predictions : bool, optional
         If True, returns predictions along with model performance, by default False.
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report, by default True.
     path_to_json : str, optional
         Path to save the output JSON files, by default "".
 
@@ -409,9 +416,10 @@ def compute_utility_metrics_regr(
     col_names_synth = [s + " Synth" for s in list(models_synth.columns)]
     models_synth.columns = col_names_synth
 
-    _save_to_json("models", models_train, path_to_json)
-    _save_to_json("models_synth", models_synth, path_to_json)
-    _save_to_json("models_delta", delta, path_to_json)
+    if save_data:
+        _save_to_json("models", models_train, path_to_json)
+        _save_to_json("models_synth", models_synth, path_to_json)
+        _save_to_json("models_delta", delta, path_to_json)
 
     pred_train = pd.concat([y_train.to_pandas(),pred_train], axis=1)
     pred_train.columns.values[0] = 'Ground truth'
@@ -493,6 +501,7 @@ def _most_frequent_values(data: pl.DataFrame,
 def compute_statistical_metrics(
     real_data:    pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
     synth_data:   pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
+    save_data = True,
     path_to_json: str = ""
 ) -> Tuple[Dict, Dict, Dict]:
     """
@@ -505,6 +514,8 @@ def compute_statistical_metrics(
         The real dataset containing numerical, categorical, and/or temporal features.
     synth_data : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
         The synthetic dataset containing numerical, categorical, and/or temporal features.
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report, by default True.
     path_to_json : str, optional
         The file path to save the comparison metrics in JSON format, by default "".
 
@@ -587,9 +598,10 @@ def compute_statistical_metrics(
         time_features_comparison["most_frequent"]       = { "real"      : _most_frequent_values(real_data, time_features),
                                                             "synthetic" : _most_frequent_values(synth_data, time_features)}
 
-    _save_to_json("num_features_comparison", num_features_comparison, path_to_json)
-    _save_to_json("cat_features_comparison", cat_features_comparison, path_to_json)
-    _save_to_json("time_features_comparison", time_features_comparison, path_to_json)
+    if save_data:
+        _save_to_json("num_features_comparison", num_features_comparison, path_to_json)
+        _save_to_json("cat_features_comparison", cat_features_comparison, path_to_json)
+        _save_to_json("time_features_comparison", time_features_comparison, path_to_json)
 
     return num_features_comparison, cat_features_comparison, time_features_comparison
 
@@ -597,6 +609,7 @@ def compute_mutual_info(
     real_data:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
     synth_data: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
     exclude_columns: List = [],
+    save_data = True,
     path_to_json: str = ""
 ) -> Tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     """
@@ -613,6 +626,8 @@ def compute_mutual_info(
     exclude_columns: List, option
         A list of columns to exclude from the computaion of mutual information,
         by default [].
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report, by default True.
     path_to_json : str, optional
         File path to save the correlation matrices and their differences in JSON format,
         by default "".
@@ -675,18 +690,20 @@ def compute_mutual_info(
 
     # Substitute elements with abs value lower than 1e-5 with 0
     diff_corr = diff_corr.with_columns([pl.when(abs(pl.col(col)) < 1e-5).then(0).otherwise(pl.col(col)).alias(col) for col in diff_corr.columns])
-
-    _save_to_json("real_corr", real_corr, path_to_json)
-    _save_to_json("synth_corr", synth_corr, path_to_json)
-    _save_to_json("diff_corr", diff_corr, path_to_json)
+ 
+    if save_data:
+        _save_to_json("real_corr", real_corr, path_to_json)
+        _save_to_json("synth_corr", synth_corr, path_to_json)
+        _save_to_json("diff_corr", diff_corr, path_to_json)
 
     return real_corr, synth_corr, diff_corr
 
-def detection_score(
+def detection(
         df_original:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray, 
         df_synthetic:  pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,  
         preprocessor: Preprocessor = None, 
         features_to_hide: List = [], 
+        save_data = True,
         path_to_json: str = ""
     ) -> Dict:
     """
@@ -696,8 +713,19 @@ def detection_score(
 
     Parameters
     ----------
+    df_original : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        The original dataset containing real data.
+    df_synthetic : Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]
+        The synthetic dataset to be evaluated.
+    preprocessor : Preprocessor, optional
+        A preprocessor object for transforming the datasets. If None, a new Preprocessor
+        instance will be created. Defaults to None.
     features_to_hide : list, optional
         List of features to exclude from importance analysis. Defaults to an empty list.
+    save_data : bool
+        If True, saves the DCR information into the JSON file used to generate the final report, by default True.
+    path_to_json : str, optional
+        Path to save the output JSON files, by default "".
 
     Returns
     -------
@@ -856,7 +884,8 @@ def detection_score(
         if feature not in features_to_hide:
             detection_score["feature_importances"][feature] = round(float(importance), 4)
             
-    _save_to_json("detection_score", detection_score, path_to_json)
+    if save_data:
+        _save_to_json("detection_score", detection_score, path_to_json)
 
     return detection_score
 
@@ -864,6 +893,7 @@ def query_power(
         df_original: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
         df_synthetic: pl.DataFrame | pl.LazyFrame | pd.DataFrame | np.ndarray,
         preprocessor: Preprocessor = None,
+        save_data = True,
         path_to_json: str = ""
         ) -> dict:
     """
@@ -873,7 +903,21 @@ def query_power(
     The similarity between the sizes of the filtered results is used to score
     the quality of the synthetic data.
 
+    Parameters:
+    -----------
+        df_original (Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]):
+            The original dataset containing real data.
+        df_synthetic (Union[pl.DataFrame, pl.LazyFrame, pd.DataFrame, np.ndarray]):
+            The synthetic dataset to be evaluated.
+        preprocessor (Preprocessor, optional):
+            A preprocessor object for transforming the datasets. If None, a new Preprocessor
+            instance will be created. Defaults to None.
+        save_data (bool):
+            If True, saves the DCR information into the JSON file used to generate the final report.
+        path_to_json (str, optional):
+            Path to save the output JSON files.
     Returns:
+    --------
         dict: A dictionary containing query texts, the number of matches for each
                 query in both datasets, and an overall score indicating the quality
                 of the synthetic data.
@@ -974,6 +1018,7 @@ def query_power(
     # Calculate the overall query power score
     query_power["score"] = round(float(sum(queries_score) / len(queries_score)), 4)
 
-    _save_to_json("query_power", query_power, path_to_json)
+    if save_data:
+        _save_to_json("query_power", query_power, path_to_json)
 
     return query_power

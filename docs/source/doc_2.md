@@ -23,23 +23,19 @@ Follow the step-by-step guide to test the library using the provided [instructio
 # Import the necessary modules from the SURE library
 from sure import Preprocessor, report
 from sure.utility import (compute_statistical_metrics, compute_mutual_info,
-			  compute_utility_metrics_class)
+			  compute_utility_metrics_class,
+			  detection,
+			  query_power)
 from sure.privacy import (distance_to_closest_record, dcr_stats, number_of_dcr_equal_to_zero, validation_dcr_test, 
 			  adversary_dataset, membership_inference_test)
 
 # Assuming real_data, valid_data and synth_data are three pandas DataFrames
 
-# Real dataset - Preprocessor initialization and query exacution
-preprocessor            = Preprocessor(real_data, get_discarded_info=False)
-real_data_preprocessed  = preprocessor.transform(real_data, num_fill_null='forward', scaling='standardize')
-
-# Validation dataset - Preprocessor initialization and query exacution
-preprocessor            = Preprocessor(valid_data, get_discarded_info=False)
-valid_data_preprocessed = preprocessor.transform(valid_data, num_fill_null='forward', scaling='standardize')
-
-# Synthetic dataset - Preprocessor initialization and query exacution
-preprocessor            = Preprocessor(synth_data, get_discarded_info=False)
-synth_data_preprocessed = preprocessor.transform(synth_data, num_fill_null='forward', scaling='standardize')
+# Preprocessor initialization and query execution on the real, synthetic and validation datasets
+preprocessor            = Preprocessor(real_data)
+real_data_preprocessed  = preprocessor.transform(real_data)
+valid_data_preprocessed = preprocessor.transform(valid_data)
+synth_data_preprocessed = preprocessor.transform(synth_data)
 
 # Statistical properties and mutual information
 num_features_stats, cat_features_stats, temporal_feat_stats = compute_statistical_metrics(real_data, synth_data)
@@ -62,6 +58,12 @@ dcr_stats_synth_valid = dcr_stats("synth_val", dcr_synth_valid)
 dcr_zero_synth_train  = number_of_dcr_equal_to_zero("synth_train", dcr_synth_train)
 dcr_zero_synth_valid  = number_of_dcr_equal_to_zero("synth_val", dcr_synth_valid)
 share                 = validation_dcr_test(dcr_synth_train, dcr_synth_valid)
+
+# Detection Score
+detection_score = detection(real_data_preprocessed, synth_data_preprocessed)
+
+# Query Power
+query_power_score = query_power(real_data, synth_data)
 
 # ML privacy attack sandbox initialization and simulation
 adversary_df = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)
