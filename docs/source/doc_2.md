@@ -60,10 +60,10 @@ dcr_zero_synth_valid  = number_of_dcr_equal_to_zero("synth_val", dcr_synth_valid
 share                 = validation_dcr_test(dcr_synth_train, dcr_synth_valid)
 
 # Detection Score
-detection_score = detection(real_data_preprocessed, synth_data_preprocessed)
+detection_score = detection(real_data, synth_data, preprocessor)
 
 # Query Power
-query_power_score = query_power(real_data, synth_data)
+query_power_score = query_power(real_data, synth_data, preprocessor)
 
 # ML privacy attack sandbox initialization and simulation
 adversary_df = adversary_dataset(real_data_preprocessed, valid_data_preprocessed)

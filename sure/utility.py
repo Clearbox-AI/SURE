@@ -766,7 +766,7 @@ def detection(
 
         detection_score["score"] = (1 - detection_score["ROC_AUC"]) * 2
 
-    - If ``ROC_AUC <= 0.5``, the synthetic data is considered indistinguishable (``score = 1``).
+    - If ``ROC_AUC <= 0.5``, the synthetic data is considered indistinguishable from the real dataset (``score = 1``).
     - A lower score means better synthetic data quality.
     - Feature importance analysis helps detect which synthetic features deviate most from real data.
 
