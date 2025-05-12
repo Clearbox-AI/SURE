@@ -136,7 +136,7 @@ def membership_inference_test(
                                                 adversary_dataset,
                                                 synthetic_dataset,
                                                 parallel=parallel,
-                                                save_output=False
+                                                save_data=False
                                             )
 
     adversary_precisions = []
