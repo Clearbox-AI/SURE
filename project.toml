@@ -1,0 +1,9 @@
+# pyproject.toml  (build-time deps only)
+[build-system]
+requires = [
+  "setuptools>=61",
+  "wheel",
+  "cython",
+  "numpy"
+]
+build-backend = "setuptools.build_meta"

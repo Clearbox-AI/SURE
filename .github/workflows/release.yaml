@@ -67,9 +67,9 @@ jobs:
         # Skip Alpine (musllinux) – drop if you want those too
         CIBW_SKIP: "*musllinux*"
         # Make sure build deps are present *before* compiling extensions
-        CIBW_BEFORE_BUILD: "pip install -U cython numpy"
-        # ─── KEY LINE: disable pip build-isolation ───
-        CIBW_ENVIRONMENT: "PIP_NO_BUILD_ISOLATION=1"
+        # CIBW_BEFORE_BUILD: "pip install -U cython numpy"
+        # # ─── KEY LINE: disable pip build-isolation ───
+        # CIBW_ENVIRONMENT: "PIP_NO_BUILD_ISOLATION=1"
 
     # ── Build source distribution once (Linux) ──
     - name: Build sdist
