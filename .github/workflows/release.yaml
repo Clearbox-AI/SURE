@@ -2,12 +2,12 @@ name: Build & Publish to PyPI
 
 on:
   push:
-    branches: [main]        # publish on every push to main
+    branches: [main]
   workflow_dispatch:
 
-######################################################################
-# 1 ─── Check whether the version in setup.py is already on PyPI ─── #
-######################################################################
+########################################################################
+# 1 ── Check whether this exact version is already on PyPI ────────────#
+########################################################################
 jobs:
   check_version:
     runs-on: ubuntu-latest
@@ -15,16 +15,12 @@ jobs:
       already_published: ${{ steps.check.outputs.already_published }}
 
     steps:
-    - name: Check out repo
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
       with:
         python-version: "3.11"
 
-    # ─── NEW: install the minimal deps that setup.py needs ───
-    - name: Install build-time dependencies
+    - name: Install build-time deps for setup.py
       run: |
         python -m pip install --upgrade pip
         pip install numpy cython
@@ -45,9 +41,9 @@ jobs:
           echo "already_published=false" >> "$GITHUB_OUTPUT"
         fi
 
-##############################################################
-# 2 ─── Build wheels (Linux, macOS, Windows) + one sdist ─── #
-##############################################################
+#######################################################################
+# 2 ── Build wheels (Linux, macOS, Windows) + one sdist  ──────────────#
+#######################################################################
   build:
     needs: check_version
     if: needs.check_version.outputs.already_published == 'false'
@@ -58,20 +54,24 @@ jobs:
         os: [ubuntu-latest, macos-14, windows-latest]
 
     steps:
-    - name: Check out repo
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    # ───── Build binary wheels ─────
-    - name: Build wheels with cibuildwheel
+    # ── Build binary wheels with cibuildwheel ──
+    - name: Build wheels
       uses: pypa/cibuildwheel@v2.18
       with:
         package-dir: .
       env:
+        # Which Python versions to build for
         CIBW_BUILD: "cp310-* cp311-* cp312-*"
-        CIBW_SKIP: "*musllinux*"          # drop this line if you need Alpine
+        # Skip Alpine (musllinux) – drop if you want those too
+        CIBW_SKIP: "*musllinux*"
+        # Make sure build deps are present *before* compiling extensions
         CIBW_BEFORE_BUILD: "pip install -U cython numpy"
+        # ─── KEY LINE: disable pip build-isolation ───
+        CIBW_ENVIRONMENT: "PIP_NO_BUILD_ISOLATION=1"
 
-    # ───── Build source distribution once (Linux only) ─────
+    # ── Build source distribution once (Linux) ──
     - name: Build sdist
       if: runner.os == 'Linux'
       run: |
@@ -84,9 +84,9 @@ jobs:
         name: dist-${{ matrix.os }}
         path: wheelhouse/*
 
-##########################################
-# 3 ─── Publish everything to PyPI ─── #
-##########################################
+##################################################
+# 3 ── Publish everything to PyPI in one go ─────#
+##################################################
   publish:
     needs: [check_version, build]
     if: needs.check_version.outputs.already_published == 'false'
@@ -96,8 +96,8 @@ jobs:
     - name: Download artefacts
       uses: actions/download-artifact@v4
       with:
-        pattern: dist-*        # grabs every OS bucket
-        path: dist             # merges them into ./dist
+        pattern: dist-*
+        path: dist
 
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@v1
