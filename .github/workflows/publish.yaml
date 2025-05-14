@@ -64,8 +64,8 @@ jobs:
           -v ${{ github.workspace }}:/io \
           my-python-wheels /build_wheel.sh
 
-    - name: Build source distribution
-      run: python setup.py sdist
+    # - name: Build source distribution
+    #   run: python setup.py sdist
 
     - name: Check if version exists on PyPI
       id: check-version
@@ -92,6 +92,6 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
-        packages-dir: dist/
+        # packages-dir: dist/
 
 
