@@ -1,0 +1,101 @@
+name: Build & Publish to PyPI
+
+on:
+  push:
+    branches: [main]        # publish on every push to main
+  workflow_dispatch:
+
+######################################################################
+# 1 ─── Check whether the version in setup.py is already on PyPI ─── #
+######################################################################
+jobs:
+  check_version:
+    runs-on: ubuntu-latest
+    outputs:
+      already_published: ${{ steps.check.outputs.already_published }}
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python (any interpreter)
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Check if version exists on PyPI
+      id: check
+      run: |
+        PACKAGE_NAME=$(python setup.py --name)
+        PACKAGE_VERSION=$(python setup.py --version)
+        echo "Package: ${PACKAGE_NAME}"
+        echo "Version: ${PACKAGE_VERSION}"
+
+        if curl --silent -f "https://pypi.org/project/${PACKAGE_NAME}/${PACKAGE_VERSION}/"; then
+          echo "Version already on PyPI – skipping build."
+          echo "already_published=true"  >> "$GITHUB_OUTPUT"
+        else
+          echo "Version not on PyPI – continue with build."
+          echo "already_published=false" >> "$GITHUB_OUTPUT"
+        fi
+
+##############################################################
+# 2 ─── Build wheels (Linux, macOS, Windows) + one sdist ─── #
+##############################################################
+  build:
+    needs: check_version
+    if: needs.check_version.outputs.already_published == 'false'
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v4
+
+    # ───── Build binary wheels ─────
+    - name: Build wheels with cibuildwheel
+      uses: pypa/cibuildwheel@v2.18
+      with:
+        package-dir: .
+      env:
+        CIBW_BUILD: "cp310-* cp311-* cp312-*"
+        CIBW_SKIP: "*musllinux*"          # drop this line if you need Alpine
+        CIBW_BEFORE_BUILD: "pip install -U cython numpy"
+
+    # ───── Build source distribution once (Linux only) ─────
+    - name: Build sdist
+      if: runner.os == 'Linux'
+      run: |
+        python -m pip install --upgrade pip setuptools wheel cython numpy
+        python setup.py sdist --dist-dir wheelhouse
+
+    - name: Upload artefacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-${{ matrix.os }}
+        path: wheelhouse/*
+
+##########################################
+# 3 ─── Publish everything to PyPI ─── #
+##########################################
+  publish:
+    needs: [check_version, build]
+    if: needs.check_version.outputs.already_published == 'false'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artefacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: dist-*        # grabs every OS bucket
+        path: dist             # merges them into ./dist
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_TOKEN }}
+        packages-dir: dist
