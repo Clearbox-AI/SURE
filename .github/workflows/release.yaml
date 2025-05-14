@@ -18,10 +18,16 @@ jobs:
     - name: Check out repo
       uses: actions/checkout@v4
 
-    - name: Set up Python (any interpreter)
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
+
+    # ─── NEW: install the minimal deps that setup.py needs ───
+    - name: Install build-time dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install numpy cython
 
     - name: Check if version exists on PyPI
       id: check
