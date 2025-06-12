@@ -812,14 +812,16 @@ def detection(
     # Preprocess and label the original data
     preprocessed_df_original = preprocessor.transform(df_original)
     df_original              = preprocessor.inverse_transform(preprocessed_df_original)
+    df_original              = _to_polars_df(df_original)
     df_original              = df_original.with_columns([
         pl.Series("label", np.zeros(len(df_original)).astype(int)),
     ])
 
     # Preprocess and label the synthetic data
     preprocessed_df_synthetic = preprocessor.transform(df_synthetic)
-    df_synthetic = preprocessor.inverse_transform(preprocessed_df_synthetic)
-    df_synthetic = df_synthetic.with_columns([
+    df_synthetic              = preprocessor.inverse_transform(preprocessed_df_synthetic)
+    df_synthetic              = _to_polars_df(df_synthetic)
+    df_synthetic              = df_synthetic.with_columns([
         pl.Series("label", np.ones(len(df_synthetic)).astype(int)),
     ])
 
@@ -946,10 +948,12 @@ def query_power(
     df_original = df_original.sample(len(df_synthetic)).clone()
     df_original_preprocessed = preprocessor.transform(df_original)
     df_original = preprocessor.inverse_transform(df_original_preprocessed)
+    df_original = _to_polars_df(df_original)
 
     df_synthetic_preprocessed = preprocessor.transform(df_synthetic)
     df_synthetic = preprocessor.inverse_transform(df_synthetic_preprocessed)
-
+    df_synthetic = _to_polars_df(df_synthetic)
+    
     # Extract feature types
     numerical_features = preprocessor.numerical_features
     categorical_features = preprocessor.categorical_features
