@@ -127,7 +127,7 @@ query_power_score = query_power(real_data, synth_data, preprocessor)
 adversary_df = adversary_dataset(real_data, valid_data)
 # The function adversary_dataset adds a column "privacy_test_is_training" to the adversary dataset, indicating whether the record was part of the training set or not
 adversary_guesses_ground_truth = adversary_df["privacy_test_is_training"] 
-MIA = membership_inference_test(adversary_dfv, synth_data, adversary_guesses_ground_truth)
+MIA = membership_inference_test(adversary_df, synth_data, adversary_guesses_ground_truth)
 
 # Report generation as HTML page
 report(real_data, synth_data)
